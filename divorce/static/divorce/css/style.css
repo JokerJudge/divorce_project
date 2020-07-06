@@ -1,0 +1,46 @@
+.header {
+    background-color: #2A2B2D;
+}
+
+
+.step2-card:hover {
+    background-color: #9F9F9F;
+}
+
+.yes:hover {
+    background-color: #E8FFCB;
+}
+
+.image-plant {
+    /*background-image: url("images/plant.jpg");*/
+    background-size: cover;
+}
+
+.image-account {
+    /*background-image: url("images/snow.jpg");*/
+}
+
+.b-width {
+    border-width: 2px !important;;
+}
+
+.image-main {
+    background: linear-gradient(#EAF5FF, #8ca5be)
+}
+
+.grad-contacts {
+    background: linear-gradient(#EAF5FF, #8ca5be)
+}
+
+.b-opacity {
+    background-color: rgba(181, 186, 190, 0.1)
+}
+
+/*
+background-color: #E9E8E6;
+
+#DDEFFF;
+#EAF5FF;
+#6b86a0
+
+ */
