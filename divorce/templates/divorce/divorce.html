@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'divorce/css/style.css' %}">
     <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -94,11 +94,36 @@
                             <button type="button" class="btn btn-outline-primary btn-sm m-1">Добавить</button>
                             <br/>
                             <br/>
-                            <hr/>
-                            <ul class="text-left">
-                                <li><small>Коваленко Евгений (28 л)</small></li>
-                                <li><small>Дуркина Мария (29 л)</small></li>
-                                <li><small>Грудин Федор (29 л)</small></li>
+                            <form action="{% url 'add_person' %}" method="post" autocomplete="off">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="name">
+                                    <div class="input-group-append text-info">
+                                        <span class="input-group-text bg-white py-0">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                +
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                            <br/>
+
+                            <ul class="list-group text-left">
+                                {% for fiz_l in fiz_l_list %}
+                                <li class="list-group-item">{{ fiz_l.name }}
+                                    <form action="{% url 'delete_person' fiz_l.id %}" method="post" class="float-right d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                                    </form>
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item">
+                                    <span class="font-italic">Добавьте физические лицо</span>
+                                </li>
+                                {% endfor %}
                             </ul>
 
                         </div>
