@@ -13,6 +13,9 @@ class DivorceView(View):
         context = {'fiz_l_list': Fiz_l.objects.all()}
         return render(request, 'divorce/divorce.html', context)
 
+def fiz_l_form_add(request):
+    return render(request, 'divorce/form_fiz_l.html')
+
 def add_person(request:HttpRequest):
     # прочитать из input
     # content = request.POST['name']
