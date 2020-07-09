@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'divorceDB',
         'USER': 'postgres',
-        'PASSWORD': '****',
+        'PASSWORD': 'mainmain',
         'HOST': 'localhost'
     }
 }
