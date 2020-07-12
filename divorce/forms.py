@@ -1,5 +1,6 @@
 from django import forms
-from .models import Fiz_l
+from django.forms import ModelMultipleChoiceField
+from .models import Fiz_l, Marriage
 
 class Fiz_l_form(forms.ModelForm):
     class Meta:
@@ -17,3 +18,13 @@ class Fiz_l_form(forms.ModelForm):
         self.fields['sex'].empty_label = 'Укажите пол' # почему-то не работает
         # убрать обязательность поля
         #self.fields['sex'].required = False
+
+class Marriage_form(forms.ModelForm):
+    class Meta:
+        model = Marriage
+        # можно fields = '__all__'
+        fields = ('date_of_marriage_registration', 'parties')
+        labels = {
+            'date_of_marriage_registration': 'Дата регистрации брака',
+            'parties': 'Стороны'
+        }
