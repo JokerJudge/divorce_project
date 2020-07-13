@@ -3,6 +3,7 @@ from django.views.generic import View
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage
 from .forms import Fiz_l_form, Marriage_form
+from divorce.law.marriage import law
 
 # Create your views here.
 # Представление для основной страницы
@@ -51,12 +52,27 @@ class MarriageFormView(View):
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
-             form = Marriage_form(request.POST)
+             form = Marriage_form(request.POST) # заполняем форму из словаря POST
         else:
             marriage = Marriage.objects.get(pk=id)  # получаем по id нужный объект
             form = Marriage_form(request.POST, instance=marriage)  # marriage будет изменен новой формой request.POST
         if form.is_valid():
-            form.save()
+            print('+++++++++++cleaned_data+++++++++++++++++++')
+            print(form.cleaned_data)
+            # данные перед сохранением, но до обработки бизнес-логикой
+            date_of_marriage = form.cleaned_data['date_of_marriage_registration']
+            parties = list(form.cleaned_data['parties'])
+            person_1 = parties[0]
+            person_2 = parties[1]
+            print(date_of_marriage)
+            print(person_1)
+            print(person_2)
+            resolution, law_link = law(person_1, person_2, date_of_marriage)
+            if resolution is True:
+                print(f'пройдена проверка - {law_link}')
+                form.save()
+            else:
+                print(f'проверка не пройдена - {law_link}')
             return redirect('/divorce')
 
 def del_marriage(request, marriage_id):
