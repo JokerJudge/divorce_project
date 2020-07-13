@@ -20,6 +20,7 @@ class Fiz_l_form(forms.ModelForm):
         #self.fields['sex'].required = False
 
 class Marriage_form(forms.ModelForm):
+
     class Meta:
         model = Marriage
         # можно fields = '__all__'
@@ -28,3 +29,8 @@ class Marriage_form(forms.ModelForm):
             'date_of_marriage_registration': 'Дата регистрации брака',
             'parties': 'Стороны'
         }
+        widgets = {
+            'date_of_marriage_registration': forms.DateInput(),
+            'parties': forms.CheckboxSelectMultiple(),
+        }
+

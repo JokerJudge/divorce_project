@@ -52,9 +52,6 @@ class MarriageFormView(View):
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
              form = Marriage_form(request.POST)
-             print()
-             print('Я здесь!!!!!!!!!!!!!!!!!!')
-             print()
         else:
             marriage = Marriage.objects.get(pk=id)  # получаем по id нужный объект
             form = Marriage_form(request.POST, instance=marriage)  # marriage будет изменен новой формой request.POST
