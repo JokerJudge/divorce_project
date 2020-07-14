@@ -16,6 +16,7 @@ def law(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetim
     False - ошибки, которые должны быть показаны пользователю
     '''
     # список необходимых в соответствии с законом проверок
+    # TODO - добавить в list_of_rules another_marriage_verification
     list_of_rules = [sex_verification(person_1, person_2),
                      age_verification(person_1, person_2, date_of_marriage_registration)]
     # список пройденных проверок в виде списка объектов класса Link (law/law.py)
@@ -72,3 +73,14 @@ def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registra
             link.errors.append(f'{i} не достиг(ла) брачного возраста ({marriage_age} лет) на момент вступления в брак {date_of_marriage_registration}')
             return False, link
     return True, link
+
+def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetime.date):
+    '''
+    Проверка на наличие другого нерасторгнутого брака
+    #TODO - сделать можно будет после описания процедуры расторжения брака
+    :param person_1: лицо № 1
+    :param person_2: лицо № 2
+    :param date_of_marriage_registration: дата заключения брака
+    :return:
+    '''
+    pass
