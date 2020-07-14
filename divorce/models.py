@@ -25,28 +25,3 @@ class Marriage(models.Model):
             return f'Брак между {list_to_display[0]} и {list_to_display[1]}.'
         else:
             return f'Брак указан некорректно'
-        # for i in list_to_display:
-        #     names.append(i['name'])
-        # return f'{names[0]} и {names[1]}'
-        # if len(list_to_display) == 2:
-        #     if self.date_of_marriage_divorce is not None:
-        #         return f'{list(self.parties.all())} - Дата регистрации: {self.date_of_marriage_registration}, Дата развода: {self.date_of_marriage_divorce}'  ''
-        #     else:
-        #         return f'{list(self.parties.all())} - Дата регистрации: {self.date_of_marriage_registration}'
-        # else:
-        #     return 'Брак указан некорректно'
-
-
-
-
-
-# при модели Many_to_Many
-# return f'Брак между {self.parties.values().get(id=20)["name"]}' - первый вариант
-# второй вариант
-#    def __str__(self):
-#        list_to_display = list(self.parties.values()) # QuerySet в list
-#        names = []
-#        for i in list_to_display:
-#            names.append(i['name']) # выводим имена
-#        return f'Брак между {names[0]} и '
-
