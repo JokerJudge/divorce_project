@@ -67,12 +67,15 @@ class MarriageFormView(View):
             print(date_of_marriage)
             print(person_1)
             print(person_2)
-            resolution, law_link = law(person_1, person_2, date_of_marriage)
+            resolution, link_list = law(person_1, person_2, date_of_marriage)
             if resolution is True:
-                print(f'пройдена проверка - {law_link}')
+                links = []
+                for i in link_list:
+                    links.append(i.law_link)
+                print(f'проверки пройдены - {links}')
                 form.save()
             else:
-                print(f'проверка не пройдена - {law_link}')
+                print(f'проверка не пройдена - {link_list[-1].errors}, Ссылка на норму: {link_list[-1].law_link}; Текст нормы: {link_list[-1].law_text}')
             return redirect('/divorce')
 
 def del_marriage(request, marriage_id):
