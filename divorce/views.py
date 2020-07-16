@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage
-from .forms import Fiz_l_form, Marriage_form
+from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce
 from divorce.law.marriage import law
 
 # Create your views here.
@@ -52,7 +52,7 @@ class MarriageFormView(View):
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
-             form = Marriage_form(request.POST) # заполняем форму из словаря POST
+            form = Marriage_form(request.POST) # заполняем форму из словаря POST
         else:
             marriage = Marriage.objects.get(pk=id)  # получаем по id нужный объект
             form = Marriage_form(request.POST, instance=marriage)  # marriage будет изменен новой формой request.POST
@@ -77,6 +77,25 @@ class MarriageFormView(View):
             else:
                 print(f'проверка не пройдена - {link_list[-1].errors}, Ссылка на норму: {link_list[-1].law_link}; Текст нормы: {link_list[-1].law_text}')
             return redirect('/divorce')
+
+class MarriageFormDivorceView(View):
+    def get(self, request, id):
+        marriage = Marriage.objects.get(pk=id)
+        form = Marriage_form_divorce() # показываем пустую форму
+        return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage})
+    def post(self, request, id):
+        marriage = Marriage.objects.get(pk=id)
+        form = Marriage_form_divorce(request.POST, instance=marriage) # marriage будет изменен новой формой request.POST
+        if form.is_valid():
+            print('+++++++++++cleaned_data+++++++++++++++++++')
+            print(form.cleaned_data)
+            # данные перед сохранением, но до обработки бизнес-логикой
+            date_of_divorce = form.cleaned_data['date_of_marriage_divorce']
+            print(marriage)
+            print(date_of_divorce)
+            form.save()
+        return redirect('/divorce')
+
 
 def del_marriage(request, marriage_id):
     marriage_to_delete = Marriage.objects.get(id=marriage_id)

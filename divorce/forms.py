@@ -34,3 +34,13 @@ class Marriage_form(forms.ModelForm):
             'parties': forms.CheckboxSelectMultiple(),
         }
 
+class Marriage_form_divorce(forms.ModelForm):
+    class Meta:
+        model = Marriage
+        fields = ('date_of_marriage_divorce', )
+        labels = {
+            'date_of_marriage_divorce': 'Дата регистрации развода'
+        }
+        widgets = {
+            'date_of_marriage_divorce': forms.DateInput(),
+        }

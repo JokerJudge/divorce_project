@@ -8,6 +8,7 @@ urlpatterns = [
     path('form_marriage/', MarriageFormView.as_view(), name='form_add_marriage'),
     path('del_marriage/<int:marriage_id>/', del_marriage, name='delete_marriage'),
     path('form_marriage/<int:id>/', MarriageFormView.as_view(), name='marriage_update'),
+    path('form_marriage_divorce/<int:id>/', MarriageFormDivorceView.as_view(), name='marriage_divorce'),
 ]
 
 #path('add_person/', add_person, name='add_person'),
