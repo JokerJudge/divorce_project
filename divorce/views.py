@@ -65,14 +65,15 @@ class MarriageFormView(View):
             print('+++++++++++cleaned_data+++++++++++++++++++')
             print(form.cleaned_data)
             # данные перед сохранением, но до обработки бизнес-логикой
-            date_of_marriage = form.cleaned_data['date_of_marriage_registration']
+            date_of_marriage_registration = form.cleaned_data['date_of_marriage_registration']
             parties = list(form.cleaned_data['parties'])
             person_1 = parties[0]
             person_2 = parties[1]
-            print(date_of_marriage)
+            print(date_of_marriage_registration)
             print(person_1)
             print(person_2)
-            resolution, link_list = law(person_1, person_2, date_of_marriage)
+            # if marriage == None надо убрать проверку на самого себя при проверке на другие браки при корректировке брака
+            resolution, link_list = law(person_1, person_2, date_of_marriage_registration, marriage)
             if resolution is True:
                 links = []
                 for i in link_list:

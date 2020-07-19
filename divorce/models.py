@@ -22,6 +22,6 @@ class Marriage(models.Model):
     def __str__(self):
         list_to_display = list(self.parties.all())
         if len(list_to_display) == 2:
-            return f'Брак между {list_to_display[0]} и {list_to_display[1]}.'
+            return f'Брак между {list_to_display[0]} и {list_to_display[1]}'
         else:
             return f'Брак указан некорректно'

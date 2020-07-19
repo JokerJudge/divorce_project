@@ -6,7 +6,10 @@ from .law import *
 на соответствие брака необходимым требованиям
 '''
 
-def law(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetime.date):
+def law(person_1: Fiz_l,
+        person_2: Fiz_l,
+        date_of_marriage_registration: datetime.date,
+        marriage: Marriage):
     '''
     Общая функция, куда подаются сведения из cleaned_data, введенных пользователем при добавлении брака
     :param person_1: выбранное пользователем лицо № 1
@@ -18,7 +21,8 @@ def law(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetim
     # список необходимых в соответствии с законом проверок
     # TODO - добавить в list_of_rules another_marriage_verification
     list_of_rules = [sex_verification(person_1, person_2),
-                     age_verification(person_1, person_2, date_of_marriage_registration)]
+                     age_verification(person_1, person_2, date_of_marriage_registration),
+                     another_marriage_verification(person_1, person_2, date_of_marriage_registration, marriage)]
     # список пройденных проверок в виде списка объектов класса Link (law/law.py)
     list_of_links = []
     # последовательно проходим список проверок и на каждой итерации проверяем, всё ли ок.
@@ -74,13 +78,40 @@ def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registra
             return False, link
     return True, link
 
-def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetime.date):
+def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetime.date, marriage: Marriage):
     '''
     Проверка на наличие другого нерасторгнутого брака
-    #TODO - сделать можно будет после описания процедуры расторжения брака
     :param person_1: лицо № 1
     :param person_2: лицо № 2
     :param date_of_marriage_registration: дата заключения брака
-    :return:
+    :return: True, если у обоих лиц отсутствует нерасторгнутый брак на дату регистрации нового брака
+    False, если у кого-нибудь из лиц есть нерасторгнутый брак
     '''
-    pass
+    law_link = 'ч.2 ст. 12 Семейного кодекса РФ, абзац 2 ч.1 ст. 14 Семейного кодекса РФ'
+    law_text = '''Не допускается заключение брака между лицами, из которых хотя бы одно лицо уже состоит в другом зарегистрированном браке'''
+    link = Link(law_link, law_text)
+    for i in [person_1, person_2]:
+        if i.marriages.all():
+            list_of_marriages = list(i.marriages.all())
+            for j in list_of_marriages:
+                # если это тот же брак (при корректировке текущего брака)
+                if marriage:
+                    if j.id == marriage.id:
+                        continue
+                # если другой брак был расторгнут
+                if j.date_of_marriage_divorce:
+                    if j.date_of_marriage_divorce < date_of_marriage_registration:
+                        continue
+                    # вариант, когда новый брак попадает в период действия другого брака
+                    elif j.date_of_marriage_registration <= date_of_marriage_registration:
+                        link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Измените дату заключения нового брака, либо отредактируйте прежний брак.')
+                        return False, link
+                    else:
+                        link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Мы не можем добавить брак до момента регистрации другого брака. Сначала удалите {j} и заполняйте сведения начиная с самого раннего брака {i}')
+                        return False, link
+                # если другой брак не расторгнут
+                else:
+                    link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Мы не можем добавить второй брак, пока первый не расторгнут. Расторгните {j} и попробуйте заново')
+                    return False, link
+            return True, link
+    return True, link
