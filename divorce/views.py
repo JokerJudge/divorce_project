@@ -104,6 +104,12 @@ class MarriageFormDivorceView(View):
             print(form.cleaned_data)
             # данные перед сохранением, но до обработки бизнес-логикой
             date_of_divorce = form.cleaned_data['date_of_marriage_divorce']
+            date_of_marriage_registration = marriage.date_of_marriage_registration
+            if date_of_divorce <= date_of_marriage_registration:
+                errors = {
+                    'Дата развода не может быть ранее даты заключения брака': f'{date_of_marriage_registration}'
+                }
+                return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage, 'errors': errors})
             print(marriage)
             print(date_of_divorce)
             form.save()

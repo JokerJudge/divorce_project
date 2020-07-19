@@ -38,11 +38,27 @@ class Marriage_form(forms.ModelForm):
         }
 
     def clean_parties(self):
+        '''
+        Проверка на то, что пользователь выбрал именно 2 физ.лица для заключения брака
+        :return: отвалидированное значение parties
+        '''
         parties = self.cleaned_data['parties']
         if len(list(parties)) != 2:
             raise ValidationError('Нужно выбрать 2 лица')
         else:
             return parties
+
+    def clean_date_of_marriage_divorce(self):
+        date_of_marriage_divorce = self.cleaned_data['date_of_marriage_divorce']
+        # если есть запись о date_of_marriage_divorce
+        if date_of_marriage_divorce is not None:
+            date_of_marriage_registration = self.cleaned_data['date_of_marriage_registration']
+            if date_of_marriage_divorce <= date_of_marriage_registration:
+                raise ValidationError('Брак не может быть расторгнут ранее его заключения')
+            else:
+                return date_of_marriage_divorce
+        return date_of_marriage_divorce
+
 
 class Marriage_form_divorce(forms.ModelForm):
     class Meta:
