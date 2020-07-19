@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError #№7 25:25
 from django.forms import ModelMultipleChoiceField
 from .models import Fiz_l, Marriage
 
@@ -33,6 +34,12 @@ class Marriage_form(forms.ModelForm):
             'date_of_marriage_registration': forms.DateInput(),
             'parties': forms.CheckboxSelectMultiple(),
         }
+'''
+    def clean_parties(self):
+        parties = self.cleaned_data['parties']
+        if len(list(parties)) != 2:
+            raise ValidationError('Нужно выбрать 2 лица')
+'''
 
 class Marriage_form_divorce(forms.ModelForm):
     class Meta:

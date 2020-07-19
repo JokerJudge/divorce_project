@@ -77,9 +77,14 @@ class MarriageFormView(View):
                     links.append(i.law_link)
                 print(f'проверки пройдены - {links}')
                 form.save()
+                return redirect('/divorce')
             else:
-                print(f'проверка не пройдена - {link_list[-1].errors}, Ссылка на норму: {link_list[-1].law_link}; Текст нормы: {link_list[-1].law_text}')
-            return redirect('/divorce')
+                errors = {
+                    'Вид ошибки': link_list[-1].errors[0],
+                    'Ссылка на норму': link_list[-1].law_link,
+                    'Текст нормы': link_list[-1].law_text
+                }
+            return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors})
 
 class MarriageFormDivorceView(View):
     def get(self, request, id):
