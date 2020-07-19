@@ -51,14 +51,16 @@ class MarriageFormView(View):
         else:  # update operation
             marriage = Marriage.objects.get(pk=id)
             form = Marriage_form(instance=marriage)  # заполненная имеющимися данными форма
-            return render(request, 'divorce/form_marriage.html', {'form': form})
+            return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
             form = Marriage_form(request.POST) # заполняем форму из словаря POST
+            marriage = None
         else:
             marriage = Marriage.objects.get(pk=id)  # получаем по id нужный объект
             form = Marriage_form(request.POST, instance=marriage)  # marriage будет изменен новой формой request.POST
+
         if form.is_valid():
             print('+++++++++++cleaned_data+++++++++++++++++++')
             print(form.cleaned_data)
@@ -76,7 +78,7 @@ class MarriageFormView(View):
                 for i in link_list:
                     links.append(i.law_link)
                 print(f'проверки пройдены - {links}')
-                #form.save()
+                form.save()
                 return redirect('/divorce')
             else:
                 errors = {
@@ -84,9 +86,10 @@ class MarriageFormView(View):
                     'Ссылка на норму': link_list[-1].law_link,
                     'Текст нормы': link_list[-1].law_text
                 }
-            return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors})
+            return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})
+        # если есть проблемы с формой - ValueError из forms.py
         else:
-            return render(request, 'divorce/form_marriage.html', {'form': form})
+            return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
 
 class MarriageFormDivorceView(View):
     def get(self, request, id):

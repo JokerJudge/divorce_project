@@ -25,14 +25,16 @@ class Marriage_form(forms.ModelForm):
     class Meta:
         model = Marriage
         # можно fields = '__all__'
-        fields = ('date_of_marriage_registration', 'parties')
+        fields = ('date_of_marriage_registration', 'parties', 'date_of_marriage_divorce',)
         labels = {
             'date_of_marriage_registration': 'Дата регистрации брака',
-            'parties': 'Стороны'
+            'parties': 'Стороны',
+            'date_of_marriage_divorce': 'Дата расторжения брака'
         }
         widgets = {
             'date_of_marriage_registration': forms.DateInput(),
             'parties': forms.CheckboxSelectMultiple(),
+            'date_of_marriage_divorce': forms.DateInput(),
         }
 
     def clean_parties(self):

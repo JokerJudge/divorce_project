@@ -28,8 +28,11 @@
                 <h4>Добавление/редактирование брака</h4>
                 {{ form.date_of_marriage_registration|as_crispy_field }}
                 {{ form.parties|as_crispy_field }}
+                {% if marriage.date_of_marriage_divorce %}
+                    {{ form.date_of_marriage_divorce|as_crispy_field }}
+                {% endif %}
 
-                <button type="submit" class="btn btn-primary"><i class="far fa-save"></i>   Добавить</button>
+                <button type="submit" class="btn btn-primary"><i class="far fa-save"></i>   Сохранить</button>
                 <a href="{% url 'main' %}" class="btn btn-secondary"><i class="fas fa-undo-alt"></i>   Вернуться</a>
 
 
