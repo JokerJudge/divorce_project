@@ -9,6 +9,7 @@
         <div class="row justify-content-md-center">
             <div class="col-md-6">
                 <br/>
+                <!--Ошибки после проверок с законами -->
                 {% if errors %}
                     <div class="alert alert-danger" role="alert">
                     {% for k, v in errors.items %}
@@ -17,6 +18,13 @@
                     </div>
                     <br/>
                 {% endif %}
+                <!--Ошибки после проверок на корректность ввода (выводит штатными средствами ValidationError)
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                    <p>{{ form.errors }}</p>
+                    </div>
+                {% endif %} -->
+
                 <h4>Добавление/редактирование брака</h4>
                 {{ form.date_of_marriage_registration|as_crispy_field }}
                 {{ form.parties|as_crispy_field }}
