@@ -37,6 +37,9 @@ class FizLFormView(View):
 # Контроллер для удаления физ.лица
 def del_person(request, person_id):
     person_to_delete = Fiz_l.objects.get(id=person_id)
+    # проверка на наличие браков и их удаление
+    for i in list(person_to_delete.marriages.all()): #Fiz_l.marriages.all() - все браки Fiz_l
+        i.delete()
     person_to_delete.delete()
     return redirect('/divorce')
 
