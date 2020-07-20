@@ -90,28 +90,68 @@ def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marr
     law_link = 'ч.2 ст. 12 Семейного кодекса РФ, абзац 2 ч.1 ст. 14 Семейного кодекса РФ'
     law_text = '''Не допускается заключение брака между лицами, из которых хотя бы одно лицо уже состоит в другом зарегистрированном браке'''
     link = Link(law_link, law_text)
+
     for i in [person_1, person_2]:
         if i.marriages.all():
             list_of_marriages = list(i.marriages.all())
             for j in list_of_marriages:
-                # если это тот же брак (при корректировке текущего брака)
+                # если в БД, то marriage = True, если это новый брак, то marriage = None
+                # рассматриваем варианты, если проверке подлежит уже имеющийся в БД брак
                 if marriage:
+                    # если это тот же брак (при корректировке текущего брака)
                     if j.id == marriage.id:
                         continue
-                # если другой брак был расторгнут
-                if j.date_of_marriage_divorce:
-                    if j.date_of_marriage_divorce < date_of_marriage_registration:
-                        continue
-                    # вариант, когда новый брак попадает в период действия другого брака
-                    elif j.date_of_marriage_registration <= date_of_marriage_registration:
-                        link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Измените дату заключения нового брака, либо отредактируйте прежний брак.')
-                        return False, link
+                    # рассматриваем варианты, когда меняется имеющийся в БД брак, который был расторгнут
+                    # сравниваемый брак также расторгнут
+                    if marriage.date_of_marriage_divorce and j.date_of_marriage_divorce:
+                        #сравниваемый брак был расторгнут ранее даты регистрации изменяемого
+                        if j.date_of_marriage_divorce < marriage.date_of_marriage_registration:
+                            continue
+                        #сравниваемый брак был заключен позже расторжения изменяемого брака
+                        elif marriage.date_of_marriage_divorce < j.date_of_marriage_registration:
+                            continue
+                        else:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо текущего брака.')
+                            return False, link
+                    #рассматриваем варианты, когда меняется имеющийся в БД брак, который был расторгнут
+                    # сравниваемый брак не был расторгнут
+                    elif marriage.date_of_marriage_divorce:
+                        #сравниваемый брак был расторгунт до регистрации следующего
+                        if marriage.date_of_marriage_divorce < j.date_of_marriage_registration:
+                            continue
+                        elif j.date_of_marriage_registration < marriage.date_of_marriage_registration:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Брак, начавшийся ранее не был расторгнут.')
+                            return False, link
+                        else:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо текущего брака.')
+                            return False, link
+                    # рассматриваем варианты, когда меняется имеющийся в БД брак, который не был расторгнут
                     else:
-                        link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Мы не можем добавить брак до момента регистрации другого брака. Сначала удалите {j} и заполняйте сведения начиная с самого раннего брака {i}')
-                        return False, link
-                # если другой брак не расторгнут
+                        # если сравниваемый брак был расторгнут
+                        if j.date_of_marriage_divorce:
+                            if j.date_of_marriage_divorce < marriage.date_of_marriage_registration:
+                                continue
+                            else:
+                                link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо текущего брака.')
+                                return False, link
+                        #если сравниваемый брак и меняющийся брак не были расторгнуты
+                        else:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо текущего брака.')
+                            return False, link
+                #рассматриваем варианты, когда проверяется новый брак
                 else:
-                    link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Мы не можем добавить второй брак, пока первый не расторгнут. Расторгните {j} и попробуйте заново')
-                    return False, link
-            return True, link
+                    # если сравниваемый брак был расторгнут
+                    if j.date_of_marriage_divorce:
+                        if j.date_of_marriage_divorce < date_of_marriage_registration:
+                            continue
+                        elif date_of_marriage_registration < j.date_of_marriage_registration:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Мы не можем добавить брак до момента регистрации другого брака. Сначала удалите {j} и заполняйте сведения начиная с самого раннего брака {i}')
+                            return False, link
+                        else:
+                            link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо нового брака.')
+                            return False, link
+                    # если сравниваемый брак и меняющийся брак не были расторгнуты
+                    else:
+                        link.errors.append(f'{i} состоит в другом зарегистрированном браке ({j}). Периоды браков пересекаются. Измените даты прежнего, либо нового брака.')
+                        return False, link
     return True, link
