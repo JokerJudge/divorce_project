@@ -35,7 +35,7 @@
                             </button>
                             <script type="text/javascript">
                                 document.getElementById("myButton").onclick = function () {
-                                    location.href = "{% url 'form_add' %}";
+                                    location.href = "{% url 'form_add_fiz_l' %}";
                                 };
                             </script>
                             </h3>
@@ -87,15 +87,47 @@
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="card mb-3">
                         <div class="card-body text-center">
-                            <h3 class="text-center">Брак</h3>
+                            <h3 class="text-center">Брак
+                            <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            </button>
+                            <script type="text/javascript">
+                                document.getElementById("myButton2").onclick = function () {
+                                    location.href = "{% url 'form_add_marriage' %}";
+                                };
+                            </script>
+                            </h3>
+
                             <hr/>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm m-1">Добавить</button>
-                            <br/>
-                            <br/>
-                            <hr/>
-                            <ul class="text-left">
-                                <li><button type="button" class="close" aria-label="Close"><span aria-hidden="false">&times;</span></button>Брак между Коваленко Евгений и Дуркина Мария <span class="badge badge-pill badge-info">01.10.2015</span> <button type="button" class="btn btn-outline-danger btn-sm m-1">Расторгнуть</button></li>
+                            <ul class="list-group text-left">
+                                {% for marriage in marriages_list %}
+                                <li class="list-group-item">{{ marriage }}.
+                                    Зарегистрирован: <span class="badge badge-pill badge-info">{{ marriage.date_of_marriage_registration }}</span>
+
+                                    <form action="{% url 'delete_marriage' marriage.id %}" method="post" class="float-right d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                                    </form>
+                                    <a href="{% url 'marriage_update' marriage.id %}" class="btn text-secondary float-right">
+                                        <i class="fas fa-user-edit"></i>
+                                    </a>
+                                    {% if marriage.date_of_marriage_divorce is None %}
+                                    <a href="{% url 'marriage_divorce' marriage.id %}" class="btn btn-outline-danger btn-sm m-1">
+                                        Расторгнуть брак
+                                    </a>
+                                    {% endif %}
+                                    {% if marriage.date_of_marriage_divorce %}
+                                        Расторгнут: <span class="badge badge-pill badge-danger">{{ marriage.date_of_marriage_divorce }}</span>
+                                    {% endif %}
+
+
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item">
+                                    <span class="font-italic">Вы можете добавить брак</span>
+                                </li>
+                                {% endfor %}
                             </ul>
 
                         </div>

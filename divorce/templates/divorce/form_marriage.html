@@ -1,0 +1,48 @@
+{% extends 'divorce/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form action="" method="post" autocomplete="off">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6">
+                <br/>
+                <!--Ошибки после проверок с законами -->
+                {% if errors %}
+                    <div class="alert alert-danger" role="alert">
+                    {% for k, v in errors.items %}
+                    <p>{{ k }}: {{ v }}</p>
+                    {% endfor %}
+                    </div>
+                    <br/>
+                {% endif %}
+                <!--Ошибки после проверок на корректность ввода (выводит штатными средствами ValidationError)
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                    <p>{{ form.errors }}</p>
+                    </div>
+                {% endif %} -->
+
+                <h4>Добавление/редактирование брака</h4>
+                {{ form.date_of_marriage_registration|as_crispy_field }}
+                {{ form.parties|as_crispy_field }}
+                {% if marriage.date_of_marriage_divorce %}
+                    {{ form.date_of_marriage_divorce|as_crispy_field }}
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary"><i class="far fa-save"></i>   Сохранить</button>
+                <a href="{% url 'main' %}" class="btn btn-secondary"><i class="fas fa-undo-alt"></i>   Вернуться</a>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- {{ form|crispy }} -->
+</form>
+<br/>
+<br/>
+
+{% endblock content %}
