@@ -1,6 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError #№7 25:25, 36:07, 43:33
 from django.forms import ModelMultipleChoiceField
+
+import datetime
+
 from .models import Fiz_l, Marriage
 
 class Fiz_l_form(forms.ModelForm):
@@ -13,6 +16,17 @@ class Fiz_l_form(forms.ModelForm):
             'date_of_birth': 'Дата рождения',
             'sex': 'Пол'
         }
+
+    def clean_date_of_birth(self):
+        '''
+        Проверка на то, чтобы дата рождения была в пределах от 1900 года до 2050
+        :return: отвалидированное значение date_of_birth
+        '''
+        date_of_birth = self.cleaned_data['date_of_birth']
+        if date_of_birth < datetime.date(1900, 1, 1) or date_of_birth > datetime.date(2050, 1, 1):
+            raise ValidationError('Введите дату в промежутке между 1900 годом и 2050 годом')
+        else:
+            return date_of_birth
 
     def __init__(self, *args, **kwargs):
         super(Fiz_l_form, self).__init__(*args, **kwargs)

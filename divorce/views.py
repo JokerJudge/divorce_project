@@ -33,6 +33,8 @@ class FizLFormView(View):
         if form.is_valid():
             form.save()
             return redirect('/divorce')
+        else:
+            return render(request, 'divorce/form_fiz_l.html', {'form': form})
 
 # Контроллер для удаления физ.лица
 def del_person(request, person_id):
