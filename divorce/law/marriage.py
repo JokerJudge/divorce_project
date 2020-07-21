@@ -6,20 +6,21 @@ from .law import *
 на соответствие брака необходимым требованиям
 '''
 
-def law(person_1: Fiz_l,
+#первый вариант функции law
+'''
+def law_2(person_1: Fiz_l,
         person_2: Fiz_l,
         date_of_marriage_registration: datetime.date,
         marriage: Marriage):
-    '''
-    Общая функция, куда подаются сведения из cleaned_data, введенных пользователем при добавлении брака
-    :param person_1: выбранное пользователем лицо № 1
-    :param person_2: выбранное пользователем лицо № 2
-    :param date_of_marriage_registration: выбранная пользователем дата регистрации брака
-    :return: True, если все проверки пройдены - можно сохранять в БД
-    False - ошибки, которые должны быть показаны пользователю
-    '''
+
+    # Общая функция, куда подаются сведения из cleaned_data, введенных пользователем при добавлении брака
+    # :param person_1: выбранное пользователем лицо № 1
+    # :param person_2: выбранное пользователем лицо № 2
+    # :param date_of_marriage_registration: выбранная пользователем дата регистрации брака
+    # :return: True, если все проверки пройдены - можно сохранять в БД
+    # False - ошибки, которые должны быть показаны пользователю
+
     # список необходимых в соответствии с законом проверок
-    # TODO - добавить в list_of_rules another_marriage_verification
     list_of_rules = [sex_verification(person_1, person_2),
                      age_verification(person_1, person_2, date_of_marriage_registration),
                      another_marriage_verification(person_1, person_2, date_of_marriage_registration, marriage)]
@@ -36,6 +37,73 @@ def law(person_1: Fiz_l,
         else:
             return False, list_of_links
     return True, list_of_links
+'''
+def law(**kwargs):
+    '''
+    Общая функция, куда подаются сведения из cleaned_data, введенных пользователем в формах по добавлению/
+    редактированию физ.лица/брака
+    :param kwargs: Именованные аргументы, где:
+        person_1 = Fiz_l
+        person_2 = Fiz_l
+        date_of_marriage_registration = datetime.date (дата регистрации брака);
+        marriage = Marriage
+    :return: True, если все проверки пройдены - можно сохранять в БД
+    False - ошибки, которые должны быть показаны пользователю
+    '''
+    if len(kwargs) == 1:
+        # проверка на брачный возраст при изменении возраста физ.лица
+        if 'person_1' in kwargs:
+            person_1: Fiz_l = kwargs['person_1']
+            # если есть браки
+            if hasattr(person_1, 'marriages'):
+                for i in list(person_1.marriages.all()):
+                    for j in list(i.parties.all()):
+                        if j.id == person_1.id:
+                            continue
+                        else:
+                            person_2 = j
+                    date_of_marriage_registration = i.date_of_marriage_registration
+                    # список необходимых в соответствии с законом проверок
+                    list_of_rules = [age_verification(person_1, person_2, date_of_marriage_registration)]
+                    list_of_links = []
+                    resolution, link = list_of_rules[0]
+                    list_of_links.append(link)
+                    if resolution is True:
+                        continue
+                    else:
+                        return False, list_of_links
+                return True, list_of_links
+            # если браков нет
+            else:
+                list_of_links = []
+                link = Link('отсутствует необходимость в проверке', 'отсутствует необходимость в проверке')
+                list_of_links.append(link)
+                return True, list_of_links
+    else:
+        #проверка при заключении брака
+        #распаковываем kwargs
+        person_1: Fiz_l = kwargs['person_1']
+        person_2: Fiz_l = kwargs['person_2']
+        date_of_marriage_registration = kwargs['date_of_marriage_registration']
+        marriage = kwargs['marriage']
+        # список необходимых в соответствии с законом проверок
+        list_of_rules = [sex_verification(person_1, person_2),
+                         age_verification(person_1, person_2, date_of_marriage_registration),
+                         another_marriage_verification(person_1, person_2, date_of_marriage_registration, marriage)]
+    # список пройденных проверок в виде списка объектов класса Link (law/law.py)
+        list_of_links = []
+
+    # последовательно проходим список проверок и на каждой итерации проверяем, всё ли ок.
+    # если встречаем False, возвращаем ошибку и в БД ничего не записываем
+
+        for i in list_of_rules:
+            resolution, link = i
+            list_of_links.append(link)
+            if resolution is True:
+                continue
+            else:
+                return False, list_of_links
+        return True, list_of_links
 
 def sex_verification(person_1: Fiz_l, person_2: Fiz_l):
     '''

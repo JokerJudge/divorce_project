@@ -9,6 +9,15 @@
         <div class="row justify-content-md-center">
             <div class="col-md-6">
                 <br/>
+                {% if errors %}
+                    <div class="alert alert-danger" role="alert">
+                    {% for k, v in errors.items %}
+                    <p>{{ k }}: {{ v }}</p>
+                    {% endfor %}
+                    </div>
+                    <br/>
+                {% endif %}
+
                 <h4>Добавление/редактирование физического лица</h4>
                 {{ form.name|as_crispy_field }}
                 {{ form.date_of_birth|as_crispy_field }}

@@ -27,12 +27,27 @@ class FizLFormView(View):
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
             form = Fiz_l_form(request.POST)
+            person = None
         else:
             person = Fiz_l.objects.get(pk=id)  # получаем по id нужный объект
             form = Fiz_l_form(request.POST, instance=person)  # person будет изменен новой формой request.POST
         if form.is_valid():
-            form.save()
-            return redirect('/divorce')
+            resolution, link_list = law(person_1=person)
+            if resolution is True:
+                links = []
+                for i in link_list:
+                    links.append(i.law_link)
+                print(f'проверки пройдены - {links}')
+                form.save()
+                return redirect('/divorce')
+            else:
+                errors = {
+                    'Вид ошибки': link_list[-1].errors[0],
+                    'Ссылка на норму': link_list[-1].law_link,
+                    'Текст нормы': link_list[-1].law_text
+                }
+            return render(request, 'divorce/form_fiz_l.html', {'form': form, 'errors': errors})
+
         else:
             return render(request, 'divorce/form_fiz_l.html', {'form': form})
 
@@ -75,7 +90,7 @@ class MarriageFormView(View):
             print(person_1)
             print(person_2)
             # if marriage == None надо убрать проверку на самого себя при проверке на другие браки при корректировке брака
-            resolution, link_list = law(person_1, person_2, date_of_marriage_registration, marriage)
+            resolution, link_list = law(person_1=person_1, person_2=person_2, date_of_marriage_registration=date_of_marriage_registration, marriage=marriage)
             if resolution is True:
                 links = []
                 for i in link_list:
