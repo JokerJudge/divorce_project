@@ -139,6 +139,7 @@ def del_marriage(request, marriage_id):
     marriage_to_delete.delete()
     return redirect('/divorce')
 
+
 ########################################################
 # def fiz_l_form_add(request, id=0):
 #     if request.method == "GET":
