@@ -34,9 +34,7 @@ class FizLFormView(View):
         if form.is_valid():
             resolution, link_list = law(person_1=person)
             if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
+                links = [i.law_link for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
@@ -50,6 +48,15 @@ class FizLFormView(View):
 
         else:
             return render(request, 'divorce/form_fiz_l.html', {'form': form})
+'''
+            if resolution is True:
+                links = []
+                for i in link_list:
+                    links.append(i.law_link)
+                print(f'проверки пройдены - {links}')
+                form.save()
+                return redirect('/divorce')
+'''
 
 # Контроллер для удаления физ.лица
 def del_person(request, person_id):
@@ -92,9 +99,7 @@ class MarriageFormView(View):
             # if marriage == None надо убрать проверку на самого себя при проверке на другие браки при корректировке брака
             resolution, link_list = law(person_1=person_1, person_2=person_2, date_of_marriage_registration=date_of_marriage_registration, marriage=marriage)
             if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
+                links = [i.law_link for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
@@ -108,6 +113,15 @@ class MarriageFormView(View):
         # если есть проблемы с формой - ValueError из forms.py
         else:
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
+'''
+            if resolution is True:
+                links = []
+                for i in link_list:
+                    links.append(i.law_link)
+                print(f'проверки пройдены - {links}')
+                form.save()
+                return redirect('/divorce')
+'''
 
 class MarriageFormDivorceView(View):
     def get(self, request, id):
