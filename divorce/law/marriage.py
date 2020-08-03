@@ -111,10 +111,11 @@ def sex_verification(person_1: Fiz_l, person_2: Fiz_l):
     :return: True + law_link (запись о прошедшей проверке), если М + Ж
     False, если М + М или Ж + Ж
     '''
-    law_link = 'ч.1 ст. 12 Семейного кодекса РФ'
+    law_link = 'ч.1 ст. 12'
     law_text = 'Для заключения брака необходимы взаимное добровольное ' \
                'согласие мужчины и женщины, вступающих в брак...'
-    link = Link(law_link, law_text)
+    npa = family_code.short_title_for_link
+    link = Link(law_link, law_text, npa)
     if person_1.sex != person_2.sex:
         return True, link
     else:
@@ -131,9 +132,10 @@ def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registra
     :return: True, если оба лица соответствуют требованиям к брачному возрасту
     False, если есть проблемы с возрастом
     '''
-    law_link = 'ч.1 ст. 13 Семейного кодекса РФ'
+    law_link = 'ч.1 ст. 13'
     law_text = '''Брачный возраст устанавливается в восемнадцать лет'''
-    link = Link(law_link, law_text)
+    npa = family_code.short_title_for_link
+    link = Link(law_link, law_text, npa)
     marriage_age = 18
     for i in [person_1, person_2]:
         temp_date = i.date_of_birth.replace(date_of_marriage_registration.year) # timedelta работает с днями, поэтому вводим врем. переменную
@@ -155,9 +157,10 @@ def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marr
     :return: True, если у обоих лиц отсутствует нерасторгнутый брак на дату регистрации нового брака
     False, если у кого-нибудь из лиц есть нерасторгнутый брак
     '''
-    law_link = 'ч.2 ст. 12 Семейного кодекса РФ, абзац 2 ч.1 ст. 14 Семейного кодекса РФ'
+    law_link = 'ч.2 ст. 12, абзац 2 ч.1 ст. 14'
     law_text = '''Не допускается заключение брака между лицами, из которых хотя бы одно лицо уже состоит в другом зарегистрированном браке'''
-    link = Link(law_link, law_text)
+    npa = family_code.short_title_for_link
+    link = Link(law_link, law_text, npa)
 
     for i in [person_1, person_2]:
         if i.marriages.all():

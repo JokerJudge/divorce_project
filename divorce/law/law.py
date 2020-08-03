@@ -14,6 +14,7 @@ class NPA:
     :param title: название НПА
     :param type_of_act: вид акта (Приказ, Федеральный закон, Федеральный конституционный закон и т.п.)
     :param short_title: короткое общепринятое название (ФЗ № 44, ФЗ № 135, ГК РФ и т.п.)
+    :param short_title_for_link: короткое общепринятое название (self.short.title) в родительном падеже
     :param office: орган, принявший акт
     :param area: уровень (федеральный, региональный, муниципальный)
     :param norms: список связанных норм права
@@ -23,6 +24,7 @@ class NPA:
     title: str = field(repr=False)
     type_of_act: str = field(repr=False)
     short_title: str
+    short_title_for_link: str
     office: str = field(repr=False)
     area: str = field(repr=False)
     norms: List[str] = field(repr=False, init=False, default_factory=list)
@@ -49,7 +51,7 @@ class NPA:
         self.norms = []
 '''
 
-family_code = NPA(datetime.date(1995, 12, 29), '223-ФЗ', 'Семейный кодекс Российской Федерации', 'Кодекс', 'Семейный кодекс РФ', 'Государственная Дума РФ', 'Федеральный')
+family_code = NPA(datetime.date(1995, 12, 29), '223-ФЗ', 'Семейный кодекс Российской Федерации', 'Кодекс', 'Семейный кодекс РФ', 'Семейного кодекса РФ', 'Государственная Дума РФ', 'Федеральный')
 
 @dataclass
 class Link:
@@ -62,7 +64,8 @@ class Link:
     '''
     law_link: str
     law_text: str = field(repr=False)
-    npa: NPA = field(repr=False, default=family_code)
+    #npa: NPA = field(repr=False, default=family_code)
+    npa: NPA = field(repr=False)
     errors: List[str] = field(repr=False, init=False, default_factory=list)
 
     def __str__(self):
