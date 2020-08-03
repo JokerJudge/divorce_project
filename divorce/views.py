@@ -48,15 +48,6 @@ class FizLFormView(View):
 
         else:
             return render(request, 'divorce/form_fiz_l.html', {'form': form})
-'''
-            if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
-                print(f'проверки пройдены - {links}')
-                form.save()
-                return redirect('/divorce')
-'''
 
 # Контроллер для удаления физ.лица
 def del_person(request, person_id):
@@ -113,15 +104,7 @@ class MarriageFormView(View):
         # если есть проблемы с формой - ValueError из forms.py
         else:
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
-'''
-            if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
-                print(f'проверки пройдены - {links}')
-                form.save()
-                return redirect('/divorce')
-'''
+
 
 class MarriageFormDivorceView(View):
     def get(self, request, id):
