@@ -34,14 +34,14 @@ class FizLFormView(View):
         if form.is_valid():
             resolution, link_list = law(person_1=person)
             if resolution is True:
-                links = [f'{i.law_link} {i.npa}' for i in link_list]
+                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
-                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa}',
+                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
                     'Текст нормы': link_list[-1].law_text
                 }
             return render(request, 'divorce/form_fiz_l.html', {'form': form, 'errors': errors})
@@ -90,14 +90,14 @@ class MarriageFormView(View):
             # if marriage == None надо убрать проверку на самого себя при проверке на другие браки при корректировке брака
             resolution, link_list = law(person_1=person_1, person_2=person_2, date_of_marriage_registration=date_of_marriage_registration, marriage=marriage)
             if resolution is True:
-                links = [f'{i.law_link} {i.npa}' for i in link_list]
+                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
-                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa}',
+                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
                     'Текст нормы': link_list[-1].law_text
                 }
             return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})

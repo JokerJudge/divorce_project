@@ -24,7 +24,7 @@ class NPA:
     title: str = field(repr=False)
     type_of_act: str = field(repr=False)
     short_title: str
-    short_title_for_link: str
+    short_title_for_link: str = field(repr=False)
     office: str = field(repr=False)
     area: str = field(repr=False)
     norms: List[str] = field(repr=False, init=False, default_factory=list)
