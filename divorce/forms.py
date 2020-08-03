@@ -69,8 +69,6 @@ class Marriage_form(forms.ModelForm):
             date_of_marriage_registration = self.cleaned_data['date_of_marriage_registration']
             if date_of_marriage_divorce <= date_of_marriage_registration:
                 raise ValidationError('Брак не может быть расторгнут ранее его заключения')
-            else:
-                return date_of_marriage_divorce
         return date_of_marriage_divorce
 
 

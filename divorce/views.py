@@ -3,7 +3,7 @@ from django.views.generic import View
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce
-from divorce.law.marriage import law
+from divorce.law.marriage import marriage_law, person_edit_check
 
 # Create your views here.
 # Представление для основной страницы
@@ -32,18 +32,16 @@ class FizLFormView(View):
             person = Fiz_l.objects.get(pk=id)  # получаем по id нужный объект
             form = Fiz_l_form(request.POST, instance=person)  # person будет изменен новой формой request.POST
         if form.is_valid():
-            resolution, link_list = law(person_1=person)
+            resolution, link_list = person_edit_check(person)
             if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
+                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
-                    'Ссылка на норму': link_list[-1].law_link,
+                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
                     'Текст нормы': link_list[-1].law_text
                 }
             return render(request, 'divorce/form_fiz_l.html', {'form': form, 'errors': errors})
@@ -89,25 +87,24 @@ class MarriageFormView(View):
             print(date_of_marriage_registration)
             print(person_1)
             print(person_2)
-            # if marriage == None надо убрать проверку на самого себя при проверке на другие браки при корректировке брака
-            resolution, link_list = law(person_1=person_1, person_2=person_2, date_of_marriage_registration=date_of_marriage_registration, marriage=marriage)
+            resolution, link_list = marriage_law(person_1, person_2, date_of_marriage_registration, marriage)
+
             if resolution is True:
-                links = []
-                for i in link_list:
-                    links.append(i.law_link)
+                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
-                    'Ссылка на норму': link_list[-1].law_link,
+                    'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
                     'Текст нормы': link_list[-1].law_text
                 }
             return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})
         # если есть проблемы с формой - ValueError из forms.py
         else:
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
+
 
 class MarriageFormDivorceView(View):
     def get(self, request, id):
