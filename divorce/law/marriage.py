@@ -1,4 +1,5 @@
 import datetime
+import dateutil.relativedelta as relativedelta
 from ..models import *
 from .law import *
 from .links_and_texts import *
@@ -134,13 +135,10 @@ def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registra
     link = Link(law_link, law_text, npa)
     marriage_age = 18
     for i in [person_1, person_2]:
-        temp_date = i.date_of_birth.replace(date_of_marriage_registration.year) # timedelta работает с днями, поэтому вводим врем. переменную
-        if temp_date > date_of_marriage_registration: # если ДР будет после даты брака
-            i.marriage_age = date_of_marriage_registration.year - i.date_of_birth.year - 1
-        else:
-            i.marriage_age = date_of_marriage_registration.year - i.date_of_birth.year
+        # вычисляем количество полных лет на момент заключения брака
+        i.marriage_age = relativedelta.relativedelta(date_of_marriage_registration, i.date_of_birth).years
         if i.marriage_age < marriage_age:
-            link.errors.append(f'{i} не достиг(ла) брачного возраста ({marriage_age} лет) на момент вступления в брак {date_of_marriage_registration}')
+            link.errors.append(f'{i} не достиг(ла) брачного возраста ({marriage_age} лет) на момент вступления в брак. Дата рождения: {i.date_of_birth}')
             return False, link
     return True, link
 
