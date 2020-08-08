@@ -62,6 +62,7 @@ class Link:
     :param npa: указание на нормативный правовой акт
     :param errors: список ошибок при обработке юридической логики
     '''
+    link_name: str
     law_link: str
     law_text: str = field(repr=False)
     #npa: NPA = field(repr=False, default=family_code)

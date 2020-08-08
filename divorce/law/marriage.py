@@ -85,8 +85,8 @@ def sex_verification(person_1: Fiz_l, person_2: Fiz_l):
     :return: True + law_link (запись о прошедшей проверке), если М + Ж
     False, если М + М или Ж + Ж
     '''
-    law_link, law_text, npa = TEXTS['sex_verification']
-    link = Link(law_link, law_text, npa)
+    link_name, law_link, law_text, npa = TEXTS['sex_verification']
+    link = Link(link_name, law_link, law_text, npa)
     if person_1.sex != person_2.sex:
         return True, link
     else:
@@ -103,8 +103,8 @@ def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registra
     :return: True, если оба лица соответствуют требованиям к брачному возрасту
     False, если есть проблемы с возрастом
     '''
-    law_link, law_text, npa = TEXTS['age_verification']
-    link = Link(law_link, law_text, npa)
+    link_name, law_link, law_text, npa = TEXTS['age_verification']
+    link = Link(link_name, law_link, law_text, npa)
     marriage_age = 18
     for i in [person_1, person_2]:
         # вычисляем количество полных лет на момент заключения брака
@@ -123,8 +123,8 @@ def another_marriage_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marr
     :return: True, если у обоих лиц отсутствует нерасторгнутый брак на дату регистрации нового брака
     False, если у кого-нибудь из лиц есть нерасторгнутый брак
     '''
-    law_link, law_text, npa = TEXTS['another_marriage_verification']
-    link = Link(law_link, law_text, npa)
+    link_name, law_link, law_text, npa = TEXTS['another_marriage_verification']
+    link = Link(link_name, law_link, law_text, npa)
 
     for i in [person_1, person_2]:
         if i.marriages:

@@ -34,7 +34,7 @@ class FizLFormView(View):
         if form.is_valid():
             resolution, link_list = person_edit_check(person)
             if resolution is True:
-                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
+                links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
@@ -90,7 +90,7 @@ class MarriageFormView(View):
             resolution, link_list = marriage_law(person_1, person_2, date_of_marriage_registration, marriage)
 
             if resolution is True:
-                links = [f'{i.law_link} {i.npa.short_title_for_link}' for i in link_list]
+                links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
                 form.save()
                 return redirect('/divorce')
