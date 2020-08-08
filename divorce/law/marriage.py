@@ -73,8 +73,8 @@ def person_edit_check(person_1: Fiz_l):
         return True, list_of_links
     # если браков нет
     else:
-        law_link, law_text, npa = TEXTS['age_verification']
-        link = Link(law_link, law_text, npa)
+        link_name, law_link, law_text, npa = TEXTS['age_verification']
+        link = Link(link_name, law_link, law_text, npa)
         list_of_links = []
         list_of_links.append(link)
         return True, list_of_links

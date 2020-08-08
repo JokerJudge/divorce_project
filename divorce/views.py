@@ -1,16 +1,18 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.http import HttpResponse, HttpRequest
-from .models import Fiz_l, Marriage
-from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce
+from .models import Fiz_l, Marriage, Property
+from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
 from divorce.law.marriage import marriage_law, person_edit_check
+from divorce.law.property import form_1_processing
 
 # Create your views here.
 # Представление для основной страницы
 class DivorceView(View):
     def get(self, request):
         context = {'fiz_l_list': Fiz_l.objects.all(),
-                   'marriages_list': Marriage.objects.all()}
+                   'marriages_list': Marriage.objects.all(),
+                   'property_list': Property.objects.all()}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
@@ -147,6 +149,63 @@ def del_marriage(request, marriage_id):
     marriage_to_delete.delete()
     return redirect('/divorce')
 
+
+class PropertyFormView(View):
+    def get(self, request, id=0):
+        if id == 0:
+            form = Property_form()  # пустая форма
+            return render(request, 'divorce/form_property_1.html', {'form': form})
+        else:  # update operation
+            property = Property.objects.get(pk=id)
+            form = Property_form(instance=property)  # заполненная имеющимися данными форма
+            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
+
+    def post(self, request, id=0):
+        if id == 0:  # если данные пока не записаны в БД
+            form = Property_form(request.POST) # заполняем форму из словаря POST
+            property = None
+        else:
+            property = Property.objects.get(pk=id)  # получаем по id нужный объект
+            form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
+
+        if form.is_valid():
+            print('+++++++++++cleaned_data+++++++++++++++++++')
+            print(form.cleaned_data)
+            temp = form_1_processing(form.cleaned_data)
+
+            return redirect('/divorce')
+
+            # данные перед сохранением, но до обработки бизнес-логикой
+            # TODO - обработка формы
+            #date_of_marriage_registration = form.cleaned_data['date_of_marriage_registration']
+            #parties = list(form.cleaned_data['parties'])
+            #person_1 = parties[0]
+            #person_2 = parties[1]
+            #print(date_of_marriage_registration)
+            #print(person_1)
+            #print(person_2)
+            #resolution, link_list = marriage_law(person_1, person_2, date_of_marriage_registration, marriage)
+
+            # if resolution is True:
+            #     links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
+            #     print(f'проверки пройдены - {links}')
+            #     form.save()
+            #     return redirect('/divorce')
+            # else:
+            #     errors = {
+            #         'Вид ошибки': link_list[-1].errors[0],
+            #         'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
+            #         'Текст нормы': link_list[-1].law_text
+            #     }
+            #return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})
+        # если есть проблемы с формой - ValueError из forms.py
+        else:
+            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
+
+def del_property(request, property_id):
+    property_to_delete = Property.objects.get(id=property_id)
+    property_to_delete.delete()
+    return redirect('/divorce')
 
 ########################################################
 # def fiz_l_form_add(request, id=0):

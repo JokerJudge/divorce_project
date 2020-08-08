@@ -137,12 +137,38 @@
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="card mb-3">
                         <div class="card-body text-center">
-                            <h3 class="text-center">Имущество</h3>
+                            <h3 class="text-center">Имущество
+                            <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton3">
+                                <i class="fa fa-plus-square" aria-hidden="true"></i>
+                            </button>
+                            <script type="text/javascript">
+                                document.getElementById("myButton3").onclick = function () {
+                                    location.href = "{% url 'form_add_property_1' %}";
+                                };
+                            </script>
+                            </h3>
                             <hr/>
+                            <ul class="list-group text-left">
+                                {% for property in property_list %}
+                                <li class="list-group-item">{{ property }}.
+                                    <span class="badge badge-pill badge-warning">{{ property.type_of_property_form }}</span>
+                                    <span class="badge badge-pill badge-info">{{ property.date_of_purchase }}</span>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm m-1">Добавить</button>
-                            <br/>
-                            <br/>
+                                    <form action="{% url 'delete_property' property.id %}" method="post" class="float-right d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                                    </form>
+                                    <a href="{% url 'property_update' property.id %}" class="btn text-secondary float-right">
+                                        <i class="fas fa-user-edit"></i>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item">
+                                    <span class="font-italic">Вы можете добавить имущество</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
                             <hr/>
                             <ol class="text-left">
                                 <li>Автомобиль <span class="badge badge-pill badge-warning">движимое</span> <span class="badge badge-pill badge-info">04.02.2014</span> </li>
