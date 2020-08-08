@@ -109,7 +109,7 @@ class MarriageFormView(View):
 class MarriageFormDivorceView(View):
     def get(self, request, id):
         marriage = Marriage.objects.get(pk=id)
-        form = Marriage_form_divorce() # показываем пустую форму
+        form = Marriage_form_divorce(instance=marriage) # показываем пустую форму / или форму с имеющимися данными
         return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage})
     def post(self, request, id):
         marriage = Marriage.objects.get(pk=id)
@@ -119,16 +119,27 @@ class MarriageFormDivorceView(View):
             print(form.cleaned_data)
             # данные перед сохранением, но до обработки бизнес-логикой
             date_of_divorce = form.cleaned_data['date_of_marriage_divorce']
+            date_of_break_up = form.cleaned_data['date_of_break_up']
             date_of_marriage_registration = marriage.date_of_marriage_registration
-            if date_of_divorce <= date_of_marriage_registration:
-                errors = {
-                    'Дата развода не может быть ранее даты заключения брака': f'{date_of_marriage_registration}'
-                }
-                return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage, 'errors': errors})
+            if date_of_divorce is not None:
+                if date_of_divorce <= date_of_marriage_registration:
+                    errors = {
+                        'Дата развода не может быть ранее даты заключения брака': f'{date_of_marriage_registration}'
+                    }
+                    return render(request, 'divorce/form_marriage_divorce.html',
+                                  {'form': form, 'marriage': marriage, 'errors': errors})
+            if date_of_break_up is not None:
+                if date_of_break_up < date_of_marriage_registration:
+                    errors = {
+                        'Дата прекращения брачных отношений не может быть раньше заключения брака': f'{date_of_marriage_registration}'
+                    }
+                    return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage, 'errors': errors})
             print(marriage)
             print(date_of_divorce)
             form.save()
-        return redirect('/divorce')
+            return redirect('/divorce')
+        else:
+            return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage})
 
 
 def del_marriage(request, marriage_id):

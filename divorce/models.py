@@ -17,6 +17,7 @@ class Marriage(models.Model):
     #party_f = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
     date_of_marriage_registration = models.DateField(default='2020-1-1')
     date_of_marriage_divorce = models.DateField(blank=True, null=True)
+    date_of_break_up = models.DateField(blank=True, null=True)
     parties = models.ManyToManyField('Fiz_l', blank=True, related_name='marriages')
 
     def __str__(self):
