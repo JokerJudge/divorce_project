@@ -163,3 +163,14 @@ class Property_form(forms.ModelForm):
         super(Property_form, self).__init__(*args, **kwargs)
         self.fields['price'].empty_label = 'Укажите цену' # почему-то не работает
         self.fields['price'].required = False
+
+    def clean_date_of_purchase(self):
+        '''
+        Проверка на то, чтобы дата приобретения была в адекватном пределе от 1900 года до 2050
+        :return: отвалидированное значение date_of_purchase
+        '''
+        date_of_purchase = self.cleaned_data['date_of_purchase']
+        if date_of_purchase < datetime.date(1900, 1, 1) or date_of_purchase > datetime.date(2050, 1, 1):
+            raise ValidationError('Введите дату в промежутке между 1900 годом и 2050 годом')
+        else:
+            return date_of_purchase
