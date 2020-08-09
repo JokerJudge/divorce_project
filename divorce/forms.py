@@ -174,3 +174,4 @@ class Property_form(forms.ModelForm):
             raise ValidationError('Введите дату в промежутке между 1900 годом и 2050 годом')
         else:
             return date_of_purchase
+

@@ -20,14 +20,15 @@
                 {% endif %}
 
                 <h4>Добавление/редактирование имущества</h4>
+                <h5>Шаг 1</h5>
                 {{ form.name|as_crispy_field }}
                 {{ form.type_of_property_form|as_crispy_field }}
                 {{ form.obtaining_person|as_crispy_field }}
                 {{ form.date_of_purchase|as_crispy_field }}
                 {{ form.price|as_crispy_field }}
 
-                <button type="submit" class="btn btn-primary"><i class="far fa-save"></i>   Сохранить</button>
-                <a href="{% url 'main' %}" class="btn btn-secondary"><i class="fas fa-undo-alt"></i>   Вернуться</a>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-right"></i>   Далее</button>
+                    <a href="{% url 'main' %}" class="btn btn-secondary"><i class="fas fa-undo-alt"></i>   Вернуться</a>
 
 
             </div>
