@@ -1,4 +1,5 @@
 from django.db import models
+from divorce.law.links_and_texts import PURCHASE_TYPE_CHOICES, TYPES_OF_PROPERTY_CHOICES
 
 # Create your models here.
 class Fiz_l(models.Model):
@@ -28,24 +29,12 @@ class Marriage(models.Model):
             return f'Брак указан некорректно'
 
 class Property(models.Model):
-    purchase_type_choices = [('Покупка', 'Покупка'),
-                             ('Подарок', 'Подарок'),
-                             ('Создание', 'Создание'),
-                             ('Наследство', 'Наследство')]
-    type_of_property_choices = [('Квартира', 'Квартира'),
-                                ('Дом c земельным участком', 'Дом с земельным участком'),
-                                ('Автомобиль', 'Автомобиль'),
-                                ('Деньги наличные', 'Деньги наличные'),
-                                ('Деньги безналичные', 'Деньги безналичные'),
-                                ('Иная недвижимая вещь', 'Иная недвижимая вещь'),
-                                ('Иная движимая вещь', 'Иная движимая вещь')]
-
     name = models.CharField(max_length=200)
-    type_of_property_form = models.CharField(max_length=50, choices=type_of_property_choices)
+    type_of_property_form = models.CharField(max_length=50, choices=TYPES_OF_PROPERTY_CHOICES)
     type_of_property = models.CharField(max_length=100, blank=True, null=True)
     date_of_purchase = models.DateField()
     ownership = models.TextField(blank=True, null=True)
-    purchase_type = models.CharField(max_length=30, choices=purchase_type_choices, blank=True, null=True)
+    purchase_type = models.CharField(max_length=30, choices=PURCHASE_TYPE_CHOICES, blank=True, null=True)
     obtaining_person = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
     source_of_purchase = models.ManyToManyField('Fiz_l', blank=True, related_name='property_source')
     price = models.PositiveIntegerField(blank=True, null=True)

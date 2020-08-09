@@ -70,7 +70,7 @@ class Link:
     errors: List[str] = field(repr=False, init=False, default_factory=list)
 
     def __str__(self):
-        return self.law_link
+        return f'{self.law_link} {self.npa.short_title_for_link}'
 '''
     def __init__(self, law_link: str, law_text: str, npa: NPA = family_code):
         self.law_link = law_link
