@@ -171,7 +171,9 @@ class PropertyFormView(View):
         if form.is_valid():
             print('+++++++++++cleaned_data+++++++++++++++++++')
             print(form.cleaned_data)
-            temp = form_1_processing(form.cleaned_data)
+            # обработка формы № 1
+            type_of_property, marriage, after_break_up, list_of_links = form_1_processing(form.cleaned_data)
+
 
             return redirect('/divorce')
 
