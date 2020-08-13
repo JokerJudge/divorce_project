@@ -233,5 +233,6 @@ def to_ownership(form_full: dict):
                                         'совместная доля': None}
 
     type_of_relationships = {'Собственность': owners}
-    ownership = {period_of_time: type_of_relationships}
+    i_ownership = {period_of_time: type_of_relationships}
+    ownership = {'ownership': i_ownership}
     return ownership

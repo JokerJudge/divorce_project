@@ -260,24 +260,24 @@ class PropertyForm2nmView(View):
             form_example.update(form_1_processed_data)
             form_example.update(form_2)
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            print(form_example)
             ownership = to_ownership(form_example)
-            # TODO - сериализуем self.ownership в JSON
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_example)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
                 # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
+                form.cleaned_data.update(ownership)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
-                # TODO - сделать то же самое с self.ownership
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.ownership = form.cleaned_data['ownership']
                 temp.save()
                 # удаляем кэшированные данные
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
+                return redirect('/divorce')
 
 
             # вариант № 1 - нет сособственников - личная собственность
@@ -295,11 +295,7 @@ class PropertyForm2nmView(View):
             form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
 
         # обработка ответов
-        if 'coowners' in request.POST:
-            print(True)
-            #TODO - добавить про доли в праве
-        else:
-            print(False)
+
 
         # всё, что ниже - не актуально
 
