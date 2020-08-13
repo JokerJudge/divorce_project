@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage, Property
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
 from divorce.law.marriage import marriage_law, person_edit_check
-from divorce.law.property import form_1_processing
+from divorce.law.property import form_1_processing, to_ownership
 
 # Create your views here.
 # Представление для основной страницы
@@ -255,12 +255,14 @@ class PropertyForm2nmView(View):
 
             # готовим форму № 2 к работе
             form_2 = request.POST
-            # готовим self.ownership
-            # TODO - сериализуем self.ownership в JSON
-            # сливаем всё в одну форму
+            # сливаем всё в один словарь
             form_example = form_1.copy()
             form_example.update(form_1_processed_data)
             form_example.update(form_2)
+            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
+            print(form_example)
+            ownership = to_ownership(form_example)
+            # TODO - сериализуем self.ownership в JSON
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_example)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data

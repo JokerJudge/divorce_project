@@ -62,7 +62,12 @@ def marriage_periods(obtaining_person: Fiz_l, date_of_purchase: datetime.date):
     '''
     Функция, сопоставляющая дату приобретения имущества и наличие браков у лица, которое приобрело имущество
     :param obtaining_person: лицо, указанное пользователем как приобретатель имущества
-    :return:
+    :return: marriage, after_break_up, list_of_links
+    где:
+    marriage - Marriage (если есть) или None (если нет)
+    after_break_up - True (если приобретено имущество в браке, но после фактического прекращения брачных отношений) или
+        False (в других случаях)
+    list_of_links - список Link, по которым прошлась логика
     '''
     list_of_links = []
     link_name, law_link, law_text, npa = TEXTS['marriage_periods']
@@ -123,3 +128,110 @@ def marriage_periods(obtaining_person: Fiz_l, date_of_purchase: datetime.date):
     # если браков нет - возвращается default значение
         # TODO - можно отправлять форму № 2 и доп.вопросы, связанные с видом имущества
     return marriage, after_break_up, list_of_links
+
+class Period_of_time():
+    def __init__(self, start: datetime.date, end: datetime.date):
+        self.start = start
+        self.end = end
+
+    def __str__(self):
+        return f'Период с {self.start} по {self.end}'
+
+    def __repr__(self):
+        return f'Период с {self.start} по {self.end}'
+
+
+def to_ownership(form_full: dict):
+    name = form_full['name']
+    type_of_property_form = form_full['type_of_property_form']
+    type_of_property = form_full['type_of_property']
+    obtaining_person = form_full['obtaining_person']
+    date_of_purchase = form_full['date_of_purchase']
+    price = form_full['price']
+    list_of_links = form_full['list_of_links']
+    marriage = form_full['marriage']
+    after_break_up = form_full['after_break_up']
+    dolya_chislitel = form_full['dolya_chislitel'][0]
+    dolya_znamenatel = form_full['dolya_znamenatel'][0]
+
+
+    # период с даты приобретения до окончания времен
+    period_of_time = Period_of_time(date_of_purchase, datetime.date(2050, 1, 1))
+
+    # указание долей, сособственников и т.п.
+    owners = {}
+    if marriage is not None:
+        # определение супруга
+        parties = list(marriage.parties.all())
+        for i in parties:
+            if i == obtaining_person:
+                continue
+            else:
+                spouce = i
+    # если указаны сособственники
+    if 'coowners' in form_full:
+        dolya_for_obtaining = f'{dolya_chislitel}/{dolya_znamenatel}'
+        dolya_for_inie = f'{int(dolya_znamenatel) - int(dolya_chislitel)}/{dolya_znamenatel}'
+        # если есть брак
+        if marriage is not None:
+            # если в браке after_break_up был True
+            if after_break_up == True:
+                owners[obtaining_person] = {'доля': dolya_for_obtaining,
+                                            'совместные сособственники': None,
+                                            'совместная доля': None}
+                # для иных сособственников
+                owners['Иные сособственники'] = {'доля': dolya_for_inie,
+                                            'совместные сособственники': None,
+                                            'совместная доля': None}
+            # если after_break_up == False
+            else:
+                # описание для того, кто был указан приобретателем
+                owners[obtaining_person] = {'доля': None,
+                                            'совместные сособственники': spouce,
+                                            'совместная доля': dolya_for_obtaining}
+                # описание для супруга того, кто был указан приобретателем
+                owners[spouce] = {'доля': None,
+                                  'совместные сособственники': obtaining_person,
+                                  'совместная доля': dolya_for_obtaining}
+                # для иных сособственников
+                owners[spouce] = {'доля': dolya_for_inie,
+                                  'совместные сособственники': None,
+                                  'совместная доля': None}
+        # если брака нет
+        else:
+            owners[obtaining_person] = {'доля': dolya_for_obtaining,
+                                        'совместные сособственники': None,
+                                        'совместная доля': None}
+            # для иных сособственников
+            owners['Иные сособственники'] = {'доля': dolya_for_inie,
+                                        'совместные сособственники': None,
+                                        'совместная доля': None}
+
+    # если сособственников нет
+    else:
+        # если есть брак
+        if marriage is not None:
+            # если в браке after_break_up был True
+            if after_break_up == True:
+                owners[obtaining_person] = {'доля': 1,
+                                            'совместные сособственники': None,
+                                            'совместная доля': None}
+            # если after_break_up == False
+            else:
+                # описание для того, кто был указан приобретателем
+                owners[obtaining_person] = {'доля': None,
+                                            'совместные сособственники': spouce,
+                                            'совместная доля': 1}
+                # описание для супруга того, кто был указан приобретателем
+                owners[spouce] = {'доля': None,
+                                  'совместные сособственники': obtaining_person,
+                                  'совместная доля': 1}
+        # если брака нет
+        else:
+            owners[obtaining_person] = {'доля': 1,
+                                        'совместные сособственники': None,
+                                        'совместная доля': None}
+
+    type_of_relationships = {'Собственность': owners}
+    ownership = {period_of_time: type_of_relationships}
+    return ownership
