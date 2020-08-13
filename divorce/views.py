@@ -176,7 +176,6 @@ class PropertyFormView(View):
             cache.set('form_1', form.cleaned_data)
             # обработка формы № 1
             type_of_property, marriage, after_break_up, list_of_links = form_1_processing(form.cleaned_data)
-            form_1 = form.cleaned_data.copy()
 
             form_1_processed_data = {'type_of_property': type_of_property,
                                      'marriage': marriage,
@@ -184,9 +183,7 @@ class PropertyFormView(View):
                                      'list_of_links': list_of_links}
             # кэшируем обработанные данные
             cache.set('form_1_processed_data', form_1_processed_data)
-            form_1.update(form_1_processed_data)
 
-            print(form_1)
             if marriage is None:
                 return redirect('/divorce/form_property_2_nm')
                 #return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
@@ -235,6 +232,57 @@ class PropertyForm2nmView(View):
             print('Я тут ТРИ!!!!')
             print()
             print(request.POST)
+            # Фильтровка корректных значений, если есть сособственники
+            if 'coowners' in request.POST:
+                dolya_chislitel = request.POST['dolya_chislitel']
+                dolya_znamenatel = request.POST['dolya_znamenatel']
+                if not dolya_chislitel or not dolya_znamenatel or dolya_chislitel == 0 or dolya_znamenatel == 0:
+                    errors = {
+                        'Доля в праве указана неверно': f'{dolya_chislitel}/{dolya_znamenatel}'
+                    }
+                    return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+                if dolya_chislitel >= dolya_znamenatel:
+                    errors = {
+                        'Числитель не может быть больше или равен знаменателю': f'{dolya_chislitel}/{dolya_znamenatel}'
+                    }
+                    return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+            # если всё хорошо:
+            # грузим из кэша форму № 1 и обработанную форму
+            # TODO - сделать функцию, которая будут агрегировать форму № 1, обработанную форму № 1,
+            #  форму № 2 и self.ownership в form для сохранения в БД
+            form_1 = cache.get('form_1')
+            form_1_processed_data = cache.get('form_1_processed_data')
+
+            # готовим форму № 2 к работе
+            form_2 = request.POST
+            # готовим self.ownership
+            # TODO - сериализуем self.ownership в JSON
+            # сливаем всё в одну форму
+            form_example = form_1.copy()
+            form_example.update(form_1_processed_data)
+            form_example.update(form_2)
+            # создаем новую форму, которая будет записана в БД
+            form = Property_form(form_example)
+            if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
+                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                form.cleaned_data.update(form_1_processed_data)
+                form.cleaned_data.update(form_2)
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
+                # ручками сохранить конкретную строку
+                # TODO - сделать то же самое с self.ownership
+                temp = form.save(commit=False)
+                temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.save()
+                # удаляем кэшированные данные
+                cache.delete('form_1')
+                cache.delete('form_1_processed_data')
+
+
+            # вариант № 1 - нет сособственников - личная собственность
+            # вариант № 2 - есть сособственники - долевая собственность
+
+
+
             #form = Property_form(request.POST) # заполняем форму из словаря POST
             #property = None
         else:
@@ -253,28 +301,28 @@ class PropertyForm2nmView(View):
 
         # всё, что ниже - не актуально
 
-        if form.is_valid():
-            print('+++++++++++cleaned_data+++++++++++++++++++')
-            print(form.cleaned_data)
-            # обработка формы № 1
-            type_of_property, marriage, after_break_up, list_of_links = form_1_processing(form.cleaned_data)
-            form_1 = form.cleaned_data.copy()
-            form_1_processed_data = {'type_of_property': type_of_property,
-                                     'marriage': marriage,
-                                     'after_break_up': after_break_up,
-                                     'list_of_links': list_of_links}
-            form_1.update(form_1_processed_data)
-            print(form_1)
-            if marriage is None:
-                return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
-            else:
-                return render(request, 'divorce/form_property_2_m.html',
-                              {'form': form, 'property': property, 'form_1': form_1})
-
-            #return redirect('/divorce')
-        # если есть проблемы с формой - ValueError из forms.py
-        else:
-            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
+        # if form.is_valid():
+        #     print('+++++++++++cleaned_data+++++++++++++++++++')
+        #     print(form.cleaned_data)
+        #     # обработка формы № 1
+        #     type_of_property, marriage, after_break_up, list_of_links = form_1_processing(form.cleaned_data)
+        #     form_1 = form.cleaned_data.copy()
+        #     form_1_processed_data = {'type_of_property': type_of_property,
+        #                              'marriage': marriage,
+        #                              'after_break_up': after_break_up,
+        #                              'list_of_links': list_of_links}
+        #     form_1.update(form_1_processed_data)
+        #     print(form_1)
+        #     if marriage is None:
+        #         return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
+        #     else:
+        #         return render(request, 'divorce/form_property_2_m.html',
+        #                       {'form': form, 'property': property, 'form_1': form_1})
+        #
+        #     #return redirect('/divorce')
+        # # если есть проблемы с формой - ValueError из forms.py
+        # else:
+        #     return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
 
 ########################################################
 # def fiz_l_form_add(request, id=0):
