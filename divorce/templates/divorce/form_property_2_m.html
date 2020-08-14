@@ -1,0 +1,160 @@
+{% extends 'divorce/base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<form action="{% url 'property_2_m' %}" method="post" autocomplete="off">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6">
+                <br/>
+                <!--Ошибки после проверок с законами -->
+                {% if errors %}
+                    <div class="alert alert-danger" role="alert">
+                    {% for k, v in errors.items %}
+                    <p>{{ k }}: {{ v }}</p>
+                    {% endfor %}
+                    </div>
+                    <br/>
+                {% endif %}
+
+                <h4>Добавление/редактирование имущества</h4>
+                <h5>Шаг 2</h5>
+                <br>
+                <!-- Вопрос № 1 -->
+                <input type="checkbox" id="coowners" name="coowners">
+                <label for="coowners"><b>Имеются сособственники на имущество (супруг не в счет)</b></label>
+                <br>
+                <!-- Вопрос № 1.1 -->
+
+                <div id="dolya" style="display: none">
+                <input type="number" id="dolya_chislitel" name="dolya_chislitel" size="3px">
+                <label for="dolya_chislitel">/</label>
+                <input type="number" id="dolya_znamenatel" name="dolya_znamenatel" size="3px">
+                <label for="dolya_znamenatel">Укажите вашу общую с супругом долю в праве на имущество</label>
+                </div>
+
+                <script type="text/javascript">
+                    document.getElementById("coowners").onclick = function() {
+                        T = document.getElementById("dolya")
+                        if (T.style.display == 'none')
+                        document.getElementById("dolya").style.display = "block";
+                        else
+                            document.getElementById("dolya").style.display = "none";
+                         }
+                </script>
+
+                <br>
+                <!-- Вопрос № 2 -->
+                <input type="checkbox" id="for_child" name="for_child">
+                <label for="for_child"><b>Детское имущество (для ребенка)</b></label>
+                <br>
+
+                <!-- Вопрос № 2.1 -->
+                <div id="child_accomodation" style="display: none">
+                    <table>
+                        <thead>
+                        Выберите супруга(супругов), с которым проживает (будет проживать) ребенок
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="child_accomodation_mother" style="padding-right: 10px">С матерью:  </label>
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="child_accomodation_mother" name="child_accomodation_mother" size="3px">
+                                    {{ parents|get_item:'mother' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="child_accomodation_father">С отцом:  </label>
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="child_accomodation_father" name="child_accomodation_father" size="3px">
+                                    {{ parents|get_item:'father' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <script type="text/javascript">
+                    document.getElementById("for_child").onclick = function() {
+                        T = document.getElementById("child_accomodation")
+                        if (T.style.display == 'none')
+                        document.getElementById("child_accomodation").style.display = "block";
+                        else
+                            document.getElementById("child_accomodation").style.display = "none";
+                         }
+                </script>
+
+                <br>
+
+                <!-- Вопрос № 3 -->
+                {% if form_1_processed_data|get_item:'type_of_property' == 'Недвижимая вещь' or form_1_processed_data|get_item:'type_of_property' == 'Движимая вещь'%}
+                    <input type="checkbox" id="individual" name="individual">
+                    <label for="individual"><b>Вещь индивидуального пользования</b></label>
+                    <!-- Вопрос № 3.1 -->
+                <div id="individual_use" style="display: none">
+                    <table>
+                        <thead>
+                        Выберите, кем из супругов используется имущество
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="individual_use_wife" style="padding-right: 10px">Женой:  </label>
+                                </td>
+                                <td>
+                                    <input type="radio" id="individual_use_choice_1" name="individual_use_parties" value="individual_use_wife" size="3px">
+                                    {{ parents|get_item:'mother' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="individual_use_husband">Мужем:  </label>
+                                </td>
+                                <td>
+                                    <input type="radio" id="individual_use_choice_2" name="individual_use_parties" value="individual_use_husband" size="3px">
+                                    {{ parents|get_item:'father' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <script type="text/javascript">
+                    document.getElementById("individual").onclick = function() {
+                        T = document.getElementById("individual_use")
+                        if (T.style.display == 'none')
+                        document.getElementById("individual_use").style.display = "block";
+                        else
+                            document.getElementById("individual_use").style.display = "none";
+                         }
+                </script>
+
+                <br>
+
+                {% endif %}
+
+
+
+                    <br>
+
+                    <button type="submit" class="btn btn-primary"><i class="far fa-save"></i>   Сохранить</button>
+                    <a href="{% url 'form_add_property_1' %}" class="btn btn-secondary"><i class="fas fa-undo-alt"></i>   Вернуться</a>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- {{ form|crispy }} -->
+</form>
+<br/>
+<br/>
+
+{% endblock content %}
