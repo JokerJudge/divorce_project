@@ -236,3 +236,23 @@ def to_ownership(form_full: dict):
     i_ownership = {period_of_time: type_of_relationships}
     ownership = {'ownership': i_ownership}
     return ownership
+
+def clean_coowners(data: dict):
+    '''
+    Проверка на правильность заполнения поля с долями в праве
+    :param data: словарь request.POST
+    :return: словарь errors, если при заполнении были ошибки или None, если всё в порядке
+    '''
+    dolya_chislitel = data['dolya_chislitel']
+    dolya_znamenatel = data['dolya_znamenatel']
+    if not dolya_chislitel or not dolya_znamenatel or int(dolya_chislitel) <= 0 or int(dolya_znamenatel) <= 0:
+        errors = {
+            'Доля в праве указана неверно': f'{dolya_chislitel}/{dolya_znamenatel}'
+        }
+        return errors
+    if int(dolya_chislitel) >= int(dolya_znamenatel):
+        errors = {
+            'Числитель не может быть больше или равен знаменателю': f'{dolya_chislitel}/{dolya_znamenatel}'
+        }
+        return errors
+    return None
