@@ -159,7 +159,7 @@ class PropertyFormView(View):
         else:  # update operation
             property = Property.objects.get(pk=id)
             form = Property_form(instance=property)  # заполненная имеющимися данными форма
-            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
+            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property, 'id': id})
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
@@ -167,7 +167,13 @@ class PropertyFormView(View):
             property = None
         else:
             property = Property.objects.get(pk=id)  # получаем по id нужный объект
+            print()
+            print('request.POST')
+            print(request.POST)
             form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
+            print()
+            print('form')
+            print(form)
 
         if form.is_valid():
             print('+++++++++++cleaned_data+++++++++++++++++++')
@@ -181,11 +187,17 @@ class PropertyFormView(View):
                                      'marriage': marriage,
                                      'after_break_up': after_break_up,
                                      'list_of_links': list_of_links}
+            print()
+            print('form_1_processed_data')
+            print(form_1_processed_data)
             # кэшируем обработанные данные
             cache.set('form_1_processed_data', form_1_processed_data)
 
             if marriage is None:
-                return redirect('/divorce/form_property_2_nm')
+                if id == 0:
+                    return redirect('/divorce/form_property_2_nm')
+                else:
+                    return redirect(f'/divorce/form_property_2_nm/{id}')
                 #return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
             else:
                 # TODO - если есть брак
@@ -224,7 +236,10 @@ class PropertyForm2nmView(View):
             print()
             property = Property.objects.get(pk=id)
             form = Property_form(instance=property)  # заполненная имеющимися данными форма
-            return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
+            print()
+            print('form')
+            print(form)
+            return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property})
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
@@ -292,7 +307,54 @@ class PropertyForm2nmView(View):
             print('Я тут ЧЕТЫРЕ!!!!')
             print()
             property = Property.objects.get(pk=id)  # получаем по id нужный объект
-            form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
+            #form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
+
+            if 'coowners' in request.POST:
+                dolya_chislitel = request.POST['dolya_chislitel']
+                dolya_znamenatel = request.POST['dolya_znamenatel']
+                if not dolya_chislitel or not dolya_znamenatel or dolya_chislitel == 0 or dolya_znamenatel == 0:
+                    errors = {
+                        'Доля в праве указана неверно': f'{dolya_chislitel}/{dolya_znamenatel}'
+                    }
+                    return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+                if dolya_chislitel >= dolya_znamenatel:
+                    errors = {
+                        'Числитель не может быть больше или равен знаменателю': f'{dolya_chislitel}/{dolya_znamenatel}'
+                    }
+                    return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+            # если всё хорошо:
+            # грузим из кэша форму № 1 и обработанную форму
+            # TODO - сделать функцию, которая будут агрегировать форму № 1, обработанную форму № 1,
+            #  форму № 2 и self.ownership в form для сохранения в БД
+            form_1 = cache.get('form_1')
+            form_1_processed_data = cache.get('form_1_processed_data')
+
+            # готовим форму № 2 к работе
+            form_2 = request.POST
+            # сливаем всё в один словарь
+            form_example = form_1.copy()
+            form_example.update(form_1_processed_data)
+            form_example.update(form_2)
+            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
+            ownership = to_ownership(form_example)
+            # создаем новую форму, которая будет записана в БД
+            form = Property_form(form_example, instance=property)  # property будет изменен новой формой request.POST
+            #form = Property_form(form_example)
+            if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
+                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                form.cleaned_data.update(form_1_processed_data)
+                form.cleaned_data.update(form_2)
+                form.cleaned_data.update(ownership)
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
+                # ручками сохранить конкретную строку
+                temp = form.save(commit=False)
+                temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.ownership = form.cleaned_data['ownership']
+                temp.save()
+                # удаляем кэшированные данные
+                cache.delete('form_1')
+                cache.delete('form_1_processed_data')
+                return redirect('/divorce')
 
         # обработка ответов
 
