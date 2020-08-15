@@ -140,6 +140,126 @@
 
                 {% endif %}
 
+                <!-- Вопрос № 4 -->
+                <br>
+
+                <div id="purchase_type_div" style="display: block">
+                    <table>
+                        <thead>
+                        <b>Укажите способ приобретения имущества</b>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="radio" id="purchase_type_buy" name="purchase_type" value="purchase_type_buy" size="3px" style="padding-right: 10px">
+                                </td>
+                                <td>
+                                    <label for="purchase_type_buy" style="padding-left: 10px">Покупка</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="radio" id="purchase_type_present" name="purchase_type" value="purchase_type_present" size="3px" style="padding-right: 10px">
+                                </td>
+                                <td>
+                                    <label for="purchase_type_present" style="padding-left: 10px">Подарок</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="present_receiver" style="display: none; padding-left: 20px">
+                        <table>
+                            <thead>
+                            <i>Выберите, кому подарили имущество</i>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="present_receiver_wife" style="padding-right: 10px">Жене:  </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" onclick="present_dolya()" id="present_receiver_wife" name="present_receiver_wife" size="3px">
+                                        {{ parents|get_item:'mother' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="present_receiver_husband" style="padding-right: 10px">Мужу:  </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" onclick="present_dolya()" id="present_receiver_husband" name="present_receiver_husband" size="3px">
+                                        {{ parents|get_item:'father' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <script type="text/javascript">
+                    document.getElementById("purchase_type_present").onclick = function() {
+                        T = document.getElementById("present_receiver")
+                        if (T.style.display == 'none')
+                        document.getElementById("present_receiver").style.display = "block";
+                         }
+                    document.getElementById("purchase_type_buy").onclick = function() {
+                        present_receiver = document.getElementById("present_receiver")
+                        if (present_receiver.style.display == 'block')
+                            present_receiver.style.display = 'none'
+                            document.getElementById("present_receiver_husband").checked = false
+                            document.getElementById("present_receiver_wife").checked = false
+                    }
+
+                    function present_dolya() {
+                        if (document.getElementById("present_receiver_husband").checked === true && document.getElementById("present_receiver_wife").checked === true)
+                            alert("Yes")
+
+                    }
+
+
+
+
+
+                    <!--TODO -->
+                    <!-- Сделать JS функцию, чтобы очищать чекбоксы при переключении радиокнопок-->
+                    function clear_checkboxes() {
+
+                    }
+
+                    </script>
+
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="radio" id="purchase_type_creation" name="purchase_type" value="purchase_type_creation" size="3px" style="padding-right: 10px">
+                                </td>
+                                <td>
+                                    <label for="purchase_type_creation" style="padding-left: 10px">Создание</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="radio" id="purchase_type_inheritance" name="purchase_type" value="purchase_type_inheritance" size="3px" style="padding-right: 10px">
+                                </td>
+                                <td>
+                                    <label for="purchase_type_inheritance" style="padding-left: 10px">Наследование</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <script type="text/javascript">
+                    document.getElementById("individual").onclick = function() {
+                        T = document.getElementById("individual_use")
+                        if (T.style.display == 'none')
+                        document.getElementById("individual_use").style.display = "block";
+                        else
+                            document.getElementById("individual_use").style.display = "none";
+                         }
+                </script>
+
+                <br>
+
 
 
                     <br>
