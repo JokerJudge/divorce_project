@@ -8,7 +8,7 @@
     {% csrf_token %}
     <div class="container">
         <div class="row justify-content-md-center">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <br/>
                 <!--Ошибки после проверок с законами -->
                 {% if errors %}
@@ -151,15 +151,492 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <input type="radio" id="purchase_type_buy" name="purchase_type" value="purchase_type_buy" size="3px" style="padding-right: 10px">
+                                    <input type="radio" id="purchase_type_buy" onclick="hide_others('purchase_type_buy')" name="purchase_type" value="purchase_type_buy" size="3px" style="padding-right: 10px">
                                 </td>
                                 <td>
                                     <label for="purchase_type_buy" style="padding-left: 10px">Покупка</label>
                                 </td>
                             </tr>
+                        </tbody>
+                    </table>
+                    <!-- Вопрос № 4.3 -->
+                    <div id="d_before_marriage" style="display: none; padding-left: 20px">
+                        <input type="checkbox" id="before_marriage" name="before_marriage">
+                        <label for="before_marriage">Часть/все деньги вносились до брака</label>
+
+                        <!-- Вопрос № 4.3.1 -->
+                        <div id="d_before_marriage_checked" style="display: none;" class="col-md-12">
+                            <table class="table table-sm table-dark">
+                                <thead>
+                                <i>Выберите, кем из будущих супругов вносились деньги за имущество и какая доля была оплачена этими деньгами</i>
+                                </thead>
+                                <tbody>
+                                    <tr class="d-flex">
+                                        <td class="col-2">
+                                            <label for="before_marriage_wife" style="padding-right: 10px">Женой:  </label>
+                                        </td>
+                                        <td class="col-3">
+                                            <input type="checkbox" onclick="before_marriage_dolya()" id="before_marriage_wife" name="before_marriage_wife" size="3px">
+                                            {{ parents|get_item:'mother' }}
+                                        </td>
+                                        <!-- Вопрос № 4.3.1.1 жена html -->
+                                        <td id="amount_wife" style="display: none" class="col-3">
+                                            <input type="radio" id="before_marriage_wife_amount_all" name="before_marriage_wife_amount" size="3px">
+                                            <label for="before_marriage_wife_amount_all" style="padding-right: 10px">Полностью</label>
+                                            <br>
+                                            <input type="radio" id="before_marriage_wife_amount_dolya" name="before_marriage_wife_amount" size="3px">
+                                            <label for="before_marriage_wife_amount_dolya" style="padding-right: 10px">В части</label>
+                                        </td>
+                                        <td id="before_marriage_dolya_wife" style="display: none" class="col-4">
+                                            <input type="number" id="before_marriage_dolya_chislitel_wife" name="before_marriage_dolya_chislitel_wife" size="3px">
+                                            <label for="before_marriage_dolya_chislitel_wife">/</label>
+                                            <input type="number" id="before_marriage_dolya_znamenatel_wife" name="before_marriage_dolya_znamenatel_wife" size="3px">
+                                            <label for="before_marriage_dolya_znamenatel_wife">  </label>
+                                            Укажите оплаченную до брака долю
+                                        </td>
+                                    </tr>
+                                    <tr class="d-flex">
+                                        <td class="col-2">
+                                            <label for="before_marriage_husband" style="padding-right: 10px">Мужем:  </label>
+                                        </td>
+                                        <td class="col-3">
+                                            <input type="checkbox" onclick="before_marriage_dolya()" id="before_marriage_husband" name="before_marriage_husband" size="3px">
+                                            {{ parents|get_item:'father' }}
+                                        </td>
+                                        <!-- Вопрос № 4.3.1.1 муж html -->
+                                        <td id="amount_husband" style="display: none" class="col-3">
+                                            <input type="radio" id="before_marriage_husband_amount_all" name="before_marriage_husband_amount" size="3px">
+                                            <label for="before_marriage_husband_all" style="padding-right: 10px">Полностью</label>
+                                            <br>
+                                            <input type="radio" id="before_marriage_husband_amount_dolya" name="before_marriage_husband_amount" size="3px">
+                                            <label for="before_marriage_husband_amount_dolya" style="padding-right: 10px">В части</label>
+                                        </td>
+                                        <td id="before_marriage_dolya_husband" style="display: none" class="col-4">
+                                            <input type="number" id="before_marriage_dolya_chislitel_husband" name="before_marriage_dolya_chislitel_husband" size="3px">
+                                            <label for="before_marriage_dolya_chislitel_husband">/</label>
+                                            <input type="number" id="before_marriage_dolya_znamenatel_husband" name="before_marriage_dolya_znamenatel_husband" size="3px">
+                                            <label for="before_marriage_dolya_znamenatel_husband">  </label>
+                                            Укажите оплаченную до брака долю
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <script type="text/javascript">
+                            document.getElementById("before_marriage").onclick = function() {
+                            T = document.getElementById("d_before_marriage_checked")
+                            if (T.style.display == 'none')
+                                {document.getElementById("d_before_marriage_checked").style.display = "block";
+                                document.getElementById('source').style.display = 'none';}
+                            else
+                                {document.getElementById("d_before_marriage_checked").style.display = "none";
+                                document.getElementById('source').style.display = 'block';}
+
+
+                            if (document.getElementById('before_marriage').checked === true)
+                                {
+                                document.getElementById('head_source').innerHTML = '<i>Укажите на чьи средства приобретена оставшаяся часть</i>'
+                                }
+                            else
+                                {
+                                document.getElementById('head_source').innerHTML = '<i>Укажите на чьи средства приобретено имущество</i>'
+                                }
+                            }
+                        </script>
+
+                        <script type="text/javascript">
+
+                        function before_marriage_dolya() {
+                            W = document.getElementById("before_marriage_dolya_wife");
+                            H = document.getElementById("before_marriage_dolya_husband");
+                            d = document.getElementById('d_before_marriage_checked');
+                            amount_w = document.getElementById('amount_wife');
+                            amount_h = document.getElementById('amount_husband');
+                            rad_w_all = document.getElementById('before_marriage_wife_amount_all');
+                            rad_h_all = document.getElementById('before_marriage_husband_amount_all');
+                            rad_w_dolya = document.getElementById('before_marriage_wife_amount_dolya');
+                            rad_h_dolya = document.getElementById('before_marriage_husband_amount_dolya');
+                            ch_w = document.getElementById('before_marriage_dolya_chislitel_wife');
+                            ch_h = document.getElementById('before_marriage_dolya_chislitel_husband');
+                            z_w = document.getElementById('before_marriage_dolya_znamenatel_wife');
+                            z_h = document.getElementById('before_marriage_dolya_znamenatel_husband');
+                            if (document.getElementById("before_marriage_husband").checked === true
+                                && document.getElementById("before_marriage_wife").checked === true) {
+                                W.style.display = 'block';
+                                H.style.display = 'block';
+                                amount_w.style.display = 'none';
+                                amount_h.style.display = 'none';
+                                rad_w_all.checked = false;
+                                rad_h_all.checked = false;
+                                rad_w_dolya.checked = false;
+                                rad_h_dolya.checked = false;
+                            }
+
+                            else if ((document.getElementById("before_marriage_wife").checked === true
+                                && document.getElementById("before_marriage_husband").checked !== true))
+                            {
+                                W.style.display = 'none';
+                                H.style.display = 'none';
+                                z_w.value = '';
+                                z_h.value = '';
+                                amount_w.style.display = 'block';
+                                amount_h.style.display = 'none';
+                                rad_w_all.checked = true;
+                                rad_h_all.checked = false;
+                                rad_w_dolya.checked = false;
+                                rad_h_dolya.checked = false;
+
+                            }
+
+                            else if ((document.getElementById("before_marriage_wife").checked !== true
+                                && document.getElementById("before_marriage_husband").checked === true))
+                            {
+                                W.style.display = 'none';
+                                H.style.display = 'none';
+                                ch_w.value = '';
+                                ch_h.value = '';
+                                amount_w.style.display = 'none';
+                                amount_h.style.display = 'block';
+                                rad_w_all.checked = false;
+                                rad_h_all.checked = true;
+                                rad_w_dolya.checked = false;
+                                rad_h_dolya.checked = false;
+                            }
+
+                            rad_w_dolya.onclick = function() {
+                            if (W.style.display == 'none')
+                                {W.style.display = "block";
+                                document.getElementById('source').style.display = 'block';}
+                            }
+                            rad_w_all.onclick = function() {
+                            if (W.style.display == 'block')
+                                {W.style.display = "none";
+                                document.getElementById('source').style.display = 'none';
+                                ch_w.value = '';
+                                z_w.value = '';
+                                }
+                            }
+
+                            rad_h_dolya.onclick = function() {
+                            if (H.style.display == 'none')
+                                {H.style.display = "block";
+                                document.getElementById('source').style.display = 'block';}
+                            }
+                            rad_h_all.onclick = function() {
+                            if (H.style.display == 'block')
+                                {H.style.display = "none";
+                                document.getElementById('source').style.display = 'none';
+                                ch_h.value = '';
+                                z_h.value = '';
+                                }
+                            }
+
+
+                        }
+                        </script>
+
+                    </div>
+                    <!-- Вопрос № 4.4 -->
+                    <div style="padding-left: 20px">
+                    <div id="source" style="display: none" class="col-md-12">
+                        <table class="table table-sm table-dark">
+                            <p id="head_source">
+                                <i>Укажите на чьи средства приобретено имущество</i>
+                            </p>
+                            <thead>
+                            </thead>
+                            <tbody>
+                                <tr class="d-flex">
+                                    <td class='col-3'>
+                                        <label for="common" style="padding-right: 10px">Общие средства: </label>
+                                    </td>
+                                    <td class='col-3'>
+                                        <input type="checkbox" onclick="source_dolya()" id="common" name="common_dolya" size="3px">
+                                    </td>
+                                    <!-- Вопрос № 4.4.1 общие html -->
+                                    <td id="common_amount" style="display: none" class='col-3'>
+                                        <input type="radio" id="common_amount_all" name="common_amount" size="3px">
+                                        <label for="common_amount_all" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="common_amount_dolya" name="common_amount" size="3px">
+                                        <label for="common_amount_dolya" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="common_dolya" style="display: none">
+                                        <input type="number" id="common_dolya_chislitel" name="common_dolya_chislitel" size="3px">
+                                        <label for="common_dolya_chislitel">/</label>
+                                        <input type="number" id="common_dolya_znamenatel" name="common_dolya_znamenatel" size="3px">
+                                        <label for="common_dolya_znamenatel">  </label>
+                                        Укажите долю
+                                    </td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class='col-3'>
+                                        <label for="private_wife" style="padding-right: 10px">Личные средства жены:  </label>
+                                    </td>
+                                    <td class='col-3'>
+                                        <input type="checkbox" onclick="source_dolya()" id="private_wife" name="private_wife" size="3px">
+                                        {{ parents|get_item:'mother' }}
+                                    </td>
+                                    <!-- Вопрос № 4.4.1 жена html -->
+                                    <td id="private_amount_wife" style="display: none" class='col-3'>
+                                        <input type="radio" id="private_wife_amount_all" name="private_wife_amount" size="3px">
+                                        <label for="private_wife_amount_all" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="private_wife_amount_dolya" name="private_wife_amount" size="3px">
+                                        <label for="private_wife_amount_dolya" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="private_dolya_wife" style="display: none">
+                                        <input type="number" id="private_dolya_chislitel_wife" name="private_dolya_chislitel_wife" size="3px">
+                                        <label for="private_dolya_chislitel_wife">/</label>
+                                        <input type="number" id="private_dolya_znamenatel_wife" name="private_dolya_znamenatel_wife" size="3px">
+                                        <label for="private_dolya_znamenatel_wife">  </label>
+                                        Укажите долю
+                                    </td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class='col-3'>
+                                        <label for="private_husband" style="padding-right: 10px">Личные средства мужа: </label>
+                                    </td>
+                                    <td class='col-3'>
+                                        <input type="checkbox" onclick="source_dolya()" id="private_husband" name="private_husband" size="3px">
+                                        {{ parents|get_item:'father' }}
+                                    </td>
+                                    <!-- Вопрос № 4.4.1 муж html -->
+                                    <td id="private_amount_husband" style="display: none" class='col-3'>
+                                        <input type="radio" id="private_husband_amount_all" name="private_husband_amount" size="3px">
+                                        <label for="private_husband_amount_all" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="private_husband_amount_dolya" name="private_husband_amount" size="3px">
+                                        <label for="private_husband_amount_dolya" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="private_dolya_husband" style="display: none">
+                                        <input type="number" id="private_dolya_chislitel_husband" name="private_dolya_chislitel_husband" size="3px">
+                                        <label for="private_dolya_chislitel_husband">/</label>
+                                        <input type="number" id="private_dolya_znamenatel_husband" name="private_dolya_znamenatel_husband" size="3px">
+                                        <label for="private_dolya_znamenatel_husband">  </label>
+                                        Укажите долю
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <script type="text/javascript">
+
+                    function source_dolya() {
+                        C = document.getElementById("common_dolya");
+                        W = document.getElementById("private_dolya_wife");
+                        H = document.getElementById("private_dolya_husband");
+                        amount_c = document.getElementById('common_amount');
+                        amount_w = document.getElementById('private_amount_wife');
+                        amount_h = document.getElementById('private_amount_husband');
+                        rad_c_all = document.getElementById('common_amount_all');
+                        rad_w_all = document.getElementById('private_wife_amount_all');
+                        rad_h_all = document.getElementById('private_husband_amount_all');
+                        rad_c_dolya = document.getElementById('common_amount_dolya');
+                        rad_w_dolya = document.getElementById('private_wife_amount_dolya');
+                        rad_h_dolya = document.getElementById('private_husband_amount_dolya');
+                        ch_c = document.getElementById('common_dolya_chislitel');
+                        ch_w = document.getElementById('private_dolya_chislitel_wife');
+                        ch_h = document.getElementById('private_dolya_chislitel_husband');
+                        z_c = document.getElementById('common_dolya_znamenatel');
+                        z_w = document.getElementById('private_dolya_znamenatel_wife');
+                        z_h = document.getElementById('private_dolya_znamenatel_husband');
+
+                        if (document.getElementById("common").checked === true
+                            && document.getElementById("private_wife").checked === true
+                            && document.getElementById("private_husband").checked === true) {
+                            C.style.display = 'block';
+                            W.style.display = 'block';
+                            H.style.display = 'block';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+
+                        else if (document.getElementById("common").checked === true
+                            && document.getElementById("private_wife").checked === true
+                            && document.getElementById("private_husband").checked !== true) {
+                            C.style.display = 'block';
+                            W.style.display = 'block';
+                            H.style.display = 'none';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_h.value = '';
+                            z_h = '';
+                        }
+
+                        else if (document.getElementById("common").checked === true
+                            && document.getElementById("private_wife").checked !== true
+                            && document.getElementById("private_husband").checked === true) {
+                            C.style.display = 'block';
+                            W.style.display = 'none';
+                            H.style.display = 'block';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_w.value = '';
+                            z_w = '';
+                        }
+
+                        else if (document.getElementById("common").checked !== true
+                            && document.getElementById("private_wife").checked === true
+                            && document.getElementById("private_husband").checked === true) {
+                            C.style.display = 'none';
+                            W.style.display = 'block';
+                            H.style.display = 'block';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_c.value = '';
+                            z_c = '';
+                        }
+
+                        else if (document.getElementById("common").checked === true
+                            && document.getElementById("private_wife").checked !== true
+                            && document.getElementById("private_husband").checked !== true) {
+                            C.style.display = 'none';
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            amount_c.style.display = 'block';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = true;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_c.value = '';
+                            ch_w.value = '';
+                            ch_h.value = '';
+                            z_c = '';
+                            z_w.value = '';
+                            z_h.value = '';
+                        }
+
+                        else if (document.getElementById("common").checked !== true
+                            && document.getElementById("private_wife").checked === true
+                            && document.getElementById("private_husband").checked !== true) {
+                            C.style.display = 'none';
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'block';
+                            amount_h.style.display = 'none';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = true;
+                            rad_h_all.checked = false;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_c.value = '';
+                            ch_w.value = '';
+                            ch_h.value = '';
+                            z_c = '';
+                            z_w.value = '';
+                            z_h.value = '';
+                        }
+
+                        else if (document.getElementById("common").checked !== true
+                            && document.getElementById("private_wife").checked !== true
+                            && document.getElementById("private_husband").checked === true) {
+                            C.style.display = 'none';
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            amount_c.style.display = 'none';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'block';
+                            rad_c_all.checked = false;
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = true;
+                            rad_c_dolya.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                            ch_c.value = '';
+                            ch_w.value = '';
+                            ch_h.value = '';
+                            z_c = '';
+                            z_w.value = '';
+                            z_h.value = '';
+                        }
+
+                        rad_w_dolya.onclick = function() {
+                        if (W.style.display == 'none')
+                            {W.style.display = "block";}
+                        }
+                        rad_w_all.onclick = function() {
+                        if (W.style.display == 'block')
+                            {W.style.display = "none";
+                            ch_w.value = '';
+                            z_w.value = '';
+                            }
+                        }
+
+                        rad_h_dolya.onclick = function() {
+                        if (H.style.display == 'none')
+                            {H.style.display = "block";}
+                        }
+                        rad_h_all.onclick = function() {
+                        if (H.style.display == 'block')
+                            {H.style.display = "none";
+                            ch_h.value = '';
+                            z_h.value = '';
+                            }
+                        }
+
+                        rad_c_dolya.onclick = function() {
+                        if (C.style.display == 'none')
+                            {C.style.display = "block";}
+                        }
+                        rad_c_all.onclick = function() {
+                        if (C.style.display == 'block')
+                            {C.style.display = "none";
+                            ch_c.value = '';
+                            z_c.value = '';
+                            }
+                        }
+
+
+                    }
+                    </script>
+
+                    </div>
+
+
+
+                    <table>
+                        <tbody>
                             <tr>
                                 <td>
-                                    <input type="radio" id="purchase_type_present" name="purchase_type" value="purchase_type_present" size="3px" style="padding-right: 10px">
+                                    <input type="radio" id="purchase_type_present" onclick="hide_others('purchase_type_present')" name="purchase_type" value="purchase_type_present" size="3px" style="padding-right: 10px">
                                 </td>
                                 <td>
                                     <label for="purchase_type_present" style="padding-left: 10px">Подарок</label>
@@ -167,70 +644,152 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div id="present_receiver" style="display: none; padding-left: 20px">
-                        <table>
+                    <!-- Вопрос № 4.2 -->
+                    <div id="present_receiver" style="display: none; padding-left: 20px" class="col-md-12">
+                        <table class="table table-dark">
                             <thead>
                             <i>Выберите, кому подарили имущество</i>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
+                                <tr class="d-flex">
+                                    <td class="col-2">
                                         <label for="present_receiver_wife" style="padding-right: 10px">Жене:  </label>
                                     </td>
-                                    <td>
+                                    <td class="col-3">
                                         <input type="checkbox" onclick="present_dolya()" id="present_receiver_wife" name="present_receiver_wife" size="3px">
                                         {{ parents|get_item:'mother' }}
                                     </td>
+                                    <!-- Вопрос № 4.2.1 жена html -->
+                                    <td id="present_amount_wife" style="display: none" class='col-3'>
+                                        <input type="radio" id="present_amount_all_wife" name="present_amount_wife" size="3px">
+                                        <label for="present_amount_all_wife" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="present_amount_dolya_wife" name="present_amount_wife" size="3px">
+                                        <label for="present_amount_dolya_wife" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="present_dolya_wife" style="display: none">
+                                        <input type="number" id="present_dolya_chislitel_wife" name="present_dolya_chislitel_wife" size="3px">
+                                        <label for="present_dolya_chislitel_wife">/</label>
+                                        <input type="number" id="present_dolya_znamenatel_wife" name="present_dolya_znamenatel_wife" size="3px">
+                                        <label for="present_dolya_znamenatel_wife">  </label>
+                                        Укажите долю жены
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td>
+                                <tr class="d-flex">
+                                    <td class="col-2">
                                         <label for="present_receiver_husband" style="padding-right: 10px">Мужу:  </label>
                                     </td>
-                                    <td>
+                                    <td class="col-3">
                                         <input type="checkbox" onclick="present_dolya()" id="present_receiver_husband" name="present_receiver_husband" size="3px">
                                         {{ parents|get_item:'father' }}
+                                    </td>
+                                    <!-- Вопрос № 4.2.1 муж html -->
+                                    <td id="present_amount_husband" style="display: none" class='col-3'>
+                                        <input type="radio" id="present_amount_all_husband" name="present_amount_husband" size="3px">
+                                        <label for="present_amount_all_husband" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="present_amount_dolya_husband" name="present_amount_husband" size="3px">
+                                        <label for="present_amount_dolya_husband" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="present_dolya_husband" style="display: none">
+                                        <input type="number" id="present_dolya_chislitel_husband" name="present_dolya_chislitel_husband" size="3px">
+                                        <label for="present_dolya_chislitel_husband">/</label>
+                                        <input type="number" id="present_dolya_znamenatel_husband" name="present_dolya_znamenatel_husband" size="3px">
+                                        <label for="present_dolya_znamenatel_husband">  </label>
+                                        Укажите долю мужа
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                    <!-- Вопрос № 4.2.1 скрипт -->
                     <script type="text/javascript">
-                    document.getElementById("purchase_type_present").onclick = function() {
-                        T = document.getElementById("present_receiver")
-                        if (T.style.display == 'none')
-                        document.getElementById("present_receiver").style.display = "block";
-                         }
-                    document.getElementById("purchase_type_buy").onclick = function() {
-                        present_receiver = document.getElementById("present_receiver")
-                        if (present_receiver.style.display == 'block')
-                            present_receiver.style.display = 'none'
-                            document.getElementById("present_receiver_husband").checked = false
-                            document.getElementById("present_receiver_wife").checked = false
-                    }
 
                     function present_dolya() {
-                        if (document.getElementById("present_receiver_husband").checked === true && document.getElementById("present_receiver_wife").checked === true)
-                            alert("Yes")
+                        W = document.getElementById("present_dolya_wife");
+                        H = document.getElementById("present_dolya_husband");
+                        amount_w = document.getElementById("present_amount_wife");
+                        amount_h = document.getElementById("present_amount_husband");
+                        rad_w_all = document.getElementById("present_amount_all_wife");
+                        rad_h_all = document.getElementById("present_amount_all_husband");
+                        rad_w_dolya = document.getElementById("present_amount_dolya_wife");
+                        rad_h_dolya = document.getElementById("present_amount_dolya_husband");
+                        ch_w = document.getElementById('present_dolya_chislitel_wife');
+                        ch_h = document.getElementById('present_dolya_chislitel_husband');
+                        z_w = document.getElementById('present_dolya_znamenatel_wife');
+                        z_h = document.getElementById('present_dolya_znamenatel_husband');
+                        if (document.getElementById("present_receiver_husband").checked === true
+                            && document.getElementById("present_receiver_wife").checked === true) {
+                            W.style.display = 'block';
+                            H.style.display = 'block';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'none';
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+                        else if ((document.getElementById("present_receiver_wife").checked === true
+                            && document.getElementById("present_receiver_husband").checked !== true))
+                        {
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            z_w.value = '';
+                            z_h.value = '';
+                            amount_w.style.display = 'block';
+                            amount_h.style.display = 'none';
+                            rad_w_all.checked = true;
+                            rad_h_all.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+
+                        else if ((document.getElementById("present_receiver_wife").checked !== true
+                            && document.getElementById("present_receiver_husband").checked === true))
+                        {
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            ch_w.value = '';
+                            ch_h.value = '';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'block';
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = true;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+
+                        rad_w_dolya.onclick = function() {
+                            if (W.style.display == 'none')
+                                W.style.display = "block";
+                            }
+                        rad_w_all.onclick = function() {
+                            if (W.style.display == 'block')
+                                W.style.display = "none";
+                                ch_w.value = '';
+                                z_w.value = '';
+                            }
+
+                        rad_h_dolya.onclick = function() {
+                            if (H.style.display == 'none')
+                                {H.style.display = "block";}
+                            }
+                        rad_h_all.onclick = function() {
+                            if (H.style.display == 'block')
+                                {H.style.display = "none";
+                                ch_h.value = '';
+                                z_h.value = '';
+                                }
+                            }
 
                     }
-
-
-
-
-
-                    <!--TODO -->
-                    <!-- Сделать JS функцию, чтобы очищать чекбоксы при переключении радиокнопок-->
-                    function clear_checkboxes() {
-
-                    }
-
                     </script>
 
                     <table>
                         <tbody>
                             <tr>
                                 <td>
-                                    <input type="radio" id="purchase_type_creation" name="purchase_type" value="purchase_type_creation" size="3px" style="padding-right: 10px">
+                                    <input type="radio" id="purchase_type_creation" onclick="hide_others('purchase_type_creation')" name="purchase_type" value="purchase_type_creation" size="3px" style="padding-right: 10px">
                                 </td>
                                 <td>
                                     <label for="purchase_type_creation" style="padding-left: 10px">Создание</label>
@@ -238,7 +797,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <input type="radio" id="purchase_type_inheritance" name="purchase_type" value="purchase_type_inheritance" size="3px" style="padding-right: 10px">
+                                    <input type="radio" id="purchase_type_inheritance" onclick="hide_others('purchase_type_inheritance')" name="purchase_type" value="purchase_type_inheritance" size="3px" style="padding-right: 10px">
                                 </td>
                                 <td>
                                     <label for="purchase_type_inheritance" style="padding-left: 10px">Наследование</label>
@@ -246,16 +805,196 @@
                             </tr>
                         </tbody>
                     </table>
+                    <!-- Вопрос № 4.1 -->
+                    <div id="inheritance_receiver" style="display: none; padding-left: 20px" class="col-md-6">
+                        <table class="table table-dark">
+                            <thead>
+                            <i>Выберите наследника</i>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="radio" id="inheritance_receiver_wife" name="inheritance_receiver" size="3px">
+                                        {{ parents|get_item:'mother' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="radio" id="inheritance_receiver_husband" name="inheritance_receiver" size="3px">
+                                        {{ parents|get_item:'father' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
 
                 <script type="text/javascript">
-                    document.getElementById("individual").onclick = function() {
-                        T = document.getElementById("individual_use")
-                        if (T.style.display == 'none')
-                        document.getElementById("individual_use").style.display = "block";
-                        else
-                            document.getElementById("individual_use").style.display = "none";
-                         }
+                    function hide_others(name) {
+                        present = document.getElementById("purchase_type_present")
+                        creation = document.getElementById("purchase_type_creation")
+                        inheritance = document.getElementById("purchase_type_inheritance")
+                        purchase = document.getElementById("purchase_type_buy")
+                        present_ch_w = document.getElementById('present_dolya_chislitel_wife');
+                        present_ch_h = document.getElementById('present_dolya_chislitel_husband');
+                        present_z_w = document.getElementById('present_dolya_znamenatel_wife');
+                        present_z_h = document.getElementById('present_dolya_znamenatel_husband');
+                        inheritance_w = document.getElementById('inheritance_receiver_wife');
+                        inheritance_h = document.getElementById('inheritance_receiver_husband');
+                        purchase_ch_c = document.getElementById('common_dolya_chislitel');
+                        purchase_ch_w = document.getElementById('private_dolya_chislitel_wife');
+                        purchase_ch_h = document.getElementById('private_dolya_chislitel_husband');
+                        purchase_z_c = document.getElementById('common_dolya_znamenatel');
+                        purchase_z_w = document.getElementById('private_dolya_znamenatel_wife');
+                        purchase_z_h = document.getElementById('private_dolya_znamenatel_husband');
+                        purchase_before_ch_w = document.getElementById('before_marriage_dolya_chislitel_wife');
+                        purchase_before_ch_h = document.getElementById('before_marriage_dolya_chislitel_husband');
+                        purchase_before_z_w = document.getElementById('before_marriage_dolya_znamenatel_wife');
+                        purchase_before_z_h = document.getElementById('before_marriage_dolya_znamenatel_husband');
+
+
+                        if (name === "purchase_type_present")
+                            {
+                                document.getElementById("present_receiver").style.display = "block";
+
+                                document.getElementById('inheritance_receiver').style.display = 'none'; <!-- Наследство -->
+                                inheritance_w.checked = false
+                                inheritance_h.checked = false
+
+                                document.getElementById("d_before_marriage").style.display = 'none'; <!-- Покупка -->
+                                document.getElementById("source").style.display = 'none'; <!-- Покупка -->
+                                document.getElementById('common_amount_all').checked = false;
+                                document.getElementById('private_wife_amount_all').checked = false;
+                                document.getElementById('private_husband_amount_all').checked = false;
+                                document.getElementById('common_amount_dolya').checked = false;
+                                document.getElementById('private_wife_amount_dolya').checked = false;
+                                document.getElementById('private_husband_amount_dolya').checked = false;
+                                purchase_ch_c.value = '';
+                                purchase_ch_w.value = '';
+                                purchase_ch_h.value = '';
+                                purchase_z_c.value = '';
+                                purchase_z_w.value = '';
+                                purchase_z_h.value = '';
+                                document.getElementById('before_marriage_wife_amount_all').checked = false;
+                                document.getElementById('before_marriage_husband_amount_all').checked = false;
+                                document.getElementById('before_marriage_wife_amount_dolya').checked = false;
+                                document.getElementById('before_marriage_husband_amount_dolya').checked = false;
+                                purchase_before_ch_w.value = '';
+                                purchase_before_ch_h.value = '';
+                                purchase_before_z_w.value = '';
+                                purchase_before_z_h.value = '';
+
+
+
+                            }
+
+
+                        if (name === 'purchase_type_inheritance') {
+                            document.getElementById("inheritance_receiver").style.display = 'block';
+
+
+                            document.getElementById("present_receiver").style.display = 'none';
+                            document.getElementById("present_receiver_husband").checked = false;
+                            document.getElementById("present_receiver_wife").checked = false;
+                            document.getElementById("present_amount_all_wife").checked = false;
+                            document.getElementById("present_amount_all_husband").checked = false;
+                            document.getElementById("present_amount_dolya_wife").checked = false;
+                            document.getElementById("present_amount_dolya_husband").checked = false;
+                            present_ch_w.value = '';
+                            present_ch_h.value = '';
+                            present_z_w.value = '';
+                            present_z_h.value = '';
+
+                            document.getElementById("d_before_marriage").style.display = 'none'; <!-- Покупка -->
+                            document.getElementById("source").style.display = 'none'; <!-- Покупка -->
+                            document.getElementById('common_amount_all').checked = false;
+                            document.getElementById('private_wife_amount_all').checked = false;
+                            document.getElementById('private_husband_amount_all').checked = false;
+                            document.getElementById('common_amount_dolya').checked = false;
+                            document.getElementById('private_wife_amount_dolya').checked = false;
+                            document.getElementById('private_husband_amount_dolya').checked = false;
+                            purchase_ch_c.value = '';
+                            purchase_ch_w.value = '';
+                            purchase_ch_h.value = '';
+                            purchase_z_c.value = '';
+                            purchase_z_w.value = '';
+                            purchase_z_h.value = '';
+                            document.getElementById('before_marriage_wife_amount_all').checked = false;
+                            document.getElementById('before_marriage_husband_amount_all').checked = false;
+                            document.getElementById('before_marriage_wife_amount_dolya').checked = false;
+                            document.getElementById('before_marriage_husband_amount_dolya').checked = false;
+                            purchase_before_ch_w.value = '';
+                            purchase_before_ch_h.value = '';
+                            purchase_before_z_w.value = '';
+                            purchase_before_z_h.value = '';
+                        }
+
+                        if (name === 'purchase_type_creation') {
+                            document.getElementById("present_receiver").style.display = 'none';
+
+                            document.getElementById("present_receiver_husband").checked = false;
+                            document.getElementById("present_receiver_wife").checked = false;
+                            document.getElementById("present_amount_all_wife").checked = false;
+                            document.getElementById("present_amount_all_husband").checked = false;
+                            document.getElementById("present_amount_dolya_wife").checked = false;
+                            document.getElementById("present_amount_dolya_husband").checked = false;
+                            present_ch_w.value = '';
+                            present_ch_h.value = '';
+                            present_z_w.value = '';
+                            present_z_h.value = '';
+
+                            document.getElementById("inheritance_receiver").style.display = 'none';
+                            inheritance_w.checked = false
+                            inheritance_h.checked = false
+
+                            document.getElementById("d_before_marriage").style.display = 'none'; <!-- Покупка -->
+                            document.getElementById("source").style.display = 'none'; <!-- Покупка -->
+                            document.getElementById('common_amount_all').checked = false;
+                            document.getElementById('private_wife_amount_all').checked = false;
+                            document.getElementById('private_husband_amount_all').checked = false;
+                            document.getElementById('common_amount_dolya').checked = false;
+                            document.getElementById('private_wife_amount_dolya').checked = false;
+                            document.getElementById('private_husband_amount_dolya').checked = false;
+                            purchase_ch_c.value = '';
+                            purchase_ch_w.value = '';
+                            purchase_ch_h.value = '';
+                            purchase_z_c.value = '';
+                            purchase_z_w.value = '';
+                            purchase_z_h.value = '';
+                            document.getElementById('before_marriage_wife_amount_all').checked = false;
+                            document.getElementById('before_marriage_husband_amount_all').checked = false;
+                            document.getElementById('before_marriage_wife_amount_dolya').checked = false;
+                            document.getElementById('before_marriage_husband_amount_dolya').checked = false;
+                            purchase_before_ch_w.value = '';
+                            purchase_before_ch_h.value = '';
+                            purchase_before_z_w.value = '';
+                            purchase_before_z_h.value = '';
+
+                        }
+
+                        if (name === 'purchase_type_buy') {
+                            document.getElementById("d_before_marriage").style.display = 'block';
+                            document.getElementById("source").style.display = 'block';
+
+
+                            document.getElementById("present_receiver").style.display = 'none';
+                            document.getElementById("present_receiver_husband").checked = false;
+                            document.getElementById("present_receiver_wife").checked = false;
+                            document.getElementById("present_amount_all_wife").checked = false;
+                            document.getElementById("present_amount_all_husband").checked = false;
+                            document.getElementById("present_amount_dolya_wife").checked = false;
+                            document.getElementById("present_amount_dolya_husband").checked = false;
+                            present_ch_w.value = '';
+                            present_ch_h.value = '';
+                            present_z_w.value = '';
+                            present_z_h.value = '';
+
+                            document.getElementById("inheritance_receiver").style.display = 'none';
+                            inheritance_w.checked = false
+                            inheritance_h.checked = false
+                        }
+                    }
                 </script>
 
                 <br>
