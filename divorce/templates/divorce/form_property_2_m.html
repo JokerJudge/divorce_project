@@ -23,30 +23,7 @@
                 <h4>Добавление/редактирование имущества</h4>
                 <h5>Шаг 2</h5>
                 <br>
-                <!-- Вопрос № 1 -->
-                <input type="checkbox" id="coowners" name="coowners">
-                <label for="coowners"><b>Имеются сособственники на имущество (супруг не в счет)</b></label>
-                <br>
-                <!-- Вопрос № 1.1 -->
 
-                <div id="dolya" style="display: none">
-                <input type="number" id="dolya_chislitel" name="dolya_chislitel" size="3px">
-                <label for="dolya_chislitel">/</label>
-                <input type="number" id="dolya_znamenatel" name="dolya_znamenatel" size="3px">
-                <label for="dolya_znamenatel">Укажите вашу общую с супругом долю в праве на имущество</label>
-                </div>
-
-                <script type="text/javascript">
-                    document.getElementById("coowners").onclick = function() {
-                        T = document.getElementById("dolya")
-                        if (T.style.display == 'none')
-                        document.getElementById("dolya").style.display = "block";
-                        else
-                            document.getElementById("dolya").style.display = "none";
-                         }
-                </script>
-
-                <br>
                 <!-- Вопрос № 2 -->
                 <input type="checkbox" id="for_child" name="for_child">
                 <label for="for_child"><b>Детское имущество (для ребенка)</b></label>
@@ -151,7 +128,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <input type="radio" id="purchase_type_buy" onclick="hide_others('purchase_type_buy')" name="purchase_type" value="purchase_type_buy" size="3px" style="padding-right: 10px">
+                                    <input type="radio" id="purchase_type_buy" onclick="hide_others('purchase_type_buy')" name="purchase_type" value="purchase_type_buy" size="3px" style="padding-right: 10px" checked>
                                 </td>
                                 <td>
                                     <label for="purchase_type_buy" style="padding-left: 10px">Покупка</label>
@@ -160,9 +137,9 @@
                         </tbody>
                     </table>
                     <!-- Вопрос № 4.3 -->
-                    <div id="d_before_marriage" style="display: none; padding-left: 20px">
+                    <div id="d_before_marriage" style="display: block; padding-left: 20px">
                         <input type="checkbox" id="before_marriage" name="before_marriage">
-                        <label for="before_marriage">Часть/все деньги вносились до брака</label>
+                        <label for="before_marriage">Часть/все деньги за имущество вносились до брака</label>
 
                         <!-- Вопрос № 4.3.1 -->
                         <div id="d_before_marriage_checked" style="display: none;" class="col-md-12">
@@ -188,9 +165,9 @@
                                             <label for="before_marriage_wife_amount_dolya" style="padding-right: 10px">В части</label>
                                         </td>
                                         <td id="before_marriage_dolya_wife" style="display: none" class="col-4">
-                                            <input type="number" id="before_marriage_dolya_chislitel_wife" name="before_marriage_dolya_chislitel_wife" size="3px">
+                                            <input type="number" id="before_marriage_dolya_chislitel_wife" name="before_marriage_dolya_chislitel_wife" size="3px" min="1" max="10000">
                                             <label for="before_marriage_dolya_chislitel_wife">/</label>
-                                            <input type="number" id="before_marriage_dolya_znamenatel_wife" name="before_marriage_dolya_znamenatel_wife" size="3px">
+                                            <input type="number" id="before_marriage_dolya_znamenatel_wife" name="before_marriage_dolya_znamenatel_wife" size="3px" min="1" max="10000">
                                             <label for="before_marriage_dolya_znamenatel_wife">  </label>
                                             Укажите оплаченную до брака долю
                                         </td>
@@ -212,9 +189,9 @@
                                             <label for="before_marriage_husband_amount_dolya" style="padding-right: 10px">В части</label>
                                         </td>
                                         <td id="before_marriage_dolya_husband" style="display: none" class="col-4">
-                                            <input type="number" id="before_marriage_dolya_chislitel_husband" name="before_marriage_dolya_chislitel_husband" size="3px">
+                                            <input type="number" id="before_marriage_dolya_chislitel_husband" name="before_marriage_dolya_chislitel_husband" size="3px" min="1" max="10000">
                                             <label for="before_marriage_dolya_chislitel_husband">/</label>
-                                            <input type="number" id="before_marriage_dolya_znamenatel_husband" name="before_marriage_dolya_znamenatel_husband" size="3px">
+                                            <input type="number" id="before_marriage_dolya_znamenatel_husband" name="before_marriage_dolya_znamenatel_husband" size="3px" min="1" max="10000">
                                             <label for="before_marriage_dolya_znamenatel_husband">  </label>
                                             Укажите оплаченную до брака долю
                                         </td>
@@ -339,7 +316,7 @@
                     </div>
                     <!-- Вопрос № 4.4 -->
                     <div style="padding-left: 20px">
-                    <div id="source" style="display: none" class="col-md-12">
+                    <div id="source" style="display: block" class="col-md-12">
                         <table class="table table-sm table-dark">
                             <p id="head_source">
                                 <i>Укажите на чьи средства приобретено имущество</i>
@@ -352,20 +329,20 @@
                                         <label for="common" style="padding-right: 10px">Общие средства: </label>
                                     </td>
                                     <td class='col-3'>
-                                        <input type="checkbox" onclick="source_dolya()" id="common" name="common_dolya" size="3px">
+                                        <input type="checkbox" onclick="source_dolya()" id="common" name="common_dolya" size="3px" checked>
                                     </td>
                                     <!-- Вопрос № 4.4.1 общие html -->
-                                    <td id="common_amount" style="display: none" class='col-3'>
-                                        <input type="radio" id="common_amount_all" name="common_amount" size="3px">
+                                    <td id="common_amount" style="display: block" class='col-3'>
+                                        <input type="radio" id="common_amount_all" name="common_amount" size="3px" checked>
                                         <label for="common_amount_all" style="padding-right: 10px">Полностью</label>
                                         <br>
                                         <input type="radio" id="common_amount_dolya" name="common_amount" size="3px">
                                         <label for="common_amount_dolya" style="padding-right: 10px">В части</label>
                                     </td>
                                     <td id="common_dolya" style="display: none">
-                                        <input type="number" id="common_dolya_chislitel" name="common_dolya_chislitel" size="3px">
+                                        <input type="number" id="common_dolya_chislitel" name="common_dolya_chislitel" size="3px" min="1" max="10000">
                                         <label for="common_dolya_chislitel">/</label>
-                                        <input type="number" id="common_dolya_znamenatel" name="common_dolya_znamenatel" size="3px">
+                                        <input type="number" id="common_dolya_znamenatel" name="common_dolya_znamenatel" size="3px" min="1" max="10000">
                                         <label for="common_dolya_znamenatel">  </label>
                                         Укажите долю
                                     </td>
@@ -387,9 +364,9 @@
                                         <label for="private_wife_amount_dolya" style="padding-right: 10px">В части</label>
                                     </td>
                                     <td id="private_dolya_wife" style="display: none">
-                                        <input type="number" id="private_dolya_chislitel_wife" name="private_dolya_chislitel_wife" size="3px">
+                                        <input type="number" id="private_dolya_chislitel_wife" name="private_dolya_chislitel_wife" size="3px" min="1" max="10000">
                                         <label for="private_dolya_chislitel_wife">/</label>
-                                        <input type="number" id="private_dolya_znamenatel_wife" name="private_dolya_znamenatel_wife" size="3px">
+                                        <input type="number" id="private_dolya_znamenatel_wife" name="private_dolya_znamenatel_wife" size="3px" min="1" max="10000">
                                         <label for="private_dolya_znamenatel_wife">  </label>
                                         Укажите долю
                                     </td>
@@ -411,9 +388,9 @@
                                         <label for="private_husband_amount_dolya" style="padding-right: 10px">В части</label>
                                     </td>
                                     <td id="private_dolya_husband" style="display: none">
-                                        <input type="number" id="private_dolya_chislitel_husband" name="private_dolya_chislitel_husband" size="3px">
+                                        <input type="number" id="private_dolya_chislitel_husband" name="private_dolya_chislitel_husband" size="3px" min="1" max="10000">
                                         <label for="private_dolya_chislitel_husband">/</label>
-                                        <input type="number" id="private_dolya_znamenatel_husband" name="private_dolya_znamenatel_husband" size="3px">
+                                        <input type="number" id="private_dolya_znamenatel_husband" name="private_dolya_znamenatel_husband" size="3px" min="1" max="10000">
                                         <label for="private_dolya_znamenatel_husband">  </label>
                                         Укажите долю
                                     </td>
@@ -422,6 +399,19 @@
                             </tbody>
                         </table>
                     </div>
+                        <script>
+                            document.getElementById('common_amount_dolya').onclick = function() {
+                            if (document.getElementById("common_dolya").style.display == 'none')
+                                {document.getElementById("common_dolya").style.display = "block";}
+                            }
+                            document.getElementById('common_amount_all').onclick = function() {
+                            if (document.getElementById("common_dolya").style.display == 'block')
+                                {document.getElementById("common_dolya").style.display = "none";
+                                document.getElementById('common_dolya_chislitel').value = '';
+                                document.getElementById('common_dolya_znamenatel').value = '';
+                            }
+                        }
+                        </script>
 
                     <script type="text/javascript">
 
@@ -668,9 +658,9 @@
                                         <label for="present_amount_dolya_wife" style="padding-right: 10px">В части</label>
                                     </td>
                                     <td id="present_dolya_wife" style="display: none">
-                                        <input type="number" id="present_dolya_chislitel_wife" name="present_dolya_chislitel_wife" size="3px">
+                                        <input type="number" id="present_dolya_chislitel_wife" name="present_dolya_chislitel_wife" size="3px" min="1" max="10000">
                                         <label for="present_dolya_chislitel_wife">/</label>
-                                        <input type="number" id="present_dolya_znamenatel_wife" name="present_dolya_znamenatel_wife" size="3px">
+                                        <input type="number" id="present_dolya_znamenatel_wife" name="present_dolya_znamenatel_wife" size="3px" min="1" max="10000">
                                         <label for="present_dolya_znamenatel_wife">  </label>
                                         Укажите долю жены
                                     </td>
@@ -692,9 +682,9 @@
                                         <label for="present_amount_dolya_husband" style="padding-right: 10px">В части</label>
                                     </td>
                                     <td id="present_dolya_husband" style="display: none">
-                                        <input type="number" id="present_dolya_chislitel_husband" name="present_dolya_chislitel_husband" size="3px">
+                                        <input type="number" id="present_dolya_chislitel_husband" name="present_dolya_chislitel_husband" size="3px" min="1" max="10000">
                                         <label for="present_dolya_chislitel_husband">/</label>
-                                        <input type="number" id="present_dolya_znamenatel_husband" name="present_dolya_znamenatel_husband" size="3px">
+                                        <input type="number" id="present_dolya_znamenatel_husband" name="present_dolya_znamenatel_husband" size="3px" min="1" max="10000">
                                         <label for="present_dolya_znamenatel_husband">  </label>
                                         Укажите долю мужа
                                     </td>
@@ -995,6 +985,31 @@
                             inheritance_h.checked = false
                         }
                     }
+                </script>
+
+                <br>
+
+                <!-- Вопрос № 1 -->
+                <input type="checkbox" id="coowners" name="coowners">
+                <label for="coowners"><b>Имеются сособственники на имущество (за исключением супруга)</b></label>
+                <br>
+                <!-- Вопрос № 1.1 -->
+
+                <div id="dolya" style="display: none">
+                <input type="number" id="dolya_chislitel" name="dolya_chislitel" size="3px" min="1" max="10000">
+                <label for="dolya_chislitel">/</label>
+                <input type="number" id="dolya_znamenatel" name="dolya_znamenatel" size="3px" min="1" max="10000">
+                <label for="dolya_znamenatel">Укажите вашу общую с супругом долю в праве на имущество</label>
+                </div>
+
+                <script type="text/javascript">
+                    document.getElementById("coowners").onclick = function() {
+                        T = document.getElementById("dolya")
+                        if (T.style.display == 'none')
+                        document.getElementById("dolya").style.display = "block";
+                        else
+                            document.getElementById("dolya").style.display = "none";
+                         }
                 </script>
 
                 <br>
