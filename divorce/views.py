@@ -200,6 +200,7 @@ class PropertyFormView(View):
                         parents['father'] = i
                     else:
                         parents['mother'] = i
+                cache.set('parents', parents)
                 if id == 0:
                     return render(request,
                                   'divorce/form_property_2_m.html',
@@ -247,10 +248,9 @@ class PropertyForm2nmView(View):
             if 'coowners' in request.POST:
                 # проверка на правильность заполнения поля с долями
                 errors = clean_coowners(request.POST)
-                if errors == None:
-                    pass
-                else:
+                if errors:
                     return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+
             # если всё хорошо:
 
             # грузим из кэша форму № 1 и обработанную форму
@@ -277,6 +277,7 @@ class PropertyForm2nmView(View):
                 # удаляем кэшированные данные
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
+                cache.delete('parents')
                 return redirect('/divorce')
 
 
@@ -354,20 +355,32 @@ class PropertyForm2mView(View):
             print()
             print('Я тут ТРИ!!!!')
             print()
+            print('request.POST')
+            print(request.POST)
             # Фильтровка корректных значений, если есть сособственники
-            if 'coowners' in request.POST:
-                # проверка на правильность заполнения поля с долями
-                errors = clean_coowners(request.POST)
-                if errors == None:
-                    pass
-                else:
-                    return render(request, 'divorce/form_property_2_m.html', {'errors': errors})
+            parents = cache.get('parents')
+            form_full, form_1, form_1_processed_data = merging_forms(request.POST)
+
+            #if 'coowners' in request.POST:
+            # проверка на сособственников (помимо супругов)
+            # + проверка на правильность заполнения полей с долями (валидация долей)
+            errors = clean_coowners(request.POST)
+            if errors:
+                return render(request, 'divorce/form_property_2_m.html', {'errors': errors,
+                                                                              'form_1': form_1,
+                                                                              'form_1_processed_data': form_1_processed_data,
+                                                                              'parents': parents})
+            print('все ОК!')
+
+
+
+
             # если всё хорошо:
 
             # грузим из кэша форму № 1 и обработанную форму
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             # для сохранения в БД
-            form_full, form_1, form_1_processed_data = merging_forms(request.POST)
+            #form_full, form_1, form_1_processed_data = merging_forms(request.POST)
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
@@ -388,6 +401,7 @@ class PropertyForm2mView(View):
                 # удаляем кэшированные данные
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
+                cache.delete('parents')
                 return redirect('/divorce')
 
 
@@ -406,10 +420,9 @@ class PropertyForm2mView(View):
             if 'coowners' in request.POST:
                 # проверка на правильность заполнения поля с долями
                 errors = clean_coowners(request.POST)
-                if errors == None:
-                    pass
-                else:
-                    return render(request, f'divorce/form_property_2_m.html', {'errors': errors})
+                if errors:
+                    return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
+
             # если всё хорошо:
             # грузим из кэша форму № 1 и обработанную форму
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
@@ -436,6 +449,7 @@ class PropertyForm2mView(View):
                 # удаляем кэшированные данные
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
+                cache.delete('parents')
                 return redirect('/divorce')
 
 def merging_forms(form: dict):
@@ -447,7 +461,13 @@ def merging_forms(form: dict):
     '''
     # грузим из кэша форму № 1 и обработанную форму
     form_1 = cache.get('form_1')
+    print()
+    print('form_1')
+    print(form_1)
     form_1_processed_data = cache.get('form_1_processed_data')
+    print()
+    print('form_1_processed_data')
+    print(form_1_processed_data)
 
     # готовим форму № 2 к работе
     form_2 = form
@@ -455,6 +475,9 @@ def merging_forms(form: dict):
     form_example = form_1.copy()
     form_example.update(form_1_processed_data)
     form_example.update(form_2)
+    print()
+    print('form_example')
+    print(form_example)
     return form_example, form_1, form_1_processed_data
 
 

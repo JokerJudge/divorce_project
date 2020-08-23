@@ -1,3 +1,4 @@
+from math import gcd # greatest common devisor
 import datetime
 import dateutil.relativedelta as relativedelta
 from ..models import *
@@ -243,16 +244,153 @@ def clean_coowners(data: dict):
     :param data: словарь request.POST
     :return: словарь errors, если при заполнении были ошибки или None, если всё в порядке
     '''
+    # валидация в форме № 1
     dolya_chislitel = data['dolya_chislitel']
     dolya_znamenatel = data['dolya_znamenatel']
-    if not dolya_chislitel or not dolya_znamenatel or int(dolya_chislitel) <= 0 or int(dolya_znamenatel) <= 0:
-        errors = {
-            'Доля в праве указана неверно': f'{dolya_chislitel}/{dolya_znamenatel}'
-        }
+
+    # здесь будет словарь ошибок по введенным долям
+    errors = {}
+
+    # если нет брака или указаны только id='coowners' (сособственники помимо супругов)
+    if 'coowners' in data:
+        errors.update(dolya_check(dolya_chislitel, dolya_znamenatel, 'сособственники'))
+
+        # если происходит валидация формы № 1 - здесь будет выход
+    if 'before_marriage_dolya_chislitel_wife' not in data:
         return errors
-    if int(dolya_chislitel) >= int(dolya_znamenatel):
-        errors = {
-            'Числитель не может быть больше или равен знаменателю': f'{dolya_chislitel}/{dolya_znamenatel}'
-        }
-        return errors
-    return None
+
+    # валидация в форме № 2
+    before_marriage_dolya_chislitel_wife = data['before_marriage_dolya_chislitel_wife']
+    before_marriage_dolya_znamenatel_wife = data['before_marriage_dolya_znamenatel_wife']
+    before_marriage_dolya_chislitel_husband = data['before_marriage_dolya_chislitel_husband']
+    before_marriage_dolya_znamenatel_husband = data['before_marriage_dolya_znamenatel_husband']
+
+    common_dolya_chislitel = data['common_dolya_chislitel']
+    common_dolya_znamenatel = data['common_dolya_znamenatel']
+
+    private_dolya_chislitel_wife = data['private_dolya_chislitel_wife']
+    private_dolya_znamenatel_wife = data['private_dolya_znamenatel_wife']
+    private_dolya_chislitel_husband = data['private_dolya_chislitel_husband']
+    private_dolya_znamenatel_husband = data['private_dolya_znamenatel_husband']
+
+    present_dolya_chislitel_wife = data['present_dolya_chislitel_wife']
+    present_dolya_znamenatel_wife = data['present_dolya_znamenatel_wife']
+    present_dolya_chislitel_husband = data['present_dolya_chislitel_husband']
+    present_dolya_znamenatel_husband = data['present_dolya_znamenatel_husband']
+
+    inheritance_dolya_chislitel_wife = data['inheritance_dolya_chislitel_wife']
+    inheritance_dolya_znamenatel_wife = data['inheritance_dolya_znamenatel_wife']
+    inheritance_dolya_chislitel_husband = data['inheritance_dolya_chislitel_husband']
+    inheritance_dolya_znamenatel_husband = data['inheritance_dolya_znamenatel_husband']
+
+
+    # обрабатываем вариант, где выбрана "Покупка"
+    if data['purchase_type'] == 'purchase_type_buy':
+        print('Покупка')
+        #обрабатываем вариант, если включен чекбокс "Часть/все деньги за имущество вносились до брака"
+        if 'before_marriage' in data:
+            # обрабатываем вариант, когда выбрано, что деньги до брака вносились только женой в части
+            if 'before_marriage_wife' in data and 'before_marriage_husband' not in data:
+                # если выбран вариант "в части"
+                if data['before_marriage_wife_amount'] == 'before_marriage_wife_amount_dolya':
+                    errors.update(dolya_check(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife, 'доля жены до брака'))
+                    # TODO - тут есть проблема, связанная с тем, что может быть нажат чекбокс coowners (поэтому считать нужно с учетом этого)
+                    # проверяем вариант, когда до брака только женой, а остаток полностью за счет общий средств
+                    if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' not in data:
+                        # Если было указано, что остаток полностью вносился за счет общего имущества
+                        if data['common_amount'] == 'common_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     coowner_dolya=(dolya_chislitel, dolya_znamenatel)))
+                        # Если была выбрана доля общего имущества
+                        if data['common_amount'] == 'common_amount_dolya':
+                            errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                            errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                                                     coowner_dolya=(dolya_chislitel, dolya_znamenatel)))
+
+
+
+
+            # обрабатываем вариант, когда выбрано, что деньги до брака вносились только мужем в части
+            # обрабатываем вариант, когда выбрано, что деньги вносили обоими будущими супругами
+
+                    # before_marriage_dolya_chislitel_wife
+                    # before_marriage_dolya_znamenatel_wife
+                    # before_marriage_dolya_chislitel_husband
+                    # before_marriage_dolya_znamenatel_husband
+
+
+
+    return errors
+
+def dolya_check(chislitel, znamenatel, where):
+    '''
+    Функция, валидирующая правильность ввода числителя и знаменателя без операций между разными полями
+    :param chislitel: числитель
+    :param znamenatel: знаменатель
+    :param where: где произошла ошибка
+    :return: словарь с ошибками, если они там есть. Если нет - пустой словарь
+    '''
+    errors = {}
+    if not chislitel or not znamenatel or int(chislitel) <= 0 or int(znamenatel) <= 0:
+        errors[f'Доля в праве в поле "{where}" указана неверно'] = f'{chislitel}/{znamenatel}'
+
+    if chislitel and znamenatel:
+        if int(chislitel) >= int(znamenatel):
+            errors[f'Числитель в поле "{where}" не может быть больше или равен знаменателю'] = f'{chislitel}/{znamenatel}'
+    return errors
+
+def dolya_math(before_marriage_dolya_wife=('', ''),
+               before_marriage_dolya_husband=('', ''),
+               common_dolya=('', ''),
+               private_dolya_wife=('', ''),
+               private_dolya_husband=('',''),
+               present_dolya_wife=('', ''),
+               present_dolya_husband=('', ''),
+               inheritance_dolya_wife=('', ''),
+               inheritance_dolya_husband=('',''),
+               coowner_dolya=('', '')):
+
+
+    dolya_dict_temp = locals().copy()
+    print(dolya_dict_temp)
+    dolya_dict = dolya_dict_temp.copy()
+    errors = {}
+    list_of_chislitels = []
+    list_of_znamenatels = []
+
+    # если сособственников нет
+    if not coowner_dolya[0] and not coowner_dolya[1]:
+
+        for k, v in dolya_dict_temp.items():
+            print('k', k)
+            print('v1', v[1])
+            if v[1] != '':
+                list_of_znamenatels.append(int(v[1]))
+            else:
+                del dolya_dict[f'{k}']
+
+        print(list_of_chislitels)
+        print(list_of_znamenatels)
+        print(dolya_dict)
+
+        # если одно поле заполнено
+        if len(list_of_znamenatels) == 1:
+            errors[f'Сумма всех долей супругов и иных лиц должна быть равна 1'] = f'{list_of_chislitels[0]}/{list_of_znamenatels[0]}'
+        else:
+            for i in range(len(list_of_znamenatels)):
+                # находим общий знаменатель всех знаменателей, которые ввел пользователь
+                if i == 0:
+                    znam = 0
+                else:
+                    znam = (list_of_znamenatels[i] * list_of_znamenatels[i-1] // gcd(list_of_znamenatels[i], list_of_znamenatels[i-1]))
+                print(znam)
+
+        # TODO - преобразовываем всё, переданное в функцию в дроби с общим знаменателем
+
+
+    # если сособственники есть
+    else:
+        pass
+
+    return errors
