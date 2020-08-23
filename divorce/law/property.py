@@ -352,6 +352,7 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
                coowner_dolya=('', '')):
 
 
+
     dolya_dict_temp = locals().copy()
     print(dolya_dict_temp)
     dolya_dict = dolya_dict_temp.copy()
