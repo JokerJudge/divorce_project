@@ -58,13 +58,29 @@
                     </table>
                 </div>
 
+                <!-- Ниже скрипт, который реализует логику взаимного исключения Детского имущества и
+                 вещей индивидуального пользования (такой-же есть ниже под вещами индивидулаьного пользования) -->
+
                 <script type="text/javascript">
                     document.getElementById("for_child").onclick = function() {
                         T = document.getElementById("child_accomodation")
-                        if (T.style.display == 'none')
-                        document.getElementById("child_accomodation").style.display = "block";
-                        else
+                        if (T.style.display == 'none') {
+                            document.getElementById("child_accomodation").style.display = "block";
+                            document.getElementById("child_accomodation_mother").checked = true;
+
+                            document.getElementById("individual_use").style.display = "none";
+                            document.getElementById("individual").checked = false;
+                            document.getElementById("individual_use_choice_1").checked = false;
+                            document.getElementById("individual_use_choice_2").checked = false;
+                        }
+
+                        else {
                             document.getElementById("child_accomodation").style.display = "none";
+                            document.getElementById("child_accomodation_mother").checked = false;
+                            document.getElementById("child_accomodation_father").checked = false;
+                        }
+
+
                          }
                 </script>
 
@@ -103,13 +119,30 @@
                     </table>
                 </div>
 
+                    <!-- Ниже скрипт, который реализует логику взаимного исключения Детского имущества и
+                 вещей индивидуального пользования (такой-же есть выше под детским имуществом) -->
+
                 <script type="text/javascript">
                     document.getElementById("individual").onclick = function() {
                         T = document.getElementById("individual_use")
-                        if (T.style.display == 'none')
-                        document.getElementById("individual_use").style.display = "block";
+                        if (T.style.display == 'none') {
+                            document.getElementById("individual_use").style.display = "block";
+                            document.getElementById("individual_use_choice_1").checked = true;
+
+                            document.getElementById("child_accomodation").style.display = "none";
+                            document.getElementById("for_child").checked = false;
+                            document.getElementById("child_accomodation_mother").checked = false;
+                            document.getElementById("child_accomodation_father").checked = false;
+
+                        }
+
                         else
+                        {
                             document.getElementById("individual_use").style.display = "none";
+                            document.getElementById("individual_use_choice_1").checked = false;
+                            document.getElementById("individual_use_choice_2").checked = false;
+                        }
+
                          }
                 </script>
 
@@ -200,6 +233,10 @@
                             </table>
                         </div>
 
+
+                        <!-- Ниже скрипт, который работает связывает таблицу before_marriage и таблицу с указанием
+                         на чьи средства приобретено имущество -->
+
                         <script type="text/javascript">
                             document.getElementById("before_marriage").onclick = function() {
                             T = document.getElementById("d_before_marriage_checked")
@@ -221,6 +258,8 @@
                                 }
                             }
                         </script>
+
+                        <!-- Ниже скрипт, реализующий логику вариантов нажатия на кнопки в before_marriage-->
 
                         <script type="text/javascript">
 
@@ -399,6 +438,9 @@
                             </tbody>
                         </table>
                     </div>
+
+                        <!-- Ниже скрипт, который работает по-умолчанию, чтобы default результат работал без нажатия на
+                        кнопку "способ приобретения" (source_dolya)"-->
                         <script>
                             document.getElementById('common_amount_dolya').onclick = function() {
                             if (document.getElementById("common_dolya").style.display == 'none')
@@ -412,6 +454,8 @@
                             }
                         }
                         </script>
+
+                        <!-- Ниже скрипт, реализующий логику вариантов нажатия на кнопки в source_dolya-->
 
                     <script type="text/javascript">
 
@@ -646,12 +690,12 @@
                                         <label for="present_receiver_wife" style="padding-right: 10px">Жене:  </label>
                                     </td>
                                     <td class="col-3">
-                                        <input type="checkbox" onclick="present_dolya()" id="present_receiver_wife" name="present_receiver_wife" size="3px">
+                                        <input type="checkbox" onclick="present_dolya()" id="present_receiver_wife" name="present_receiver_wife" size="3px" checked>
                                         {{ parents|get_item:'mother' }}
                                     </td>
                                     <!-- Вопрос № 4.2.1 жена html -->
-                                    <td id="present_amount_wife" style="display: none" class='col-3'>
-                                        <input type="radio" id="present_amount_all_wife" name="present_amount_wife" size="3px">
+                                    <td id="present_amount_wife" style="display: block" class='col-3'>
+                                        <input type="radio" id="present_amount_all_wife" name="present_amount_wife" size="3px" checked>
                                         <label for="present_amount_all_wife" style="padding-right: 10px">Полностью</label>
                                         <br>
                                         <input type="radio" id="present_amount_dolya_wife" name="present_amount_wife" size="3px">
@@ -693,6 +737,24 @@
                         </table>
                     </div>
                     <!-- Вопрос № 4.2.1 скрипт -->
+
+                     <!-- Ниже скрипт, который работает по-умолчанию, чтобы default результат работал без нажатия на
+                        кнопку "способ приобретения" (source_dolya)"-->
+                    <script>
+                        document.getElementById('present_amount_dolya_wife').onclick = function() {
+                        if (document.getElementById("present_dolya_wife").style.display == 'none')
+                            {document.getElementById("present_dolya_wife").style.display = "block";}
+                        }
+                        document.getElementById('present_amount_all_wife').onclick = function() {
+                        if (document.getElementById("present_dolya_wife").style.display == 'block')
+                            {document.getElementById("present_dolya_wife").style.display = "none";
+                            document.getElementById('present_dolya_chislitel_wife').value = '';
+                            document.getElementById('present_dolya_znamenatel_wife').value = '';
+                            }
+                        }
+                    </script>
+                    <!-- Ниже скрипт, реализующий логику вариантов нажатия на кнопки в present_dolya-->
+
                     <script type="text/javascript">
 
                     function present_dolya() {
@@ -796,29 +858,155 @@
                         </tbody>
                     </table>
                     <!-- Вопрос № 4.1 -->
-                    <div id="inheritance_receiver" style="display: none; padding-left: 20px" class="col-md-6">
+                    <div id="inheritance_receiver" style="display: none; padding-left: 20px" class="col-md-12">
                         <table class="table table-dark">
                             <thead>
                             <i>Выберите наследника</i>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <input type="radio" id="inheritance_receiver_wife" name="inheritance_receiver" size="3px">
+                                <tr class="d-flex">
+                                    <td class="col-2">
+                                        <label for="inheritance_receiver_wife" style="padding-right: 10px">Жене:  </label>
+                                    </td>
+                                    <td class="col-3">
+                                        <input type="radio" onclick="inheritance_dolya()" id="inheritance_receiver_wife" name="inheritance_receiver" size="3px" checked>
                                         {{ parents|get_item:'mother' }}
                                     </td>
+                                    <!-- Вопрос № 4.2.1 жена html -->
+                                    <td id="inheritance_amount_wife" style="display: block" class='col-3'>
+                                        <input type="radio" id="inheritance_amount_all_wife" name="inheritance_amount_wife" size="3px" checked>
+                                        <label for="inheritance_amount_all_wife" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="inheritance_amount_dolya_wife" name="inheritance_amount_wife" size="3px">
+                                        <label for="inheritance_amount_dolya_wife" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="inheritance_dolya_wife" style="display: none">
+                                        <input type="number" id="inheritance_dolya_chislitel_wife" name="inheritance_dolya_chislitel_wife" size="3px" min="1" max="10000">
+                                        <label for="inheritance_dolya_chislitel_wife">/</label>
+                                        <input type="number" id="inheritance_dolya_znamenatel_wife" name="inheritance_dolya_znamenatel_wife" size="3px" min="1" max="10000">
+                                        <label for="inheritance_dolya_znamenatel_wife">  </label>
+                                        Укажите полученную женой долю
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <input type="radio" id="inheritance_receiver_husband" name="inheritance_receiver" size="3px">
+                                <tr class="d-flex">
+                                    <td class="col-2">
+                                        <label for="inheritance_receiver_husband" style="padding-right: 10px">Мужу:  </label>
+                                    </td>
+                                    <td class="col-3">
+                                        <input type="radio" onclick="inheritance_dolya()" id="inheritance_receiver_husband" name="inheritance_receiver" size="3px">
                                         {{ parents|get_item:'father' }}
+                                    </td>
+                                    <!-- Вопрос № 4.2.1 муж html -->
+                                    <td id="inheritance_amount_husband" style="display: none" class='col-3'>
+                                        <input type="radio" id="inheritance_amount_all_husband" name="inheritance_amount_husband" size="3px">
+                                        <label for="inheritance_amount_all_husband" style="padding-right: 10px">Полностью</label>
+                                        <br>
+                                        <input type="radio" id="inheritance_amount_dolya_husband" name="inheritance_amount_husband" size="3px">
+                                        <label for="inheritance_amount_dolya_husband" style="padding-right: 10px">В части</label>
+                                    </td>
+                                    <td id="inheritance_dolya_husband" style="display: none">
+                                        <input type="number" id="inheritance_dolya_chislitel_husband" name="inheritance_dolya_chislitel_husband" size="3px" min="1" max="10000">
+                                        <label for="inheritance_dolya_chislitel_husband">/</label>
+                                        <input type="number" id="inheritance_dolya_znamenatel_husband" name="inheritance_dolya_znamenatel_husband" size="3px" min="1" max="10000">
+                                        <label for="inheritance_dolya_znamenatel_husband">  </label>
+                                        Укажите полученную мужем долю
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
+                    <!-- Ниже скрипт, который работает по-умолчанию, чтобы default результат работал без нажатия на
+                        кнопку "способ приобретения" (inheritance_dolya)"-->
+
+                    <script>
+                        document.getElementById('inheritance_amount_dolya_wife').onclick = function() {
+                        if (document.getElementById("inheritance_dolya_wife").style.display == 'none')
+                            {document.getElementById("inheritance_dolya_wife").style.display = "block";}
+                        }
+                        document.getElementById('inheritance_amount_all_wife').onclick = function() {
+                        if (document.getElementById("inheritance_dolya_wife").style.display == 'block')
+                            {document.getElementById("inheritance_dolya_wife").style.display = "none";
+                            document.getElementById('inheritance_dolya_chislitel_wife').value = '';
+                            document.getElementById('inheritance_dolya_znamenatel_wife').value = '';
+                            }
+                        }
+                    </script>
+
+                    <!-- Ниже скрипт, реализующий логику вариантов нажатия на кнопки в inheritance_dolya-->
+
+                    <script type="text/javascript">
+
+                    function inheritance_dolya() {
+                        W = document.getElementById("inheritance_dolya_wife");
+                        H = document.getElementById("inheritance_dolya_husband");
+                        amount_w = document.getElementById("inheritance_amount_wife");
+                        amount_h = document.getElementById("inheritance_amount_husband");
+                        rad_w_all = document.getElementById("inheritance_amount_all_wife");
+                        rad_h_all = document.getElementById("inheritance_amount_all_husband");
+                        rad_w_dolya = document.getElementById("inheritance_amount_dolya_wife");
+                        rad_h_dolya = document.getElementById("inheritance_amount_dolya_husband");
+                        ch_w = document.getElementById('inheritance_dolya_chislitel_wife');
+                        ch_h = document.getElementById('inheritance_dolya_chislitel_husband');
+                        z_w = document.getElementById('inheritance_dolya_znamenatel_wife');
+                        z_h = document.getElementById('inheritance_dolya_znamenatel_husband');
+
+                        if (document.getElementById("inheritance_receiver_wife").checked === true) {
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            z_w.value = '';
+                            z_h.value = '';
+                            amount_w.style.display = 'block';
+                            amount_h.style.display = 'none';
+                            rad_w_all.checked = true;
+                            rad_h_all.checked = false;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+
+                        else if (document.getElementById("inheritance_receiver_husband").checked === true) {
+                            W.style.display = 'none';
+                            H.style.display = 'none';
+                            z_w.value = '';
+                            z_h.value = '';
+                            amount_w.style.display = 'none';
+                            amount_h.style.display = 'block';
+                            rad_w_all.checked = false;
+                            rad_h_all.checked = true;
+                            rad_w_dolya.checked = false;
+                            rad_h_dolya.checked = false;
+                        }
+
+                        rad_w_dolya.onclick = function() {
+                            if (W.style.display == 'none')
+                                W.style.display = "block";
+                            }
+                        rad_w_all.onclick = function() {
+                            if (W.style.display == 'block')
+                                W.style.display = "none";
+                                ch_w.value = '';
+                                z_w.value = '';
+                            }
+
+                        rad_h_dolya.onclick = function() {
+                            if (H.style.display == 'none')
+                                {H.style.display = "block";}
+                            }
+                        rad_h_all.onclick = function() {
+                            if (H.style.display == 'block')
+                                {H.style.display = "none";
+                                ch_h.value = '';
+                                z_h.value = '';
+                                }
+                            }
+
+                    }
+                    </script>
+
                 </div>
+
+            <!-- Ниже функция, которая стирает введенные значения при переключениях между способами приобретения
+            имущества-->
 
                 <script type="text/javascript">
                     function hide_others(name) {
@@ -826,12 +1014,19 @@
                         creation = document.getElementById("purchase_type_creation")
                         inheritance = document.getElementById("purchase_type_inheritance")
                         purchase = document.getElementById("purchase_type_buy")
+
                         present_ch_w = document.getElementById('present_dolya_chislitel_wife');
                         present_ch_h = document.getElementById('present_dolya_chislitel_husband');
                         present_z_w = document.getElementById('present_dolya_znamenatel_wife');
                         present_z_h = document.getElementById('present_dolya_znamenatel_husband');
+
                         inheritance_w = document.getElementById('inheritance_receiver_wife');
                         inheritance_h = document.getElementById('inheritance_receiver_husband');
+                        inheritance_ch_w = document.getElementById('inheritance_dolya_chislitel_wife');
+                        inheritance_ch_h = document.getElementById('inheritance_dolya_chislitel_husband');
+                        inheritance_z_w = document.getElementById('inheritance_dolya_znamenatel_wife');
+                        inheritance_z_h = document.getElementById('inheritance_dolya_znamenatel_husband');
+
                         purchase_ch_c = document.getElementById('common_dolya_chislitel');
                         purchase_ch_w = document.getElementById('private_dolya_chislitel_wife');
                         purchase_ch_h = document.getElementById('private_dolya_chislitel_husband');
@@ -847,10 +1042,22 @@
                         if (name === "purchase_type_present")
                             {
                                 document.getElementById("present_receiver").style.display = "block";
+                                document.getElementById('present_receiver_wife').checked = true;
+                                document.getElementById('present_amount_all_wife').checked = true;
+                                document.getElementById("present_dolya_wife").style.display = 'none';
+
 
                                 document.getElementById('inheritance_receiver').style.display = 'none'; <!-- Наследство -->
                                 inheritance_w.checked = false
                                 inheritance_h.checked = false
+                                document.getElementById("inheritance_amount_all_wife").checked = false;
+                                document.getElementById("inheritance_amount_all_husband").checked = false;
+                                document.getElementById("inheritance_amount_dolya_wife").checked = false;
+                                document.getElementById("inheritance_amount_dolya_husband").checked = false;
+                                inheritance_ch_w.value = '';
+                                inheritance_ch_h.value = '';
+                                inheritance_z_w.value = '';
+                                inheritance_z_h.value = '';
 
                                 document.getElementById("d_before_marriage").style.display = 'none'; <!-- Покупка -->
                                 document.getElementById("source").style.display = 'none'; <!-- Покупка -->
@@ -882,6 +1089,9 @@
 
                         if (name === 'purchase_type_inheritance') {
                             document.getElementById("inheritance_receiver").style.display = 'block';
+                            document.getElementById('inheritance_receiver_wife').checked = true;
+                            document.getElementById('inheritance_amount_all_wife').checked = true;
+                            document.getElementById("inheritance_dolya_wife").style.display = 'none';
 
 
                             document.getElementById("present_receiver").style.display = 'none';
@@ -937,6 +1147,14 @@
                             document.getElementById("inheritance_receiver").style.display = 'none';
                             inheritance_w.checked = false
                             inheritance_h.checked = false
+                            document.getElementById("inheritance_amount_all_wife").checked = false;
+                            document.getElementById("inheritance_amount_all_husband").checked = false;
+                            document.getElementById("inheritance_amount_dolya_wife").checked = false;
+                            document.getElementById("inheritance_amount_dolya_husband").checked = false;
+                            inheritance_ch_w.value = '';
+                            inheritance_ch_h.value = '';
+                            inheritance_z_w.value = '';
+                            inheritance_z_h.value = '';
 
                             document.getElementById("d_before_marriage").style.display = 'none'; <!-- Покупка -->
                             document.getElementById("source").style.display = 'none'; <!-- Покупка -->
@@ -966,6 +1184,9 @@
                         if (name === 'purchase_type_buy') {
                             document.getElementById("d_before_marriage").style.display = 'block';
                             document.getElementById("source").style.display = 'block';
+                            document.getElementById('common_amount_all').checked = true;
+                            document.getElementById('common').checked = true;
+                            document.getElementById("common_dolya").style.display = 'none';
 
 
                             document.getElementById("present_receiver").style.display = 'none';
@@ -983,6 +1204,14 @@
                             document.getElementById("inheritance_receiver").style.display = 'none';
                             inheritance_w.checked = false
                             inheritance_h.checked = false
+                            document.getElementById("inheritance_amount_all_wife").checked = false;
+                            document.getElementById("inheritance_amount_all_husband").checked = false;
+                            document.getElementById("inheritance_amount_dolya_wife").checked = false;
+                            document.getElementById("inheritance_amount_dolya_husband").checked = false;
+                            inheritance_ch_w.value = '';
+                            inheritance_ch_h.value = '';
+                            inheritance_z_w.value = '';
+                            inheritance_z_h.value = '';
                         }
                     }
                 </script>
@@ -1011,6 +1240,7 @@
                             document.getElementById("dolya").style.display = "none";
                          }
                 </script>
+
 
                 <br>
 
