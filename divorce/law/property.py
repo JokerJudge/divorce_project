@@ -360,14 +360,15 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
     list_of_chislitels = []
     list_of_znamenatels = []
 
+    #TODO - изменить всё с учетом того, что в форме № 2 при браке не будет сособственников
+
     # если сособственников нет
     if not coowner_dolya[0] and not coowner_dolya[1]:
 
         for k, v in dolya_dict_temp.items():
-            print('k', k)
-            print('v1', v[1])
             if v[1] != '':
                 list_of_znamenatels.append(int(v[1]))
+                dolya_dict[f'{k}'] = (int(v[0]), int(v[1]))
             else:
                 del dolya_dict[f'{k}']
 
@@ -375,9 +376,13 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
         print(list_of_znamenatels)
         print(dolya_dict)
 
+        znam = list_of_znamenatels[0]
+
         # если одно поле заполнено
+        # TODO - доделать, если передана всего одна доля
         if len(list_of_znamenatels) == 1:
-            errors[f'Сумма всех долей супругов и иных лиц должна быть равна 1'] = f'{list_of_chislitels[0]}/{list_of_znamenatels[0]}'
+            #errors[f'Сумма всех долей супругов и иных лиц должна быть равна 1'] = f'{list_of_chislitels[0]}/{list_of_znamenatels[0]}'
+            pass
         else:
             for i in range(len(list_of_znamenatels)):
                 # находим общий знаменатель всех знаменателей, которые ввел пользователь
@@ -387,7 +392,27 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
                     znam = (list_of_znamenatels[i] * list_of_znamenatels[i-1] // gcd(list_of_znamenatels[i], list_of_znamenatels[i-1]))
                 print(znam)
 
-        # TODO - преобразовываем всё, переданное в функцию в дроби с общим знаменателем
+        # преобразовываем всё, переданное в функцию, в дроби с общим знаменателем
+        list_for_display = []
+        summ = 0
+
+        for k, v in dolya_dict.items():
+            if v[1] != znam:
+                temp = znam // v[1]
+                dolya_dict[f'{k}'] = ((v[0] * temp), znam)
+                summ += dolya_dict[f'{k}'][0]
+                list_for_display.append(v[0])
+                list_for_display.append(v[1])
+
+        print(dolya_dict)
+        if summ > znam:
+            errors['Сумма всех долей оказалась больше 100%, такого быть не может'] = f'{summ} / {znam}'
+        elif summ < znam:
+            dolya_dict['Иные сособственники'] = (znam - summ, znam)
+            # TODO - нужно вернуть значение dolya_dict и errors
+            print(dolya_dict)
+
+
 
 
     # если сособственники есть
