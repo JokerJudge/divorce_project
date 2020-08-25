@@ -627,6 +627,65 @@ def clean_coowners(data: dict):
                                                private_dolya_znamenatel_husband),
                         common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
 
+    # обрабатываем вариант, где выбран "Подарок"
+    if data['purchase_type'] == 'purchase_type_present':
+        print('Подарок')
+        # обрабатываем вариант, когда выбрано, что подарено было жене
+        if 'present_receiver_wife' in data and 'present_receiver_husband' not in data:
+            # если выбран вариант "в части"
+            if data['present_amount_wife'] == 'present_amount_dolya_wife':
+                errors.update(
+                    dolya_check(present_dolya_chislitel_wife, present_dolya_znamenatel_wife,
+                                'доля подарка жены'))
+                errors.update(dolya_math(present_dolya_wife=(
+                    present_dolya_chislitel_wife, present_dolya_znamenatel_wife)))
+        # обрабатываем вариант, когда выбрано, что подарено было мужу
+        if 'present_receiver_wife' not in data and 'present_receiver_husband' in data:
+            # если выбран вариант "в части"
+            if data['present_amount_husband'] == 'present_amount_dolya_husband':
+                errors.update(
+                    dolya_check(present_dolya_chislitel_husband, present_dolya_znamenatel_husband,
+                                'доля подарка мужа'))
+                errors.update(dolya_math(present_dolya_husband=(
+                    present_dolya_chislitel_husband, present_dolya_znamenatel_husband)))
+
+        # обрабатываем вариант, когда выбрано, что подарено было обоим (мужу и жене)
+        if 'present_receiver_wife' in data and 'present_receiver_husband' in data:
+            errors.update(
+                dolya_check(present_dolya_chislitel_wife, present_dolya_znamenatel_wife,
+                            'доля подарка жены'))
+            errors.update(
+                dolya_check(present_dolya_chislitel_husband, present_dolya_znamenatel_husband,
+                            'доля подарка мужа'))
+            errors.update(dolya_math(present_dolya_wife=(
+                present_dolya_chislitel_wife, present_dolya_znamenatel_wife),
+                present_dolya_husband=(
+                present_dolya_chislitel_husband, present_dolya_znamenatel_husband)))
+
+    # обрабатываем вариант, где выбрано "Наследование"
+    if data['purchase_type'] == 'purchase_type_inheritance':
+        print('Наследство')
+        # обрабатываем вариант, когда выбрано, что имущество унаследовано женой
+        if data['inheritance_receiver'] == 'inheritance_receiver_wife':
+            # если выбран вариант "в части"
+            if data['inheritance_amount_wife'] == 'inheritance_amount_dolya_wife':
+                errors.update(
+                    dolya_check(inheritance_dolya_chislitel_wife, inheritance_dolya_znamenatel_wife,
+                                'доля имущества, полученная в наследство женой'))
+                errors.update(dolya_math(inheritance_dolya_wife=(
+                    inheritance_dolya_chislitel_wife, inheritance_dolya_znamenatel_wife)))
+
+        # обрабатываем вариант, когда выбрано, что имущество унаследовано мужем
+        if data['inheritance_receiver'] == 'inheritance_receiver_husband':
+            # если выбран вариант "в части"
+            if data['inheritance_amount_husband'] == 'inheritance_amount_dolya_husband':
+                errors.update(
+                    dolya_check(inheritance_dolya_chislitel_husband, inheritance_dolya_znamenatel_husband,
+                                'доля имущества, полученная в наследство мужем'))
+                errors.update(dolya_math(inheritance_dolya_husband=(
+                    inheritance_dolya_chislitel_husband, inheritance_dolya_znamenatel_husband)))
+
+
     return errors
 
 def dolya_check(chislitel, znamenatel, where):
@@ -642,8 +701,10 @@ def dolya_check(chislitel, znamenatel, where):
         errors[f'Доля в праве в поле "{where}" указана неверно'] = f'{chislitel}/{znamenatel}'
 
     if chislitel and znamenatel:
-        if int(chislitel) >= int(znamenatel):
-            errors[f'Числитель в поле "{where}" не может быть больше или равен знаменателю'] = f'{chislitel}/{znamenatel}'
+        if int(chislitel) > int(znamenatel):
+            errors[f'Числитель в поле "{where}" не может быть больше знаменателя'] = f'{chislitel}/{znamenatel}'
+        elif int(chislitel) == int(znamenatel):
+            errors[f'Числитель в поле "{where}" не может быть равен знаменателю. Выберите пункт "полностью"'] = f'{chislitel}/{znamenatel}'
     return errors
 
 def dolya_math(before_marriage_dolya_wife=('', ''),
