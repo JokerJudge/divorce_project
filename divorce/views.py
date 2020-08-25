@@ -371,6 +371,7 @@ class PropertyForm2mView(View):
                                                                               'form_1_processed_data': form_1_processed_data,
                                                                               'parents': parents})
             print('все ОК!')
+            print(form_full)
 
 
 
