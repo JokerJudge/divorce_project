@@ -294,32 +294,293 @@ def clean_coowners(data: dict):
                 # если выбран вариант "в части"
                 if data['before_marriage_wife_amount'] == 'before_marriage_wife_amount_dolya':
                     errors.update(dolya_check(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife, 'доля жены до брака'))
-                    # TODO - тут есть проблема, связанная с тем, что может быть нажат чекбокс coowners (поэтому считать нужно с учетом этого)
                     # проверяем вариант, когда до брака только женой, а остаток полностью за счет общий средств
                     if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' not in data:
                         # Если было указано, что остаток полностью вносился за счет общего имущества
+                        # ostatok - было ли отмечено поле "полностью"
                         if data['common_amount'] == 'common_amount_all':
                             errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
-                                                     coowner_dolya=(dolya_chislitel, dolya_znamenatel)))
+                                                     ostatok=True))
                         # Если была выбрана доля общего имущества
                         if data['common_amount'] == 'common_amount_dolya':
                             errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
                             errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
-                                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
-                                                     coowner_dolya=(dolya_chislitel, dolya_znamenatel)))
+                                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
 
+                    # проверяем вариант, когда до брака только женой, а остаток полностью за счет средств жены
+                    if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' not in data:
+                        # Если было указано, что остаток полностью вносился за счет средств жены
+                        # ostatok - было ли отмечено поле "полностью"
+                        if data['private_wife_amount'] == 'private_wife_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     ostatok=True))
+                        # Если была выбрана "часть средств жены"
+                        if data['private_wife_amount'] == 'private_wife_amount_dolya':
+                            errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife, 'личные средства жены'))
+                            errors.update(dolya_math(before_marriage_dolya_wife=(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife)))
 
+                    # проверяем вариант, когда до брака только женой, а остаток полностью за счет средств мужа
+                    if 'common_dolya' not in data and 'private_wife' not in data and 'private_husband' in data:
+                        # Если было указано, что остаток полностью вносился за счет средств мужа
+                        # ostatok - было ли отмечено поле "полностью"
+                        if data['private_husband_amount'] == 'private_husband_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     ostatok=True))
+                        # Если была выбрана "часть средств мужа"
+                        if data['private_husband_amount'] == 'private_husband_amount_dolya':
+                            errors.update(
+                                dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                            'личные средства мужа'))
+                            errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                                     private_dolya_husband=(private_dolya_chislitel_husband,
+                                                                         private_dolya_znamenatel_husband)))
+
+                    # проверяем вариант, когда до брака только женой, а остаток за счет общих средств и личных средств жены
+                    if 'common_dolya' in data and 'private_wife' in data and 'private_husband' not in data:
+                        errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                        errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                                  'личные средства жены'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_wife=(private_dolya_chislitel_wife,
+                                                   private_dolya_znamenatel_wife)))
+
+                    # проверяем вариант, когда до брака только женой, а остаток за счет общих средств и личных средств мужа
+                    if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' in data:
+                        errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                        errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                                  'личные средства мужа'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_husband=(private_dolya_chislitel_husband,
+                                                private_dolya_znamenatel_husband)))
+
+                    # проверяем вариант, когда до брака только женой, а остаток за счет личных средств жены и личных средств мужа
+                    if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' in data:
+                        errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife, 'личные средства жены'))
+                        errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                                  'личные средства мужа'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            private_dolya_husband=(private_dolya_chislitel_husband,
+                                                   private_dolya_znamenatel_husband)))
 
 
             # обрабатываем вариант, когда выбрано, что деньги до брака вносились только мужем в части
+            if 'before_marriage_wife' not in data and 'before_marriage_husband' in data:
+                # если выбран вариант "в части"
+                if data['before_marriage_husband_amount'] == 'before_marriage_husband_amount_dolya':
+                    errors.update(dolya_check(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband, 'доля мужа до брака'))
+                    # проверяем вариант, когда до брака только мужем, а остаток полностью за счет общих средств
+                    if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' not in data:
+                        # Если было указано, что остаток полностью вносился за счет общего имущества
+                        # ostatok - было ли отмечено поле "полностью"
+                        if data['common_amount'] == 'common_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     ostatok=True))
+                        # Если была выбрана доля общего имущества
+                        if data['common_amount'] == 'common_amount_dolya':
+                            errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                            errors.update(dolya_math(before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
+
+                    # проверяем вариант, когда до брака только мужем, а остаток полностью за счет средств жены
+                    if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' not in data:
+                        # Если было указано, что остаток полностью вносился за счет средств жены
+                        # ostatok - было ли отмечено поле "полностью"
+                        if data['private_wife_amount'] == 'private_wife_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     ostatok=True))
+                        # Если была выбрана "часть средств жены"
+                        if data['private_wife_amount'] == 'private_wife_amount_dolya':
+                            errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife, 'личные средства жены'))
+                            errors.update(dolya_math(before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife)))
+
+                    # проверяем вариант, когда до брака только женой, а остаток полностью за счет средств мужа
+                    if 'common_dolya' not in data and 'private_wife' not in data and 'private_husband' in data:
+                        # Если было указано, что остаток полностью вносился за счет средств мужа
+                        # ostatok - было ли отмечено поле "полностью"
+                        if data['private_husband_amount'] == 'private_husband_amount_all':
+                            errors.update(dolya_math(before_marriage_dolya_husband=(
+                            before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     ostatok=True))
+                        # Если была выбрана "часть средств мужа"
+                        if data['private_husband_amount'] == 'private_husband_amount_dolya':
+                            errors.update(
+                                dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                            'личные средства мужа'))
+                            errors.update(dolya_math(before_marriage_dolya_husband=(
+                            before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                                                     private_dolya_husband=(private_dolya_chislitel_husband,
+                                                                         private_dolya_znamenatel_husband)))
+
+                    # проверяем вариант, когда до брака только мужем, а остаток за счет общих средств и личных средств жены
+                    if 'common_dolya' in data and 'private_wife' in data and 'private_husband' not in data:
+                        errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                        errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                                  'личные средства жены'))
+                        errors.update(dolya_math(before_marriage_dolya_husband=(
+                            before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_wife=(private_dolya_chislitel_wife,
+                                                   private_dolya_znamenatel_wife)))
+
+                    # проверяем вариант, когда до брака только мужем, а остаток за счет общих средств и личных средств мужа
+                    if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' in data:
+                        errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                        errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                                  'личные средства мужа'))
+                        errors.update(dolya_math(before_marriage_dolya_husband=(
+                            before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_husband=(private_dolya_chislitel_husband,
+                                                private_dolya_znamenatel_husband)))
+
+                    # проверяем вариант, когда до брака только мужем, а остаток за счет личных средств жены и личных средств мужа
+                    if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' in data:
+                        errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife, 'личные средства жены'))
+                        errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                                  'личные средства мужа'))
+                        errors.update(dolya_math(before_marriage_dolya_husband=(
+                            before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband),
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            private_dolya_husband=(private_dolya_chislitel_husband,
+                                                   private_dolya_znamenatel_husband)))
+
             # обрабатываем вариант, когда выбрано, что деньги вносили обоими будущими супругами
+            if 'before_marriage_wife' in data and 'before_marriage_husband' in data:
+                errors.update(dolya_check(before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife,'доля жены до брака'))
+                errors.update(dolya_check(before_marriage_dolya_chislitel_husband, before_marriage_dolya_znamenatel_husband,'доля мужа до брака'))
 
-                    # before_marriage_dolya_chislitel_wife
-                    # before_marriage_dolya_znamenatel_wife
-                    # before_marriage_dolya_chislitel_husband
-                    # before_marriage_dolya_znamenatel_husband
+                # если выбран вариант "полностью"
+                # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет общих средств
+                if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' not in data:
+                    # Если было указано, что остаток полностью вносился за счет общего имущества
+                    # ostatok - было ли отмечено поле "полностью"
+                    if data['common_amount'] == 'common_amount_all':
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife,
+                            before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            ostatok=True))
+                    # Если была выбрана доля общего имущества
+                    if data['common_amount'] == 'common_amount_dolya':
+                        errors.update(
+                            dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife,
+                            before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            common_dolya=(
+                                common_dolya_chislitel, common_dolya_znamenatel)))
 
+                # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств жены
+                if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' not in data:
+                    # Если было указано, что остаток полностью вносился за счет средств жены
+                    # ostatok - было ли отмечено поле "полностью"
+                    if data['private_wife_amount'] == 'private_wife_amount_all':
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                        before_marriage_dolya_chislitel_wife,
+                        before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                                                 ostatok=True))
+                    # Если была выбрана "часть средств жены"
+                    if data['private_wife_amount'] == 'private_wife_amount_dolya':
+                        errors.update(
+                            dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                        'личные средства жены'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                        before_marriage_dolya_chislitel_wife,
+                        before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                                                 private_dolya_wife=(private_dolya_chislitel_wife,
+                                                                     private_dolya_znamenatel_wife)))
 
+                # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств мужа
+                if 'common_dolya' not in data and 'private_wife' not in data and 'private_husband' in data:
+                    # Если было указано, что остаток полностью вносился за счет средств мужа
+                    # ostatok - было ли отмечено поле "полностью"
+                    if data['private_husband_amount'] == 'private_husband_amount_all':
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife,
+                            before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            ostatok=True))
+                    # Если была выбрана "часть средств мужа"
+                    if data['private_husband_amount'] == 'private_husband_amount_dolya':
+                        errors.update(
+                            dolya_check(private_dolya_chislitel_husband,
+                                        private_dolya_znamenatel_husband,
+                                        'личные средства мужа'))
+                        errors.update(dolya_math(before_marriage_dolya_wife=(
+                            before_marriage_dolya_chislitel_wife,
+                            before_marriage_dolya_znamenatel_wife),
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            private_dolya_husband=(private_dolya_chislitel_husband,
+                                                   private_dolya_znamenatel_husband)))
+
+                # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств жены
+                if 'common_dolya' in data and 'private_wife' in data and 'private_husband' not in data:
+                    errors.update(
+                        dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                    errors.update(
+                        dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                    'личные средства жены'))
+                    errors.update(dolya_math(before_marriage_dolya_wife=(
+                        before_marriage_dolya_chislitel_wife,
+                        before_marriage_dolya_znamenatel_wife),
+                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                       before_marriage_dolya_znamenatel_husband),
+                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                        private_dolya_wife=(private_dolya_chislitel_wife,
+                                            private_dolya_znamenatel_wife)))
+
+                # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств мужа
+                if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' in data:
+                    errors.update(
+                        dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                    errors.update(
+                        dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                    'личные средства мужа'))
+                    errors.update(dolya_math(before_marriage_dolya_wife=(
+                        before_marriage_dolya_chislitel_wife,
+                        before_marriage_dolya_znamenatel_wife),
+                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                       before_marriage_dolya_znamenatel_husband),
+                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                        private_dolya_husband=(private_dolya_chislitel_husband,
+                                               private_dolya_znamenatel_husband)))
+
+                # проверяем вариант, когда до брака только мужем, а остаток за счет личных средств жены и личных средств мужа
+                if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' in data:
+                    errors.update(
+                        dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                    'личные средства жены'))
+                    errors.update(
+                        dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                    'личные средства мужа'))
+                    errors.update(dolya_math(before_marriage_dolya_wife=(
+                        before_marriage_dolya_chislitel_wife,
+                        before_marriage_dolya_znamenatel_wife),
+                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                       before_marriage_dolya_znamenatel_husband),
+                        private_dolya_wife=(
+                        private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        private_dolya_husband=(private_dolya_chislitel_husband,
+                                               private_dolya_znamenatel_husband)))
 
     return errors
 
@@ -349,74 +610,75 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
                present_dolya_husband=('', ''),
                inheritance_dolya_wife=('', ''),
                inheritance_dolya_husband=('',''),
-               coowner_dolya=('', '')):
-
-
+               ostatok=False):
 
     dolya_dict_temp = locals().copy()
     print(dolya_dict_temp)
+    del dolya_dict_temp['ostatok']
     dolya_dict = dolya_dict_temp.copy()
     errors = {}
     list_of_chislitels = []
     list_of_znamenatels = []
 
-    #TODO - изменить всё с учетом того, что в форме № 2 при браке не будет сособственников
-
-    # если сособственников нет
-    if not coowner_dolya[0] and not coowner_dolya[1]:
-
-        for k, v in dolya_dict_temp.items():
-            if v[1] != '':
-                list_of_znamenatels.append(int(v[1]))
-                dolya_dict[f'{k}'] = (int(v[0]), int(v[1]))
-            else:
-                del dolya_dict[f'{k}']
-
-        print(list_of_chislitels)
-        print(list_of_znamenatels)
-        print(dolya_dict)
-
-        znam = list_of_znamenatels[0]
-
-        # если одно поле заполнено
-        # TODO - доделать, если передана всего одна доля
-        if len(list_of_znamenatels) == 1:
-            #errors[f'Сумма всех долей супругов и иных лиц должна быть равна 1'] = f'{list_of_chislitels[0]}/{list_of_znamenatels[0]}'
-            pass
+    for k, v in dolya_dict_temp.items():
+        if v[1] != '':
+            list_of_znamenatels.append(int(v[1]))
+            dolya_dict[f'{k}'] = (int(v[0]), int(v[1]))
         else:
-            for i in range(len(list_of_znamenatels)):
-                # находим общий знаменатель всех знаменателей, которые ввел пользователь
-                if i == 0:
-                    znam = 0
-                else:
-                    znam = (list_of_znamenatels[i] * list_of_znamenatels[i-1] // gcd(list_of_znamenatels[i], list_of_znamenatels[i-1]))
-                print(znam)
+            del dolya_dict[f'{k}']
+
+    print(list_of_chislitels)
+    print(list_of_znamenatels)
+    print(dolya_dict)
+
+    znam = list_of_znamenatels[0]
+
+    # если одно поле заполнено
+    if len(list_of_znamenatels) == 1:
+        flag = 'Иные сособственники'
+        temp_chislitel = 1
+        for k, v in dolya_dict.items():
+            temp_chislitel = dolya_dict[f'{k}'][0]
+            # Если было помечено поле "Полностью"
+            if ostatok == True:
+                flag = 'Остаток'
+        dolya_dict[flag] = (znam - temp_chislitel, znam)
+    # TODO - предусмотреть вариант, если "полностью" будет отмечен
+    else:
+
+        for i in range(len(list_of_znamenatels)):
+            # находим общий знаменатель всех знаменателей, которые ввел пользователь
+            if i == 0:
+                temp_znam = list_of_znamenatels[i]
+                print('temp_znam')
+                print(temp_znam)
+            else:
+                #znam = (list_of_znamenatels[i] * list_of_znamenatels[i-1] // gcd(list_of_znamenatels[i], list_of_znamenatels[i-1]))
+                znam = (list_of_znamenatels[i] * temp_znam // gcd(list_of_znamenatels[i], temp_znam))
+                temp_znam = znam
+            print(znam)
 
         # преобразовываем всё, переданное в функцию, в дроби с общим знаменателем
         list_for_display = []
         summ = 0
 
         for k, v in dolya_dict.items():
-            if v[1] != znam:
+            if v[1] == znam:
+                pass
+            elif v[1] != znam:
                 temp = znam // v[1]
                 dolya_dict[f'{k}'] = ((v[0] * temp), znam)
-                summ += dolya_dict[f'{k}'][0]
-                list_for_display.append(v[0])
-                list_for_display.append(v[1])
-
-        print(dolya_dict)
+            summ += dolya_dict[f'{k}'][0]
+            list_for_display.append(v[0])
+            list_for_display.append(v[1])
         if summ > znam:
             errors['Сумма всех долей оказалась больше 100%, такого быть не может'] = f'{summ} / {znam}'
         elif summ < znam:
             dolya_dict['Иные сособственники'] = (znam - summ, znam)
-            # TODO - нужно вернуть значение dolya_dict и errors
-            print(dolya_dict)
 
 
-
-
-    # если сособственники есть
-    else:
-        pass
-
-    return errors
+    print(dolya_dict)
+    if True:
+        return errors
+    # TODO - нужно вернуть значение dolya_dict и errors, если эта функция будет использоваться при добавлении долей в БД
+    #return errors, dolya_dict
