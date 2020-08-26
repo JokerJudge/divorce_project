@@ -942,9 +942,548 @@ def to_ownership(form_full: dict):
                                     'совместная доля': None}
                                 list_of_links.append(to_link('common_property_dolevaya'))
 
+                    # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств жены
+                    if 'common_dolya' not in form_full and 'private_wife' in form_full and 'private_husband' not in form_full:
+                        # Если было указано, что остаток полностью вносился за счет средств жены
+                        # ostatok - было ли отмечено поле "полностью"
+                        if form_full['private_wife_amount'] == ['private_wife_amount_all']:
+                            dolya_dict = dolya_math(
+                                before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                               before_marriage_dolya_znamenatel_husband),
+                                before_marriage_dolya_wife=(
+                                before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                ostatok=True,
+                                flag_ownership='ownership')
+
+                            # если введены доли, которые в сумме не дают 1 (необходимо добавить остаток в долю жены)
+                            if 'Остаток' in dolya_dict:
+                                owners[husband] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('purchase_before_marriage'))
+
+                                # необходимо сложить дроби личного имущества до брака и во время брака
+                                dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + dolya_dict["Остаток"][0]
+                                if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                                    dolya_wife = 1
+                                else:
+                                    dolya_wife = f'{dolya_wife_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                                owners[wife] = {
+                                    'доля': dolya_wife,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                            else:
+                                owners[husband] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('purchase_before_marriage'))
+
+                                owners[wife] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+
+                        # Если была выбрана "часть средств жены"
+                        if form_full['private_wife_amount'] == ['private_wife_amount_dolya']:
+                            dolya_dict = dolya_math(
+                                before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                               before_marriage_dolya_znamenatel_husband),
+                                before_marriage_dolya_wife=(
+                                    before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                                flag_ownership='ownership')
+
+                            owners[husband] = {
+                                'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('purchase_before_marriage'))
+
+                            dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + dolya_dict["private_dolya_wife"][0]
+                            if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                                dolya_wife = 1
+                            else:
+                                dolya_wife = f'{dolya_wife_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                            owners[wife] = {
+                                'доля': dolya_wife,
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                            if 'Иные сособственники' in dolya_dict:
+                                owners['Иные сособственники'] = {
+                                    'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('common_property_dolevaya'))
+
+                    # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств мужа
+                    if 'common_dolya' not in form_full and 'private_wife' not in form_full and 'private_husband' in form_full:
+                        # Если было указано, что остаток полностью вносился за счет средств мужа
+                        # ostatok - было ли отмечено поле "полностью"
+                        if form_full['private_husband_amount'] == ['private_husband_amount_all']:
+                            dolya_dict = dolya_math(
+                                before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                               before_marriage_dolya_znamenatel_husband),
+                                before_marriage_dolya_wife=(
+                                    before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                ostatok=True,
+                                flag_ownership='ownership')
+
+                            # если введены доли, которые в сумме не дают 1 (необходимо добавить остаток в долю мужа)
+                            if 'Остаток' in dolya_dict:
+                                # необходимо сложить дроби личного имущества до брака и во время брака
+                                dolya_husband_chislitel = dolya_dict["before_marriage_dolya_husband"][0] + dolya_dict["Остаток"][0]
+                                if dolya_husband_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                                    dolya_husband = 1
+                                else:
+                                    dolya_husband = f'{dolya_husband_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                                owners[husband] = {
+                                    'доля': dolya_husband,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('purchase_before_marriage'))
+                                list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                                owners[wife] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+
+                            else:
+                                owners[husband] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('purchase_before_marriage'))
+
+                                owners[wife] = {
+                                    'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+
+                        # Если была выбрана "часть средств мужа"
+                        if form_full['private_husband_amount'] == ['private_husband_amount_dolya']:
+                            dolya_dict = dolya_math(
+                                before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                               before_marriage_dolya_znamenatel_husband),
+                                before_marriage_dolya_wife=(
+                                    before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                                private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                                flag_ownership='ownership')
+
+                            dolya_husband_chislitel = dolya_dict["before_marriage_dolya_husband"][0] + dolya_dict["private_dolya_husband"][0]
+                            if dolya_husband_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                                dolya_husband = 1
+                            else:
+                                dolya_husband = f'{dolya_husband_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                            owners[husband] = {
+                                'доля': dolya_husband,
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('purchase_before_marriage'))
+                            list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                            owners[wife] = {
+                                'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+
+                            if 'Иные сособственники' in dolya_dict:
+                                owners['Иные сособственники'] = {
+                                    'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('common_property_dolevaya'))
+
+                    # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств жены
+                    if 'common_dolya' in form_full and 'private_wife' in form_full and 'private_husband' not in form_full:
+                        dolya_dict = dolya_math(
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            before_marriage_dolya_wife=(
+                                before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            flag_ownership='ownership')
+
+                        owners[husband] = {
+                            'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
+                            'совместные сособственники': wife,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('purchase_before_marriage'))
+
+                        #неообходимо сложить личные доли жены в имуществе до брака и после брака
+                        dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + dolya_dict["private_dolya_wife"][0]
+                        if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                            dolya_wife = 1
+                        else:
+                            dolya_wife = f'{dolya_wife_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[wife] = {
+                            'доля': dolya_wife,
+                            'совместные сособственники': husband,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+                        list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('common_property_dolevaya'))
+
+                    # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств мужа
+                    if 'common_dolya' in form_full and 'private_wife' not in form_full and 'private_husband' in form_full:
+                        dolya_dict = dolya_math(
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            before_marriage_dolya_wife=(
+                                before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            flag_ownership='ownership')
+
+                        # неообходимо сложить личные доли мужа в имуществе до брака и после брака
+                        dolya_husband_chislitel = dolya_dict["before_marriage_dolya_husband"][0] + dolya_dict["private_dolya_husband"][0]
+                        if dolya_husband_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                            dolya_husband = 1
+                        else:
+                            dolya_husband = f'{dolya_husband_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[husband] = {
+                            'доля': dolya_husband,
+                            'совместные сособственники': wife,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('purchase_before_marriage'))
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                        owners[wife] = {
+                            'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
+                            'совместные сособственники': husband,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('common_property_dolevaya'))
+
+                    # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет личных средств жены и личных средств мужа
+                    if 'common_dolya' not in form_full and 'private_wife' in form_full and 'private_husband' in form_full:
+                        dolya_dict = dolya_math(
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            before_marriage_dolya_wife=(
+                                before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            flag_ownership='ownership')
+
+                        # неообходимо сложить личные доли мужа в имуществе до брака и после брака
+                        dolya_husband_chislitel = dolya_dict["before_marriage_dolya_husband"][0] + \
+                                                  dolya_dict["private_dolya_husband"][0]
+                        if dolya_husband_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                            dolya_husband = 1
+                        else:
+                            dolya_husband = f'{dolya_husband_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[husband] = {
+                            'доля': dolya_husband,
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('purchase_before_marriage'))
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                        # неообходимо сложить личные доли жены в имуществе до брака и после брака
+                        dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + \
+                                                  dolya_dict["private_dolya_wife"][0]
+                        if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_wife"][1]:
+                            dolya_wife = 1
+                        else:
+                            dolya_wife = f'{dolya_wife_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[wife] = {
+                            'доля': dolya_wife,
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+
+                    # проверяем вариант, когда до брака только обоими будущими супругами, а остаток за счет общих средств, личных средств жены и личных средств мужа
+                    if 'common_dolya' in form_full and 'private_wife' in form_full and 'private_husband' in form_full:
+                        dolya_dict = dolya_math(
+                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
+                                                           before_marriage_dolya_znamenatel_husband),
+                            before_marriage_dolya_wife=(
+                                before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            flag_ownership='ownership')
+
+                        # неообходимо сложить личные доли мужа в имуществе до брака и после брака
+                        dolya_husband_chislitel = dolya_dict["before_marriage_dolya_husband"][0] + \
+                                                  dolya_dict["private_dolya_husband"][0]
+                        if dolya_husband_chislitel == dolya_dict["before_marriage_dolya_husband"][1]:
+                            dolya_husband = 1
+                        else:
+                            dolya_husband = f'{dolya_husband_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[husband] = {
+                            'доля': dolya_husband,
+                            'совместные сособственники': wife,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('purchase_before_marriage'))
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+                        list_of_links.append(to_link('common_property_sovmestnaya'))
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                        # неообходимо сложить личные доли жены в имуществе до брака и после брака
+                        dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + \
+                                               dolya_dict["private_dolya_wife"][0]
+                        if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_wife"][1]:
+                            dolya_wife = 1
+                        else:
+                            dolya_wife = f'{dolya_wife_chislitel}/{dolya_dict["before_marriage_dolya_husband"][1]}'
+
+                        owners[wife] = {
+                            'доля': dolya_wife,
+                            'совместные сособственники': husband,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+
+            # обрабатываем вариант, если чекбокс "Часть/все деньги за имущество вносились до брака" не отмечен
+            if 'before_marriage' not in form_full:
+                # проверяем когда имущество приобретается полностью за общие средства
+                if 'common_dolya' in form_full and 'private_wife' not in form_full and 'private_husband' not in form_full:
+                    # Если было указано, что имущество приобретается полностью за общие средства
+                    # ostatok - было ли отмечено поле "полностью"
+                    if form_full['common_amount'] == ['common_amount_all']:
+
+                        owners[wife] = {
+                            'доля': None,
+                            'совместные сособственники': husband,
+                            'совместная доля': 1}
+                        list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                        owners[husband] = {'доля': None,
+                                           'совместные сособственники': wife,
+                                           'совместная доля': 1}
+
+                    # Если была выбрана доля общего имущества
+                    if form_full['common_amount'] == ['common_amount_dolya']:
+                        dolya_dict = dolya_math(
+                            common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                            flag_ownership='ownership')
+
+                        owners[wife] = {
+                            'доля': None,
+                            'совместные сособственники': husband,
+                            'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                        list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                        owners[husband] = {'доля': None,
+                                           'совместные сособственники': wife,
+                                           'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('common_property_dolevaya'))
+
+                # проверяем вариант, когда имущество приобретено полностью за средства жены
+                if 'common_dolya' not in form_full and 'private_wife' in form_full and 'private_husband' not in form_full:
+                    # Если было указано, что имущество приобретается полностью за средства жены
+                    if form_full['private_wife_amount'] == ['private_wife_amount_all']:
+
+                        owners[wife] = {
+                            'доля': 1,
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                    # Если была выбрана доля
+                    if form_full['private_wife_amount'] == ['private_wife_amount_dolya']:
+                        dolya_dict = dolya_math(
+                            private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                            flag_ownership='ownership')
+
+                        owners[wife] = {
+                            'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+
+                # проверяем вариант, когда имущество приобретено полностью за средства мужа
+                if 'common_dolya' not in form_full and 'private_wife' not in form_full and 'private_husband' in form_full:
+                    # Если было указано, что имущество приобретается полностью за средства мужа
+                    if form_full['private_husband_amount'] == ['private_husband_amount_all']:
+                        owners[husband] = {
+                            'доля': 1,
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                    # Если была выбрана доля
+                    if form_full['private_husband_amount'] == ['private_husband_amount_dolya']:
+                        dolya_dict = dolya_math(
+                            private_dolya_husband=(
+                            private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            flag_ownership='ownership')
+
+                        owners[husband] = {
+                            'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                            'совместная доля': None}
+
+                # проверяем вариант, когда имущество приобретено частично за общие средства и частично за средства жены
+                if 'common_dolya' in form_full and 'private_wife' in form_full and 'private_husband' not in form_full:
+                    dolya_dict = dolya_math(
+                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                        private_dolya_wife=(
+                            private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        flag_ownership='ownership')
+
+                    owners[husband] = {
+                        'доля': None,
+                        'совместные сособственники': wife,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                    list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                    owners[wife] = {
+                        'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                        'совместные сособственники': husband,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                    list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                # проверяем вариант, когда имущество приобретено частично за общие средства и частично за средства мужа
+                if 'common_dolya' in form_full and 'private_wife' not in form_full and 'private_husband' in form_full:
+                    dolya_dict = dolya_math(
+                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                        private_dolya_husband=(
+                            private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                        flag_ownership='ownership')
+
+                    owners[husband] = {
+                        'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                        'совместные сособственники': wife,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                    list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                    owners[wife] = {
+                        'доля': None,
+                        'совместные сособственники': husband,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                    list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                # проверяем вариант, когда имущество приобретено частично за личные средства мужа и частично за личные средства жены
+                if 'common_dolya' not in form_full and 'private_wife' in form_full and 'private_husband' in form_full:
+                    dolya_dict = dolya_math(
+                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        private_dolya_husband=(
+                            private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                        flag_ownership='ownership')
+
+                    owners[husband] = {
+                        'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('purchase_marriage_private_money'))
+
+                    owners[wife] = {
+                        'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+                # проверяем вариант, когда имущество приобретено частично за общие средства, частично за личные средства мужа и частично за личные средства жены
+                if 'common_dolya' in form_full and 'private_wife' in form_full and 'private_husband' in form_full:
+                    dolya_dict = dolya_math(
+                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        private_dolya_husband=(
+                            private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                        flag_ownership='ownership')
+
+                    owners[husband] = {
+                        'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                        'совместные сособственники': wife,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+                    list_of_links.append(to_link('purchase_marriage_private_money'))
+                    list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                    owners[wife] = {
+                        'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                        'совместные сособственники': husband,
+                        'совместная доля': f'{dolya_dict["common_dolya"][0]}/{dolya_dict["common_dolya"][1]}'}
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
 ########################################
     # TODO - доделать обработку покупки (копировать снизу - и переделать)
-    # TODO - сделать без before_marriage
+    # TODO - сделать без before_marriage (валидацию)
     # TODO - отвалидировать без before_marriage
     # TODO - обработать подарки, наследование
     # TODO - добавить в логику "детское имущество"
@@ -959,120 +1498,12 @@ def to_ownership(form_full: dict):
 '''
             
 
-                # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств жены
-                if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' not in data:
-                    # Если было указано, что остаток полностью вносился за счет средств жены
-                    # ostatok - было ли отмечено поле "полностью"
-                    if data['private_wife_amount'] == 'private_wife_amount_all':
-                        errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife,
-                        before_marriage_dolya_znamenatel_wife),
-                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                           before_marriage_dolya_znamenatel_husband),
-                                                 ostatok=True))
-                    # Если была выбрана "часть средств жены"
-                    if data['private_wife_amount'] == 'private_wife_amount_dolya':
-                        errors.update(
-                            dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
-                                        'личные средства жены'))
-                        errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife,
-                        before_marriage_dolya_znamenatel_wife),
-                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                           before_marriage_dolya_znamenatel_husband),
-                                                 private_dolya_wife=(private_dolya_chislitel_wife,
-                                                                     private_dolya_znamenatel_wife)))
 
-                # проверяем вариант, когда до брака обоими будущими супругами, а остаток полностью за счет средств мужа
-                if 'common_dolya' not in data and 'private_wife' not in data and 'private_husband' in data:
-                    # Если было указано, что остаток полностью вносился за счет средств мужа
-                    # ostatok - было ли отмечено поле "полностью"
-                    if data['private_husband_amount'] == 'private_husband_amount_all':
-                        errors.update(dolya_math(before_marriage_dolya_wife=(
-                            before_marriage_dolya_chislitel_wife,
-                            before_marriage_dolya_znamenatel_wife),
-                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                           before_marriage_dolya_znamenatel_husband),
-                            ostatok=True))
-                    # Если была выбрана "часть средств мужа"
-                    if data['private_husband_amount'] == 'private_husband_amount_dolya':
-                        errors.update(
-                            dolya_check(private_dolya_chislitel_husband,
-                                        private_dolya_znamenatel_husband,
-                                        'личные средства мужа'))
-                        errors.update(dolya_math(before_marriage_dolya_wife=(
-                            before_marriage_dolya_chislitel_wife,
-                            before_marriage_dolya_znamenatel_wife),
-                            before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                           before_marriage_dolya_znamenatel_husband),
-                            private_dolya_husband=(private_dolya_chislitel_husband,
-                                                   private_dolya_znamenatel_husband)))
+                
 
-                # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств жены
-                if 'common_dolya' in data and 'private_wife' in data and 'private_husband' not in data:
-                    errors.update(
-                        dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
-                    errors.update(
-                        dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
-                                    'личные средства жены'))
-                    errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife,
-                        before_marriage_dolya_znamenatel_wife),
-                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                       before_marriage_dolya_znamenatel_husband),
-                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
-                        private_dolya_wife=(private_dolya_chislitel_wife,
-                                            private_dolya_znamenatel_wife)))
+                
 
-                # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет общих средств и личных средств мужа
-                if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' in data:
-                    errors.update(
-                        dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
-                    errors.update(
-                        dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
-                                    'личные средства мужа'))
-                    errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife,
-                        before_marriage_dolya_znamenatel_wife),
-                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                       before_marriage_dolya_znamenatel_husband),
-                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
-                        private_dolya_husband=(private_dolya_chislitel_husband,
-                                               private_dolya_znamenatel_husband)))
-
-                # проверяем вариант, когда до брака обоими будущими супругами, а остаток за счет личных средств жены и личных средств мужа
-                if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' in data:
-                    errors.update(
-                        dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
-                                    'личные средства жены'))
-                    errors.update(
-                        dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
-                                    'личные средства мужа'))
-                    errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife,
-                        before_marriage_dolya_znamenatel_wife),
-                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                       before_marriage_dolya_znamenatel_husband),
-                        private_dolya_wife=(
-                        private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
-                        private_dolya_husband=(private_dolya_chislitel_husband,
-                                               private_dolya_znamenatel_husband)))
-
-                # проверяем вариант, когда до брака только обоими будущими супругами, а остаток за счет общих средств, личных средств жены и личных средств мужа
-                if 'common_dolya' in data and 'private_wife' in data and 'private_husband' in data:
-                    errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
-                    errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
-                                              'личные средства жены'))
-                    errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
-                                              'личные средства мужа'))
-                    errors.update(dolya_math(before_marriage_dolya_wife=(
-                        before_marriage_dolya_chislitel_wife, before_marriage_dolya_znamenatel_wife),
-                        before_marriage_dolya_husband=(before_marriage_dolya_chislitel_husband,
-                                                       before_marriage_dolya_znamenatel_husband),
-                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
-                        private_dolya_husband=(private_dolya_chislitel_husband,
-                                               private_dolya_znamenatel_husband),
-                        common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
+               
 
 '''
 
