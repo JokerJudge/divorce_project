@@ -1482,9 +1482,6 @@ def to_ownership(form_full: dict):
                         list_of_links.append(to_link('common_property_dolevaya'))
 
 ########################################
-    # TODO - доделать обработку покупки (копировать снизу - и переделать)
-    # TODO - сделать без before_marriage (валидацию)
-    # TODO - отвалидировать без before_marriage
     # TODO - обработать подарки, наследование
     # TODO - добавить в логику "детское имущество"
     # TODO - добавить в логику "вещи личного пользования"
@@ -1494,86 +1491,6 @@ def to_ownership(form_full: dict):
     ownership = {'ownership': i_ownership}
     # TODO - нужно, чтобы еще возвращал list_of_links
     return ownership
-
-'''
-            
-
-
-                
-
-                
-
-               
-
-'''
-
-
-
-'''
-    # если указаны сособственники
-    if 'coowners' in form_full:
-        dolya_for_obtaining = f'{dolya_chislitel}/{dolya_znamenatel}'
-        dolya_for_inie = f'{int(dolya_znamenatel) - int(dolya_chislitel)}/{dolya_znamenatel}'
-        # если есть брак
-        if marriage is not None:
-            # если в браке after_break_up был True
-            if after_break_up == True:
-                owners[obtaining_person] = {'доля': dolya_for_obtaining,
-                                            'совместные сособственники': None,
-                                            'совместная доля': None}
-                # для иных сособственников
-                owners['Иные сособственники'] = {'доля': dolya_for_inie,
-                                            'совместные сособственники': None,
-                                            'совместная доля': None}
-            # если after_break_up == False
-            else:
-                # описание для того, кто был указан приобретателем
-                owners[obtaining_person] = {'доля': None,
-                                            'совместные сособственники': spouce,
-                                            'совместная доля': dolya_for_obtaining}
-                # описание для супруга того, кто был указан приобретателем
-                owners[spouce] = {'доля': None,
-                                  'совместные сособственники': obtaining_person,
-                                  'совместная доля': dolya_for_obtaining}
-                # для иных сособственников
-                owners[spouce] = {'доля': dolya_for_inie,
-                                  'совместные сособственники': None,
-                                  'совместная доля': None}
-        # если брака нет
-        else:
-            owners[obtaining_person] = {'доля': dolya_for_obtaining,
-                                        'совместные сособственники': None,
-                                        'совместная доля': None}
-            # для иных сособственников
-            owners['Иные сособственники'] = {'доля': dolya_for_inie,
-                                        'совместные сособственники': None,
-                                        'совместная доля': None}
-
-    # если сособственников нет
-    else:
-        # если есть брак
-        if marriage is not None:
-            # если в браке after_break_up был True
-            if after_break_up == True:
-                owners[obtaining_person] = {'доля': 1,
-                                            'совместные сособственники': None,
-                                            'совместная доля': None}
-            # если after_break_up == False
-            else:
-                # описание для того, кто был указан приобретателем
-                owners[obtaining_person] = {'доля': None,
-                                            'совместные сособственники': spouce,
-                                            'совместная доля': 1}
-                # описание для супруга того, кто был указан приобретателем
-                owners[spouce] = {'доля': None,
-                                  'совместные сособственники': obtaining_person,
-                                  'совместная доля': 1}
-        # если брака нет
-        else:
-            owners[obtaining_person] = {'доля': 1,
-                                        'совместные сособственники': None,
-                                        'совместная доля': None}
-'''
 
 def clean_coowners(data: dict):
     '''
@@ -1963,6 +1880,85 @@ def clean_coowners(data: dict):
                         private_dolya_husband=(private_dolya_chislitel_husband,
                                                private_dolya_znamenatel_husband),
                         common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
+
+        ##############################
+        # обрабатываем вариант, если чекбокс "Часть/все деньги за имущество вносились до брака" не отмечен
+        if 'before_marriage' not in data:
+            # проверяем когда имущество приобретается полностью за общие средства
+            if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' not in data:
+                # Если было указано, что имущество приобреталось полностью за счет общего имущества
+                # ostatok - было ли отмечено поле "полностью"
+                if data['common_amount'] == 'common_amount_all':
+                    pass
+                # Если была выбрана доля общего имущества
+                if data['common_amount'] == 'common_amount_dolya':
+                    errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                    errors.update(dolya_math(common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
+
+            # проверяем вариант, когда имущество приобретается за счет жены
+            if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' not in data:
+                # Если было указано, что имущество приобреталось полностью за счет личных средств жены
+                # ostatok - было ли отмечено поле "полностью"
+                if data['private_wife_amount'] == 'private_wife_amount_all':
+                    pass
+                # Если была выбрана "часть средств жены"
+                if data['private_wife_amount'] == 'private_wife_amount_dolya':
+                    errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                              'личные средства жены'))
+                    errors.update(dolya_math(private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife)))
+
+            # проверяем вариант, когда имущество приобретается за счет мужа
+            if 'common_dolya' not in data and 'private_wife' not in data and 'private_husband' in data:
+                # Если было указано, что имущество приобреталось полностью за счет личных средств мужа
+                # ostatok - было ли отмечено поле "полностью"
+                if data['private_husband_amount'] == 'private_husband_amount_all':
+                    pass
+                # Если была выбрана "часть средств мужа"
+                if data['private_husband_amount'] == 'private_husband_amount_dolya':
+                    errors.update(
+                        dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                    'личные средства мужа'))
+                    errors.update(dolya_math(private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband)))
+
+            # проверяем вариант, когда имущество приобреталось за счет общих средств и личных средств жены
+            if 'common_dolya' in data and 'private_wife' in data and 'private_husband' not in data:
+                errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                          'личные средства жены'))
+                errors.update(dolya_math(common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                    private_dolya_wife=(private_dolya_chislitel_wife,
+                                        private_dolya_znamenatel_wife)))
+
+            # проверяем вариант, когда имущество приобреталось за счет общих средств и личных средств мужа
+            if 'common_dolya' in data and 'private_wife' not in data and 'private_husband' in data:
+                errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                          'личные средства мужа'))
+                errors.update(dolya_math(common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
+                    private_dolya_husband=(private_dolya_chislitel_husband,
+                                           private_dolya_znamenatel_husband)))
+
+            # проверяем вариант, когда имущество приобреталось за счет личных средств жены и личных средств мужа
+            if 'common_dolya' not in data and 'private_wife' in data and 'private_husband' in data:
+                errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                          'личные средства жены'))
+                errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                          'личные средства мужа'))
+                errors.update(dolya_math(private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                    private_dolya_husband=(private_dolya_chislitel_husband,
+                                           private_dolya_znamenatel_husband)))
+
+            # проверяем вариант, когда имущество приобреталось за счет общих средств, личных средств жены и личных средств мужа
+            if 'common_dolya' in data and 'private_wife' in data and 'private_husband' in data:
+                errors.update(dolya_check(common_dolya_chislitel, common_dolya_znamenatel, 'общая доля'))
+                errors.update(dolya_check(private_dolya_chislitel_wife, private_dolya_znamenatel_wife,
+                                          'личные средства жены'))
+                errors.update(dolya_check(private_dolya_chislitel_husband, private_dolya_znamenatel_husband,
+                                          'личные средства мужа'))
+                errors.update(dolya_math(private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                    private_dolya_husband=(private_dolya_chislitel_husband,
+                                           private_dolya_znamenatel_husband),
+                    common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
 
     # обрабатываем вариант, где выбран "Подарок"
     if data['purchase_type'] == 'purchase_type_present':
