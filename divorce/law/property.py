@@ -1481,8 +1481,167 @@ def to_ownership(form_full: dict):
                             'совместная доля': None}
                         list_of_links.append(to_link('common_property_dolevaya'))
 
+        ##########
+        # обрабатываем вариант, где выбрано "Создание"
+        if form_full['purchase_type'] == ['purchase_type_creation']:
+            owners[husband] = {'доля': None,
+                               'совместные сособственники': wife,
+                               'совместная доля': 1}
+            owners[wife] = {'доля': None,
+                            'совместные сособственники': husband,
+                            'совместная доля': 1}
+            list_of_links.append(to_link('sozdanie_imushestva'))
+            list_of_links.append(to_link('common_property_sovmastnaya'))
+
+        # обрабатываем вариант, где выбран "Подарок"
+        if form_full['purchase_type'] == ['purchase_type_present']:
+            # обрабатываем вариант, когда выбрано, что подарено было жене
+            if 'present_receiver_wife' in form_full and 'present_receiver_husband' not in form_full:
+                # если указано, что подарено жене в полном объеме
+                if form_full['present_amount_wife'] == ['present_amount_all_wife']:
+                    owners[wife] = {'доля': 1,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                    list_of_links.append(to_link('individual_property'))
+                    list_of_links.append(to_link('present_imushestvo'))
+
+                # если выбран вариант "в части"
+                if form_full['present_amount_wife'] == ['present_amount_dolya_wife']:
+                    dolya_dict = dolya_math(
+                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        flag_ownership='ownership')
+
+                    owners[wife] = {'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                    list_of_links.append(to_link('present_imushestvo'))
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+            # обрабатываем вариант, когда выбрано, что подарено было мужу
+            if 'present_receiver_wife' not in form_full and 'present_receiver_husband' in form_full:
+                # если указано, что подарено мужу в полном объеме
+                if form_full['present_amount_husband'] == ['present_amount_all_husband']:
+                    owners[husband] = {'доля': 1,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                    list_of_links.append(to_link('individual_property'))
+                    list_of_links.append(to_link('present_imushestvo'))
+
+                # если выбран вариант "в части"
+                if form_full['present_amount_husband'] == ['present_amount_dolya_husband']:
+                    dolya_dict = dolya_math(
+                        private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                        flag_ownership='ownership')
+
+                    owners[husband] = {
+                        'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('present_imushestvo'))
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+
+            # обрабатываем вариант, когда выбрано, что подарено было обоим (мужу и жене)
+            if 'present_receiver_wife' in form_full and 'present_receiver_husband' in form_full:
+                dolya_dict = dolya_math(
+                    private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                    private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                    flag_ownership='ownership')
+
+                owners[wife] = {
+                    'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                    'совместные сособственники': None,
+                    'совместная доля': None}
+
+                owners[husband] = {
+                    'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                    'совместные сособственники': None,
+                    'совместная доля': None}
+                list_of_links.append(to_link('present_imushestvo'))
+
+                if 'Иные сособственники' in dolya_dict:
+                    owners['Иные сособственники'] = {
+                        'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('common_property_dolevaya'))
+
+        # обрабатываем вариант, где выбрано "Наследование"
+        if form_full['purchase_type'] == ['purchase_type_inheritance']:
+            # обрабатываем вариант, когда выбрано, что имущество унаследовано женой
+            if form_full['inheritance_receiver'] == ['inheritance_receiver_wife']:
+                # если выбран вариант "полностью"
+                owners[wife] = {
+                    'доля': 1,
+                    'совместные сособственники': None,
+                    'совместная доля': None}
+                list_of_links.append(to_link('individual_property'))
+                list_of_links.append(to_link('inheritance_imushestvo'))
+
+                # если выбран вариант "в части"
+                if form_full['inheritance_amount_wife'] == ['inheritance_amount_dolya_wife']:
+                    dolya_dict = dolya_math(
+                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        flag_ownership='ownership')
+
+                    owners[wife] = {
+                        'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('inheritance_imushestvo'))
+
+                    if 'Иные сособственники' in dolya_dict:
+                        owners['Иные сособственники'] = {
+                            'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('common_property_dolevaya'))
+
+            # обрабатываем вариант, когда выбрано, что имущество унаследовано мужем
+            if form_full['inheritance_receiver'] == ['inheritance_receiver_husband']:
+                # обрабатываем вариант, когда выбрано, что имущество унаследовано мужем
+                if form_full['inheritance_receiver'] == ['inheritance_receiver_husband']:
+                    # если выбран вариант "полностью"
+                    owners[husband] = {
+                        'доля': 1,
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('individual_property'))
+                    list_of_links.append(to_link('inheritance_imushestvo'))
+
+                    # если выбран вариант "в части"
+                    if form_full['inheritance_amount_husband'] == ['inheritance_amount_dolya_husband']:
+                        dolya_dict = dolya_math(
+                            private_dolya_wife=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            flag_ownership='ownership')
+
+                        owners[husband] = {
+                            'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                            'совместные сособственники': None,
+                            'совместная доля': None}
+                        list_of_links.append(to_link('inheritance_imushestvo'))
+
+                        if 'Иные сособственники' in dolya_dict:
+                            owners['Иные сособственники'] = {
+                                'доля': f'{dolya_dict["Иные сособственники"][0]}/{dolya_dict["Иные сособственники"][1]}',
+                                'совместные сособственники': None,
+                                'совместная доля': None}
+                            list_of_links.append(to_link('common_property_dolevaya'))
+
+
 ########################################
-    # TODO - обработать подарки, наследование
     # TODO - добавить в логику "детское имущество"
     # TODO - добавить в логику "вещи личного пользования"
 
@@ -1881,7 +2040,6 @@ def clean_coowners(data: dict):
                                                private_dolya_znamenatel_husband),
                         common_dolya=(common_dolya_chislitel, common_dolya_znamenatel)))
 
-        ##############################
         # обрабатываем вариант, если чекбокс "Часть/все деньги за имущество вносились до брака" не отмечен
         if 'before_marriage' not in data:
             # проверяем когда имущество приобретается полностью за общие средства
