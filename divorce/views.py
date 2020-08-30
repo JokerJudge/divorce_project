@@ -209,7 +209,14 @@ class PropertyFormView(View):
                                    'parents': parents})
                 #TODO - не сделано
                 else:
-                    return redirect(f'/divorce/form_property_2_m/{id}')
+                    #кэширую ID для внесения изменений в БД
+                    cache.set('id', id)
+                    return render(request,
+                                  'divorce/form_property_2_m.html',
+                                  {'form_1_processed_data': form_1_processed_data,
+                                   'form_1': form.cleaned_data,
+                                   'parents': parents})
+                    #return redirect(f'/divorce/form_property_2_m/{id}')
         # если есть проблемы с формой - ValueError из forms.py
         else:
             return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
@@ -260,7 +267,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership = to_ownership(form_full)
+            ownership, list_of_links = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -279,10 +286,6 @@ class PropertyForm2nmView(View):
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
                 return redirect('/divorce')
-
-
-            # вариант № 1 - нет сособственников - личная собственность
-            # вариант № 2 - есть сособственники - долевая собственность
 
           #form = Property_form(request.POST) # заполняем форму из словаря POST
             #property = None
@@ -308,7 +311,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership = to_ownership(form_full)
+            ownership, list_of_links = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             #form = Property_form(form_example)
@@ -328,8 +331,6 @@ class PropertyForm2nmView(View):
                 cache.delete('form_1_processed_data')
                 return redirect('/divorce')
 
-# TODO - подумать, возможно, стоит слить с классом PropertyForm2nmView, так как пока многое совпадает
-# TODO - нужно только рендерить нужные страницы (с браком или без)
 
 class PropertyForm2mView(View):
     '''
@@ -351,13 +352,15 @@ class PropertyForm2mView(View):
             return render(request, 'divorce/form_property_2_m.html', {'form': form, 'property': property})
 
     def post(self, request, id=0):
+        # Вытаскиваем из кэша id, если у нас идет процедура внесения изменений
+        if cache.get('id') != None:
+            id = cache.get('id')
         if id == 0:  # если данные пока не записаны в БД
             print()
             print('Я тут ТРИ!!!!')
             print()
             print('request.POST')
             print(request.POST)
-            # Фильтровка корректных значений, если есть сособственники
             parents = cache.get('parents')
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
 
@@ -385,7 +388,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership = to_ownership(form_full)
+            ownership, list_of_links = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -403,11 +406,8 @@ class PropertyForm2mView(View):
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
+                print(list_of_links)
                 return redirect('/divorce')
-
-
-            # вариант № 1 - нет сособственников - личная собственность
-            # вариант № 2 - есть сособственники - долевая собственность
 
           #form = Property_form(request.POST) # заполняем форму из словаря POST
             #property = None
@@ -432,7 +432,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership = to_ownership(form_full)
+            ownership, list_of_links = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             #form = Property_form(form_example)
@@ -451,6 +451,7 @@ class PropertyForm2mView(View):
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
+                cache.delete('id')
                 return redirect('/divorce')
 
 def merging_forms(form: dict):

@@ -1679,8 +1679,7 @@ def to_ownership(form_full: dict):
     type_of_relationships = {'Собственность': owners}
     i_ownership = {period_of_time: type_of_relationships}
     ownership = {'ownership': i_ownership}
-    # TODO - нужно, чтобы еще возвращал list_of_links
-    return ownership
+    return ownership, list_of_links
 
 def clean_coowners(data: dict):
     '''
