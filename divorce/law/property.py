@@ -230,7 +230,6 @@ def to_ownership(form_full: dict):
         # если выбрана "Покупка"
         if form_full['purchase_type'] == ['purchase_type_buy']:
             # обрабатываем вариант, если включен чекбокс "Часть/все деньги за имущество вносились до брака"
-            # TODO - сделать без before_marriage
             if 'before_marriage' in form_full:
                 # обрабатываем вариант, когда выбрано, что деньги до брака вносились только женой
                 if 'before_marriage_wife' in form_full and 'before_marriage_husband' not in form_full:
@@ -1282,15 +1281,33 @@ def to_ownership(form_full: dict):
                     # ostatok - было ли отмечено поле "полностью"
                     if form_full['common_amount'] == ['common_amount_all']:
 
-                        owners[wife] = {
-                            'доля': None,
-                            'совместные сособственники': husband,
-                            'совместная доля': 1}
-                        list_of_links.append(to_link('common_property_sovmestnaya'))
+                        # если отмечено, что это вещь индивидуального пользования
+                        if 'individual' in form_full:
+                            if form_full['individual_use_parties'] == ['individual_use_wife']:
+                                owners[wife] = {
+                                    'доля': 1,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('individual_property'))
+                                list_of_links.append(to_link('individual_use_vesh'))
+                            elif form_full['individual_use_parties'] == ['individual_use_husband']:
+                                owners[husband] = {
+                                    'доля': 1,
+                                    'совместные сособственники': None,
+                                    'совместная доля': None}
+                                list_of_links.append(to_link('individual_property'))
+                                list_of_links.append(to_link('individual_use_vesh'))
 
-                        owners[husband] = {'доля': None,
-                                           'совместные сособственники': wife,
-                                           'совместная доля': 1}
+                        else:
+                            owners[wife] = {
+                                'доля': None,
+                                'совместные сособственники': husband,
+                                'совместная доля': 1}
+                            list_of_links.append(to_link('common_property_sovmestnaya'))
+
+                            owners[husband] = {'доля': None,
+                                               'совместные сособственники': wife,
+                                               'совместная доля': 1}
 
                     # Если была выбрана доля общего имущества
                     if form_full['common_amount'] == ['common_amount_dolya']:
@@ -1481,17 +1498,33 @@ def to_ownership(form_full: dict):
                             'совместная доля': None}
                         list_of_links.append(to_link('common_property_dolevaya'))
 
-        ##########
         # обрабатываем вариант, где выбрано "Создание"
         if form_full['purchase_type'] == ['purchase_type_creation']:
-            owners[husband] = {'доля': None,
-                               'совместные сособственники': wife,
-                               'совместная доля': 1}
-            owners[wife] = {'доля': None,
-                            'совместные сособственники': husband,
-                            'совместная доля': 1}
-            list_of_links.append(to_link('sozdanie_imushestva'))
-            list_of_links.append(to_link('common_property_sovmastnaya'))
+            # проверяем, является ли это вещью индивидуального пользования
+            if 'individual' in form_full:
+                if form_full['individual_use_parties'] == ['individual_use_wife']:
+                    owners[wife] = {
+                        'доля': 1,
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('sozdanie_imushestva'))
+                    list_of_links.append(to_link('individual_use_vesh'))
+                elif form_full['individual_use_parties'] == ['individual_use_husband']:
+                    owners[husband] = {
+                        'доля': 1,
+                        'совместные сособственники': None,
+                        'совместная доля': None}
+                    list_of_links.append(to_link('sozdanie_imushestva'))
+                    list_of_links.append(to_link('individual_use_vesh'))
+            else:
+                owners[husband] = {'доля': None,
+                                   'совместные сособственники': wife,
+                                   'совместная доля': 1}
+                owners[wife] = {'доля': None,
+                                'совместные сособственники': husband,
+                                'совместная доля': 1}
+                list_of_links.append(to_link('sozdanie_imushestva'))
+                list_of_links.append(to_link('common_property_sovmastnaya'))
 
         # обрабатываем вариант, где выбран "Подарок"
         if form_full['purchase_type'] == ['purchase_type_present']:
@@ -1508,10 +1541,10 @@ def to_ownership(form_full: dict):
                 # если выбран вариант "в части"
                 if form_full['present_amount_wife'] == ['present_amount_dolya_wife']:
                     dolya_dict = dolya_math(
-                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        present_dolya_wife=(present_dolya_chislitel_wife, present_dolya_znamenatel_wife),
                         flag_ownership='ownership')
 
-                    owners[wife] = {'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                    owners[wife] = {'доля': f'{dolya_dict["present_dolya_wife"][0]}/{dolya_dict["present_dolya_wife"][1]}',
                                     'совместные сособственники': None,
                                     'совместная доля': None}
                     list_of_links.append(to_link('present_imushestvo'))
@@ -1536,11 +1569,11 @@ def to_ownership(form_full: dict):
                 # если выбран вариант "в части"
                 if form_full['present_amount_husband'] == ['present_amount_dolya_husband']:
                     dolya_dict = dolya_math(
-                        private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                        present_dolya_husband=(present_dolya_chislitel_husband, present_dolya_znamenatel_husband),
                         flag_ownership='ownership')
 
                     owners[husband] = {
-                        'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                        'доля': f'{dolya_dict["present_dolya_husband"][0]}/{dolya_dict["present_dolya_husband"][1]}',
                         'совместные сособственники': None,
                         'совместная доля': None}
                     list_of_links.append(to_link('present_imushestvo'))
@@ -1556,17 +1589,17 @@ def to_ownership(form_full: dict):
             # обрабатываем вариант, когда выбрано, что подарено было обоим (мужу и жене)
             if 'present_receiver_wife' in form_full and 'present_receiver_husband' in form_full:
                 dolya_dict = dolya_math(
-                    private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
-                    private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                    present_dolya_wife=(present_dolya_chislitel_wife, present_dolya_znamenatel_wife),
+                    present_dolya_husband=(present_dolya_chislitel_husband, present_dolya_znamenatel_husband),
                     flag_ownership='ownership')
 
                 owners[wife] = {
-                    'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                    'доля': f'{dolya_dict["present_dolya_wife"][0]}/{dolya_dict["present_dolya_wife"][1]}',
                     'совместные сособственники': None,
                     'совместная доля': None}
 
                 owners[husband] = {
-                    'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                    'доля': f'{dolya_dict["present_dolya_husband"][0]}/{dolya_dict["present_dolya_husband"][1]}',
                     'совместные сособственники': None,
                     'совместная доля': None}
                 list_of_links.append(to_link('present_imushestvo'))
@@ -1593,11 +1626,11 @@ def to_ownership(form_full: dict):
                 # если выбран вариант "в части"
                 if form_full['inheritance_amount_wife'] == ['inheritance_amount_dolya_wife']:
                     dolya_dict = dolya_math(
-                        private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
+                        inheritance_dolya_wife=(inheritance_dolya_chislitel_wife, inheritance_dolya_znamenatel_wife),
                         flag_ownership='ownership')
 
                     owners[wife] = {
-                        'доля': f'{dolya_dict["private_dolya_wife"][0]}/{dolya_dict["private_dolya_wife"][1]}',
+                        'доля': f'{dolya_dict["inheritance_dolya_wife"][0]}/{dolya_dict["inheritance_dolya_wife"][1]}',
                         'совместные сособственники': None,
                         'совместная доля': None}
                     list_of_links.append(to_link('inheritance_imushestvo'))
@@ -1624,11 +1657,11 @@ def to_ownership(form_full: dict):
                     # если выбран вариант "в части"
                     if form_full['inheritance_amount_husband'] == ['inheritance_amount_dolya_husband']:
                         dolya_dict = dolya_math(
-                            private_dolya_wife=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
+                            inheritance_dolya_wife=(inheritance_dolya_chislitel_husband, inheritance_dolya_znamenatel_husband),
                             flag_ownership='ownership')
 
                         owners[husband] = {
-                            'доля': f'{dolya_dict["private_dolya_husband"][0]}/{dolya_dict["private_dolya_husband"][1]}',
+                            'доля': f'{dolya_dict["inheritance_dolya_husband"][0]}/{dolya_dict["inheritance_dolya_husband"][1]}',
                             'совместные сособственники': None,
                             'совместная доля': None}
                         list_of_links.append(to_link('inheritance_imushestvo'))
@@ -1642,8 +1675,6 @@ def to_ownership(form_full: dict):
 
 
 ########################################
-    # TODO - добавить в логику "детское имущество"
-    # TODO - добавить в логику "вещи личного пользования"
 
     type_of_relationships = {'Собственность': owners}
     i_ownership = {period_of_time: type_of_relationships}

@@ -25,6 +25,7 @@
                 <br>
 
                 <!-- Вопрос № 2 -->
+                {% if form_1|get_item:'type_of_property_form' == 'Иная движимая вещь' %}
                 <input type="checkbox" id="for_child" name="for_child">
                 <label for="for_child"><b>Детское имущество (для ребенка)</b></label>
                 <br>
@@ -85,9 +86,13 @@
                 </script>
 
                 <br>
+                {% endif %}
+                <!--
 
+                if form_1_processed_data|get_item:'type_of_property' == 'Недвижимая вещь' or form_1_processed_data|get_item:'type_of_property' == 'Движимая вещь'%}
+                -->
                 <!-- Вопрос № 3 -->
-                {% if form_1_processed_data|get_item:'type_of_property' == 'Недвижимая вещь' or form_1_processed_data|get_item:'type_of_property' == 'Движимая вещь'%}
+                {% if form_1|get_item:'type_of_property_form' == 'Иная движимая вещь' %}
                     <input type="checkbox" id="individual" name="individual">
                     <label for="individual"><b>Вещь индивидуального пользования</b></label>
                     <!-- Вопрос № 3.1 -->
