@@ -110,7 +110,7 @@
                                         <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
                                     </form>
                                     <a href="{% url 'marriage_update' marriage.id %}" class="btn text-secondary float-right">
-                                        <i class="fas fa-user-edit"></i>
+                                        <i class="fas fa-pen"></i>
                                     </a>
                                     {% if marriage.date_of_marriage_divorce is None %}
                                     <a href="{% url 'marriage_divorce' marriage.id %}" class="btn btn-outline-danger btn-sm m-1">
@@ -149,36 +149,87 @@
                             </h3>
                             <hr/>
                             <ul class="list-group text-left">
-                                {% for property in property_list %}
-                                <li class="list-group-item">{{ property }}
-                                    <span class="badge badge-pill badge-warning">{{ property.type_of_property_form }}</span>
-                                    <span class="badge badge-pill badge-info">{{ property.date_of_purchase }}</span>
+                            {% for property, value in property_list.items %}
 
-                                    <form action="{% url 'delete_property' property.id %}" method="post" class="float-right d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
-                                    </form>
-                                    <a href="{% url 'property_update' property.id %}" class="btn text-secondary float-right">
-                                        <i class="fas fa-user-edit"></i>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <li class="list-group-item">
-                                    <span class="font-italic">Вы можете добавить имущество</span>
-                                </li>
-                                {% endfor %}
+
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h5>{{ value|get_item:"name" }}</h5>
+                                        <span class="badge badge-pill badge-warning">{{ value|get_item:"type_of_property_form" }}</span>
+                                        <span class="badge badge-pill badge-info">{{ value|get_item:"date_of_purchase" }}</span>
+                                        <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span>
+
+                                        <form action="{% url 'delete_property' value|get_item:"id" %}" method="post" class="float-right d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                                        </form>
+                                        <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary float-right">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <span class="mb-0 pb-0">Собственники:</span>
+                                        <p class="card-text text-left mt-0 pt-0">
+
+                                            {% for i in value|get_item:'quantity_of_owners'|to_range %}
+
+                                                    <b>{{ value|get_item:"owners"|get_item:i|get_item:"name" }}:</b>
+                                                    <br>
+                                                    {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
+                                                        100% личная собственность
+                                                    {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                        Личная доля: {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}
+                                                    <br>
+                                                    {% endif %}
+                                                    {% if value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" != None %}
+                                                        Сособственник: {{ value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" }}
+                                                        <br>
+                                                        {% if value|get_item:"owners"|get_item:i|get_item:"совместная доля" == 1 %}
+                                                            100% совместная собственность
+                                                        {% else %}
+                                                            Совместная доля: {{ value|get_item:"owners"|get_item:i|get_item:"совместная доля" }}
+                                                        {% endif %}
+                                                    <br>
+                                                    {% endif %}
+
+
+
+                                            {% endfor %}
+
+                                        </p>
+
+                                        <!--
+
+                                        <form action="" method="post" class="float-right d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                                        </form>
+                                        <a href="" class="btn text-secondary float-right">
+                                            <i class="fas fa-user-edit"></i>
+                                        </a>
+                                        -->
+
+
+                                    </div>
+                                </div>
+
+
+
+
+
+
+
+                            {% empty %}
+                            <div class="card">
+                            <li class="list-group-item">
+                                <span class="font-italic">Вы можете добавить имущество</span>
+                            </li>
+                            </div>
+                            {% endfor %}
+
+
                             </ul>
-
-                            <hr/>
-                            <ol class="text-left">
-                                <li>Автомобиль <span class="badge badge-pill badge-warning">движимое</span> <span class="badge badge-pill badge-info">04.02.2014</span> </li>
-                                <li>Квартира Коломяжский <span class="badge badge-pill badge-warning">недвижимое</span> <span class="badge badge-pill badge-info">10.09.2008</span> </li>
-                                <li>Земельный участок <span class="badge badge-pill badge-warning">недвижимое</span> <span class="badge badge-pill badge-info">25.08.2016</span></li>
-                                <li>Телевизор <span class="badge badge-pill badge-warning">движимое</span></li>
-                                <li>Денежные средства в банке <span class="badge badge-pill badge-warning">имущественное право</span></li>
-                            </ol>
-
-                        </div>
                     </div>
                 </div>
             </div>
@@ -212,6 +263,6 @@
 
             <br/>
             <br/>
-
+            </div>
         </section>
 {% endblock content %}

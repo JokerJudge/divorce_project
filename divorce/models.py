@@ -33,6 +33,8 @@ class Property(models.Model):
     type_of_property_form = models.CharField(max_length=50, choices=TYPES_OF_PROPERTY_CHOICES)
     type_of_property = models.CharField(max_length=100, blank=True, null=True)
     date_of_purchase = models.DateField()
+    ownership_b = models.BinaryField(blank=True, null=True)
+    # думаю, что нужно поменять на BinaryField или добавить ownership_b
     ownership = models.TextField(blank=True, null=True)
     purchase_type = models.CharField(max_length=30, choices=PURCHASE_TYPE_CHOICES, blank=True, null=True)
     obtaining_person = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)

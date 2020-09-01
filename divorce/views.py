@@ -1,19 +1,26 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.cache import cache
+import datetime
+import pickle
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage, Property
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
 from divorce.law.marriage import marriage_law, person_edit_check
-from divorce.law.property import form_1_processing, to_ownership, clean_coowners
+from divorce.law.property import form_1_processing, to_ownership, clean_coowners, ownership_to_display
 
 # Create your views here.
 # Представление для основной страницы
 class DivorceView(View):
     def get(self, request):
+        property_to_display = ownership_to_display(Property.objects.all())
+        print(property_to_display)
+
+        #'property_list': Property.objects.all()
+
         context = {'fiz_l_list': Fiz_l.objects.all(),
                    'marriages_list': Marriage.objects.all(),
-                   'property_list': Property.objects.all()}
+                   'property_list': property_to_display}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
@@ -280,6 +287,8 @@ class PropertyForm2nmView(View):
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.ownership = form.cleaned_data['ownership']
+                pick_own = pickle.dumps(form.cleaned_data['ownership'])
+                temp.ownership_b = pick_own
                 temp.save()
                 # удаляем кэшированные данные
                 cache.delete('form_1')
@@ -325,6 +334,8 @@ class PropertyForm2nmView(View):
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.ownership = form.cleaned_data['ownership']
+                pick_own = pickle.dumps(form.cleaned_data['ownership'])
+                temp.ownership_b = pick_own
                 temp.save()
                 # удаляем кэшированные данные
                 cache.delete('form_1')
@@ -393,6 +404,8 @@ class PropertyForm2mView(View):
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.ownership = form.cleaned_data['ownership']
+                pick_own = pickle.dumps(form.cleaned_data['ownership'])
+                temp.ownership_b = pick_own
                 temp.save()
                 # удаляем кэшированные данные
                 cache.delete('form_1')
@@ -437,6 +450,8 @@ class PropertyForm2mView(View):
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.ownership = form.cleaned_data['ownership']
+                pick_own = pickle.dumps(form.cleaned_data['ownership'])
+                temp.ownership_b = pick_own
                 temp.save()
                 # удаляем кэшированные данные
                 cache.delete('form_1')
@@ -472,7 +487,6 @@ def merging_forms(form: dict):
     print('form_example')
     print(form_example)
     return form_example, form_1, form_1_processed_data
-
 
 
 ########################################################

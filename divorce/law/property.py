@@ -1,5 +1,6 @@
 from math import gcd # greatest common devisor
 import datetime
+import pickle
 import dateutil.relativedelta as relativedelta
 from ..models import *
 from .law import *
@@ -135,6 +136,13 @@ class Period_of_time():
     def __repr__(self):
         return f'Период с {self.start} по {self.end}'
 
+    def __eq__(self, other):
+        return self.start == other.start and self.end == other.end
+
+    def __hash__(self):
+        delta = self.end - self.start
+        return hash(delta)
+
 
 def to_ownership(form_full: dict):
     name = form_full['name']
@@ -179,8 +187,13 @@ def to_ownership(form_full: dict):
         inheritance_dolya_znamenatel_husband = form_full['inheritance_dolya_znamenatel_husband'][0]
 
 
-    # период с даты приобретения до окончания времен
+    # даты, в которые менялись собственники (владельцы и т.п.)
+    # dates_of_changing_owners = [date_of_purchase]
+    # print('Хэш date_of_purchase')
+    # print(hash(date_of_purchase))
     period_of_time = Period_of_time(date_of_purchase, datetime.date(2050, 1, 1))
+    print('Хэш period_of_time')
+    print(hash(period_of_time))
 
 
     owners = {}
@@ -1677,7 +1690,7 @@ def to_ownership(form_full: dict):
 ########################################
 
     type_of_relationships = {'Собственность': owners}
-    i_ownership = {period_of_time: type_of_relationships}
+    i_ownership = {hash(period_of_time): type_of_relationships}
     ownership = {'ownership': i_ownership}
     return ownership, list_of_links
 
@@ -2321,4 +2334,56 @@ def to_link(text_link):
     link_name, law_link, law_text, npa = TEXTS[text_link]
     link = Link(link_name, law_link, law_text, npa)
     return link
+
+def ownership_to_display(property_object_queryset):
+    '''
+    Формат данных: {Период с 2018-01-31 по 2050-01-01: {'Собственность': {<Fiz_l: Буратино>: {'доля': '2/7',
+     'совместные сособственники': None, 'совместная доля': None}, <Fiz_l: Мальвина>: {'доля': '5/7',
+      'совместные сособственники': None, 'совместная доля': None}}}}
+
+    :param property_object_queryset:
+    :return:
+    '''
+    property_ownership_to_display = []
+    property_dict = {}
+
+    for i in property_object_queryset:
+        property_properties = {}
+        start = i.date_of_purchase
+        period_of_time = Period_of_time(start, datetime.date(2050, 1, 1))
+        byte_ownership = i.ownership_b
+        ownership = pickle.loads(byte_ownership)
+        owners_dict = ownership[hash(period_of_time)]['Собственность']
+        print(owners_dict)
+        sobstvennik_list = []
+        property_properties['name'] = i.name
+        property_properties['type_of_property_form'] = i.type_of_property_form
+        property_properties['date_of_purchase'] = i.date_of_purchase
+        property_properties['price'] = i.price
+        property_properties['id'] = i.id
+        counter = 0
+        for j in owners_dict:
+            sobstvennik = {}
+            if j == 'Иные сособственники':
+                sobstvennik['name'] = 'Иные сособственники'
+            else:
+                sobstvennik['name'] = j.name
+            sobstvennik['доля'] = owners_dict[j]['доля']
+            if isinstance(owners_dict[j]['совместные сособственники'], Fiz_l):
+                sobstvennik['совместные сособственники'] = owners_dict[j]['совместные сособственники'].name
+            else:
+                sobstvennik['совместные сособственники'] = owners_dict[j]['совместные сособственники']
+            sobstvennik['совместная доля'] = owners_dict[j]['совместная доля']
+            sobstvennik_list.append(sobstvennik)
+            counter += 1
+        property_properties['owners'] = sobstvennik_list
+        property_properties['quantity_of_owners'] = counter
+        property_dict[i.name] = property_properties
+
+
+        print(sobstvennik_list)
+        print(property_dict)
+    #property_ownership_to_display.append(property_dict)
+
+    return property_dict
 
