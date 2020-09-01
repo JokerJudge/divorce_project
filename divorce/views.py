@@ -13,8 +13,8 @@ from divorce.law.property import form_1_processing, to_ownership, clean_coowners
 # Представление для основной страницы
 class DivorceView(View):
     def get(self, request):
+        # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
         property_to_display = ownership_to_display(Property.objects.all())
-        print(property_to_display)
 
         #'property_list': Property.objects.all()
 
@@ -177,8 +177,8 @@ class PropertyFormView(View):
             form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
 
         if form.is_valid():
-            print('+++++++++++cleaned_data+++++++++++++++++++')
-            print(form.cleaned_data)
+            #print('+++++++++++cleaned_data+++++++++++++++++++')
+            #print(form.cleaned_data)
             # кэшируем полученные данные
             cache.set('form_1', form.cleaned_data)
             # обработка формы № 1
@@ -198,7 +198,6 @@ class PropertyFormView(View):
                     return redirect(f'/divorce/form_property_2_nm/{id}')
                 #return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
             else:
-                # TODO - если есть брак
                 # вытаскиваем из брака родителей, которые необходимы, чтобы ответить на вопрос № 2 формы № 2
                 list_of_parties = list(marriage.parties.all())
                 parents = {}
@@ -214,7 +213,6 @@ class PropertyFormView(View):
                                   {'form_1_processed_data': form_1_processed_data,
                                    'form_1': form.cleaned_data,
                                    'parents': parents})
-                #TODO - не сделано
                 else:
                     #кэширую ID для внесения изменений в БД
                     cache.set('id', id)
@@ -240,24 +238,15 @@ class PropertyForm2nmView(View):
     '''
     def get(self, request, id=0):
         if id == 0:
-            print()
-            print('Я тут ОДИН!!!!')
-            print()
             return render(request, 'divorce/form_property_2_nm.html')
 
         else:  # update operation
-            print()
-            print('Я тут ДВА!!!!')
-            print()
             property = Property.objects.get(pk=id)
             form = Property_form(instance=property)  # заполненная имеющимися данными форма
             return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property})
 
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
-            print()
-            print('Я тут ТРИ!!!!')
-            print()
             # Фильтровка корректных значений, если есть сособственники
             if 'coowners' in request.POST:
                 # проверка на правильность заполнения поля с долями
@@ -266,7 +255,6 @@ class PropertyForm2nmView(View):
                     return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
 
             # если всё хорошо:
-
             # грузим из кэша форму № 1 и обработанную форму
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             # для сохранения в БД
@@ -296,14 +284,8 @@ class PropertyForm2nmView(View):
                 cache.delete('parents')
                 return redirect('/divorce')
 
-          #form = Property_form(request.POST) # заполняем форму из словаря POST
-            #property = None
         else:
-            print()
-            print('Я тут ЧЕТЫРЕ!!!!')
-            print()
             property = Property.objects.get(pk=id)  # получаем по id нужный объект
-            #form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
 
             if 'coowners' in request.POST:
                 # проверка на правильность заполнения поля с долями
@@ -349,15 +331,9 @@ class PropertyForm2mView(View):
     '''
     def get(self, request, id=0):
         if id == 0:
-            print()
-            print('Я тут ОДИН!!!!')
-            print()
             return render(request, 'divorce/form_property_2_m.html')
 
         else:  # update operation
-            print()
-            print('Я тут ДВА!!!!')
-            print()
             property = Property.objects.get(pk=id)
             form = Property_form(instance=property)  # заполненная имеющимися данными форма
             return render(request, 'divorce/form_property_2_m.html', {'form': form, 'property': property})
@@ -367,11 +343,6 @@ class PropertyForm2mView(View):
         if cache.get('id') != None:
             id = cache.get('id')
         if id == 0:  # если данные пока не записаны в БД
-            print()
-            print('Я тут ТРИ!!!!')
-            print()
-            print('request.POST')
-            print(request.POST)
             parents = cache.get('parents')
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
@@ -385,8 +356,6 @@ class PropertyForm2mView(View):
                                                                               'form_1': form_1,
                                                                               'form_1_processed_data': form_1_processed_data,
                                                                               'parents': parents})
-            print('все ОК!')
-            print(form_full)
 
             # готовим форму № 2 к работе
             form_2 = request.POST
@@ -411,15 +380,10 @@ class PropertyForm2mView(View):
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
-                print(list_of_links)
                 return redirect('/divorce')
 
-          #form = Property_form(request.POST) # заполняем форму из словаря POST
-            #property = None
+
         else:
-            print()
-            print('Я тут ЧЕТЫРЕ!!!!')
-            print()
             property = Property.objects.get(pk=id)  # получаем по id нужный объект
             parents = cache.get('parents')
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
@@ -432,7 +396,6 @@ class PropertyForm2mView(View):
                                                                               'form_1': form_1,
                                                                               'form_1_processed_data': form_1_processed_data,
                                                                               'parents': parents})
-            print(form_full)
 
             # готовим форму № 2 к работе
             form_2 = request.POST

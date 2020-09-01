@@ -145,6 +145,13 @@ class Period_of_time():
 
 
 def to_ownership(form_full: dict):
+    '''
+    Функция, которая обрабатывает всю информацию, направленную пользователем и возвращает структуру прав на
+    имущество
+    :param form_full: Словарь с полной объединенной формой (форма № 1 + обработанная форма № 1 + форма № 2)
+    :return: ownersip (словарь с множественным вложением, описывающий структуру прав на имущество) и
+    list_of_links (список норм права, которые были использованы)
+    '''
     name = form_full['name']
     type_of_property_form = form_full['type_of_property_form']
     type_of_property = form_full['type_of_property']
@@ -186,11 +193,6 @@ def to_ownership(form_full: dict):
         inheritance_dolya_chislitel_husband = form_full['inheritance_dolya_chislitel_husband'][0]
         inheritance_dolya_znamenatel_husband = form_full['inheritance_dolya_znamenatel_husband'][0]
 
-
-    # даты, в которые менялись собственники (владельцы и т.п.)
-    # dates_of_changing_owners = [date_of_purchase]
-    # print('Хэш date_of_purchase')
-    # print(hash(date_of_purchase))
     period_of_time = Period_of_time(date_of_purchase, datetime.date(2050, 1, 1))
     print('Хэш period_of_time')
     print(hash(period_of_time))
@@ -1686,9 +1688,7 @@ def to_ownership(form_full: dict):
                                 'совместная доля': None}
                             list_of_links.append(to_link('common_property_dolevaya'))
 
-
-########################################
-
+    # создаем монструозную структуру для хранения данных о собственности
     type_of_relationships = {'Собственность': owners}
     i_ownership = {hash(period_of_time): type_of_relationships}
     ownership = {'ownership': i_ownership}
@@ -2269,10 +2269,6 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
         else:
             del dolya_dict[f'{k}']
 
-    #print(list_of_chislitels)
-    #print(list_of_znamenatels)
-    #print(dolya_dict)
-
     znam = list_of_znamenatels[0]
 
     # если одно поле заполнено
@@ -2320,7 +2316,7 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
 
     if flag_ownership == None:
         return errors
-    # TODO - нужно вернуть значение dolya_dict и errors, если эта функция будет использоваться при добавлении долей в БД
+
     elif flag_ownership == 'ownership':
         return dolya_dict
 
@@ -2337,12 +2333,14 @@ def to_link(text_link):
 
 def ownership_to_display(property_object_queryset):
     '''
-    Формат данных: {Период с 2018-01-31 по 2050-01-01: {'Собственность': {<Fiz_l: Буратино>: {'доля': '2/7',
-     'совместные сособственники': None, 'совместная доля': None}, <Fiz_l: Мальвина>: {'доля': '5/7',
-      'совместные сособственники': None, 'совместная доля': None}}}}
+    Функция, преобразующая данные из БД и сериализованные данные из БД в формат, который необходим для вывода
+    на основную страницу с информацией об имуществе
+    Формат данных на вход: {hash(Период с 2018-01-31 по 2050-01-01): {'Собственность': {<Fiz_l: Буратино>: {'доля': '2/7',
+    'совместные сособственники': None, 'совместная доля': None}, <Fiz_l: Мальвина>: {'доля': '5/7',
+    'совместные сособственники': None, 'совместная доля': None}}}}
 
-    :param property_object_queryset:
-    :return:
+    :param property_object_queryset: Queryset Property
+    :return: словарь для последующей передачи в context get-запроса divorce.html
     '''
     property_ownership_to_display = []
     property_dict = {}
@@ -2379,11 +2377,6 @@ def ownership_to_display(property_object_queryset):
         property_properties['owners'] = sobstvennik_list
         property_properties['quantity_of_owners'] = counter
         property_dict[i.name] = property_properties
-
-
-        print(sobstvennik_list)
-        print(property_dict)
-    #property_ownership_to_display.append(property_dict)
 
     return property_dict
 
