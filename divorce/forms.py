@@ -149,7 +149,7 @@ class Property_form(forms.ModelForm):
             'type_of_property_form': 'Вид имущества',
             'obtaining_person': 'Лицо (одно из лиц), приобретших имущество',
             'date_of_purchase': 'Дата приобретения имущества (переход права собственности)',
-            'price': 'Цена имущества (можно примерно), руб'
+            'price': 'Текущая цена имущества (можно примерно), руб'
         }
         widgets = {
             'name': forms.TextInput(),
