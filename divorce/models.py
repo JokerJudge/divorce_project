@@ -1,4 +1,5 @@
 from django.db import models
+from divorce.law.links_and_texts import PURCHASE_TYPE_CHOICES, TYPES_OF_PROPERTY_CHOICES
 
 # Create your models here.
 class Fiz_l(models.Model):
@@ -26,3 +27,21 @@ class Marriage(models.Model):
             return f'Брак между {list_to_display[0]} и {list_to_display[1]}'
         else:
             return f'Брак указан некорректно'
+
+class Property(models.Model):
+    name = models.CharField(max_length=200)
+    type_of_property_form = models.CharField(max_length=50, choices=TYPES_OF_PROPERTY_CHOICES)
+    type_of_property = models.CharField(max_length=100, blank=True, null=True)
+    date_of_purchase = models.DateField()
+    ownership_b = models.BinaryField(blank=True, null=True)
+    ownership = models.TextField(blank=True, null=True)
+    purchase_type = models.CharField(max_length=30, choices=PURCHASE_TYPE_CHOICES, blank=True, null=True)
+    obtaining_person = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
+    source_of_purchase = models.ManyToManyField('Fiz_l', blank=True, related_name='property_source')
+    price = models.PositiveIntegerField(blank=True, null=True)
+    pay_before_marriage = models.BooleanField(default=False)
+    for_child = models.BooleanField(default=False)
+    individual_use = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name

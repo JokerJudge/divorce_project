@@ -4,7 +4,7 @@ from django.forms import ModelMultipleChoiceField
 
 import datetime
 
-from .models import Fiz_l, Marriage
+from .models import Fiz_l, Marriage, Property
 
 class Fiz_l_form(forms.ModelForm):
     class Meta:
@@ -51,6 +51,7 @@ class Marriage_form(forms.ModelForm):
             'date_of_marriage_registration': forms.DateInput(),
             'parties': forms.CheckboxSelectMultiple(),
             'date_of_marriage_divorce': forms.DateInput(),
+            #'date_of_break_up': forms.SelectDateWidget(),
             'date_of_break_up': forms.DateInput(),
         }
 
@@ -134,3 +135,43 @@ class Marriage_form_divorce(forms.ModelForm):
                 print()
                 raise ValidationError('Прекращение отношений не может наступить позднее даты прекращения брака')
         return date_of_break_up
+
+class Property_form(forms.ModelForm):
+    class Meta:
+        model = Property
+        fields = ('name',
+                  'type_of_property_form',
+                  'obtaining_person',
+                  'date_of_purchase',
+                  'price',)
+        labels = {
+            'name': 'Название имущества (например, "Квартира в Москве")',
+            'type_of_property_form': 'Вид имущества',
+            'obtaining_person': 'Лицо (одно из лиц), приобретших имущество',
+            'date_of_purchase': 'Дата приобретения имущества (переход права собственности)',
+            'price': 'Цена имущества (можно примерно), руб'
+        }
+        widgets = {
+            'name': forms.TextInput(),
+            'type_of_property_form': forms.Select(),
+            'obtaining_person': forms.Select(),
+            'date_of_purchase': forms.DateInput(),
+            'price': forms.NumberInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(Property_form, self).__init__(*args, **kwargs)
+        self.fields['price'].empty_label = 'Укажите цену' # почему-то не работает
+        self.fields['price'].required = False
+
+    def clean_date_of_purchase(self):
+        '''
+        Проверка на то, чтобы дата приобретения была в адекватном пределе от 1900 года до 2050
+        :return: отвалидированное значение date_of_purchase
+        '''
+        date_of_purchase = self.cleaned_data['date_of_purchase']
+        if date_of_purchase < datetime.date(1900, 1, 1) or date_of_purchase > datetime.date(2050, 1, 1):
+            raise ValidationError('Введите дату в промежутке между 1900 годом и 2050 годом')
+        else:
+            return date_of_purchase
+
