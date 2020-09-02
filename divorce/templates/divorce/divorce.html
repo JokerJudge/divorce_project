@@ -150,6 +150,7 @@
                             <hr/>
                             <ul class="list-group text-left">
                             {% for property, value in property_list.items %}
+                                {{ counter.set_to_zero }}
 
 
                                 <div class="card mb-3">
@@ -172,40 +173,42 @@
                                         <span class="mb-0 pb-0">Собственники:</span>
                                         <p class="card-text text-left mt-0 pt-0">
 
-                                            {% for i in value|get_item:'quantity_of_owners'|to_range %}
 
+                                            {% for i in value|get_item:'quantity_of_owners'|to_range %}
+                                                {% if value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" == None %}
                                                     <b>{{ value|get_item:"owners"|get_item:i|get_item:"name" }}:</b>
-                                                    <br>
                                                     {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
-                                                        100% личная собственность
-                                                    {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
-                                                        Личная доля: {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}
-                                                    <br>
-                                                    {% endif %}
-                                                    {% if value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" != None %}
-                                                        Сособственник: {{ value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" }}
+                                                        - 100% личная собственность
                                                         <br>
-                                                        {% if value|get_item:"owners"|get_item:i|get_item:"совместная доля" == 1 %}
-                                                            100% совместная собственность
-                                                        {% else %}
-                                                            Совместная доля: {{ value|get_item:"owners"|get_item:i|get_item:"совместная доля" }}
-                                                        {% endif %}
+                                                    {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                        - личная доля: {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}
                                                     <br>
                                                     {% endif %}
-                                                
+                                                {% endif %}
+                                                {% if value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" != None %}
+                                                    {% if counter.counter == 0 %}
+                                                        {{ counter.increment }}
+                                                        <b>{{ value|get_item:"owners"|get_item:i|get_item:"name" }}</b> и <b>{{ value|get_item:"owners"|get_item:i|get_item:"совместные сособственники" }}</b>
+                                                        {% if value|get_item:"owners"|get_item:i|get_item:"совместная доля" == 1 %}
+                                                            - 100% совместная собственность
+                                                            <br>
+                                                        {% else %}
+                                                            - совместная доля: {{ value|get_item:"owners"|get_item:i|get_item:"совместная доля" }}
+                                                            <br>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% if value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                        <b>{{ value|get_item:"owners"|get_item:i|get_item:"name" }}</b>
+                                                        - личная доля: {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}
+                                                        <br>
+                                                    {% endif %}
+                                                {% endif %}
                                             {% endfor %}
 
                                         </p>
 
-
                                     </div>
                                 </div>
-
-
-
-
-
-
 
                             {% empty %}
                             <div class="card">

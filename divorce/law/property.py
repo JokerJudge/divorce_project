@@ -141,8 +141,8 @@ class Period_of_time():
 
     def __hash__(self):
         delta = self.end - self.start
-        #return hash(delta)
-        return hash((self.start, self.end))
+        return hash(delta)
+        #return hash((self.start, self.end))
 
 
 def to_ownership(form_full: dict):

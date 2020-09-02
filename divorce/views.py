@@ -8,6 +8,7 @@ from .models import Fiz_l, Marriage, Property
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners, ownership_to_display
+from divorce.law.utils import Counter
 
 # Create your views here.
 # Представление для основной страницы
@@ -17,11 +18,12 @@ class DivorceView(View):
         property_to_display = ownership_to_display(Property.objects.all())
         print(property_to_display)
 
-        #'property_list': Property.objects.all()
+        counter = Counter()
 
         context = {'fiz_l_list': Fiz_l.objects.all(),
                    'marriages_list': Marriage.objects.all(),
-                   'property_list': property_to_display}
+                   'property_list': property_to_display,
+                   'counter': counter}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
