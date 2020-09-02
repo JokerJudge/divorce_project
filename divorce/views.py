@@ -15,6 +15,7 @@ class DivorceView(View):
     def get(self, request):
         # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
         property_to_display = ownership_to_display(Property.objects.all())
+        print(property_to_display)
 
         #'property_list': Property.objects.all()
 

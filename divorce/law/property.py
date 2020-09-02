@@ -141,7 +141,8 @@ class Period_of_time():
 
     def __hash__(self):
         delta = self.end - self.start
-        return hash(delta)
+        #return hash(delta)
+        return hash((self.start, self.end))
 
 
 def to_ownership(form_full: dict):
@@ -2327,8 +2328,9 @@ def to_link(text_link):
     :param text_link: ключ словаря TEXTS с нормами права в links_and_texts.py
     :return: готовая ссылка
     '''
-    link_name, law_link, law_text, npa = TEXTS[text_link]
-    link = Link(link_name, law_link, law_text, npa)
+    #link_name, law_link, law_text, npa = TEXTS[text_link]
+    #link = Link(link_name, law_link, law_text, npa)
+    link = Link(*TEXTS[text_link])
     return link
 
 def ownership_to_display(property_object_queryset):
