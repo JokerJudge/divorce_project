@@ -45,3 +45,14 @@ class Property(models.Model):
 
     def __str__(self):
         return self.name
+
+class Distribution(models.Model):
+    date_of_distribution = models.DateField()
+    parties = models.ManyToManyField('Fiz_l', blank=True, related_name='distribution')
+
+    def __str__(self):
+        list_to_display = list(self.parties.all())
+        if len(list_to_display) == 2:
+            return f'{list_to_display[0]} и {list_to_display[1]} - раздел имущества'
+        else:
+            return f'Раздел имущества указан некорректно'

@@ -227,32 +227,98 @@
             <br/>
             <br/>
 
-            <div class="row justify-content-center">
-                <div class="card" style="background: rgba(255, 255, 255, 0.3)">
-                    <div class="card-body text-center">
-                        <p>Выберите дату, на которую делим имущество:</p>
-                        <table class="table-borderless" style="width:100%">
-                        <tbody>
-                            <tr>
-                                <td><input id="datepicker" width="276" />
-                        <script>
-                            $('#datepicker').datepicker({
-                                uiLibrary: 'bootstrap4'
-                            });
-                        </script></td>
-                                <td><button type="button" class="btn btn-primary btn-sm m-1">Разделить имущество</button></td>
 
-                            </tr>
 
-                        </tbody>
-                    </table>
+            </div>
+        <br>
+        </section>
 
-                    </div>
+        <section>
+            <div class="row justify-content-start">
+                <div class="col-12 text-center">
+                    {% for distribution in distribution_list %}
+                    <h4>{{ distribution }}</h4>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <div class="card mb-3">
+                                        <div class="container">
+                                            <div class="row justify-content-around">
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="card m-3">
+                                                        <div class="card-hedder">
+                                                            Личное имущество А
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="card-text">
+                                                                <p class="text-left">
+                                                                    Некое имущество раз
+                                                                    Некое имущество два
+                                                                    Некое имущество три
+                                                                </p>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="card m-3">
+                                                        <div class="card-hedder">
+                                                            Общее имущество А и Б
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <ul>
+                                                                <li>Некое имущество раз</li>
+                                                                <li>Некое имущество два</li>
+                                                                <li>Некое имущество три</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="card m-3">
+                                                        <div class="card-hedder">
+                                                            Личное имущество Б
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <ul>
+                                                                <li>Некое имущество раз</li>
+                                                                <li>Некое имущество два</li>
+                                                                <li>Некое имущество три</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% empty %}
+                            <div class="row justify-content-center">
+                                <div class="card" style="background: rgba(255, 255, 255, 0.3)">
+                                    <div class="card-body text-center pb-3">
+                                        <button type="button" class="btn btn-primary btn-lg m-1" id="myButton4">Разделить имущество</button>
+                                            <script type="text/javascript">
+                                                document.getElementById("myButton4").onclick = function () {
+                                                location.href = "{% url 'form_add_distribution' %}";
+                                            };
+                                            </script>
+                                    </div>
+                                </div>
+                            </div>
+                        <br>
+
+                    {% endfor %}
                 </div>
             </div>
 
-            <br/>
-            <br/>
-            </div>
+
+
+
+
         </section>
+
 {% endblock content %}

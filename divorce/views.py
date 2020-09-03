@@ -4,8 +4,8 @@ from django.core.cache import cache
 import datetime
 import pickle
 from django.http import HttpResponse, HttpRequest
-from .models import Fiz_l, Marriage, Property
-from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
+from .models import Fiz_l, Marriage, Property, Distribution
+from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners, ownership_to_display
 from divorce.law.utils import Counter
@@ -23,7 +23,8 @@ class DivorceView(View):
         context = {'fiz_l_list': Fiz_l.objects.all(),
                    'marriages_list': Marriage.objects.all(),
                    'property_list': property_to_display,
-                   'counter': counter}
+                   'counter': counter,
+                   'distribution_list': Distribution.objects.all()}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
@@ -454,6 +455,36 @@ def merging_forms(form: dict):
     print(form_example)
     return form_example, form_1, form_1_processed_data
 
+
+class DistributionFormView(View):
+    def get(self, request, id=0):
+        if id == 0:
+            form = Distribution_form()  # пустая форма
+            return render(request, 'divorce/form_distribution.html', {'form': form})
+        else:  # update operation
+            distribution = Distribution.objects.get(pk=id)
+            form = Distribution_form(instance=distribution)  # заполненная имеющимися данными форма
+            return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
+
+    def post(self, request, id=0):
+        if id == 0:  # если данные пока не записаны в БД
+            form = Distribution_form(request.POST) # заполняем форму из словаря POST
+            print(request.POST)
+            distribution = None
+        else:
+            distribution = Distribution.objects.get(pk=id)  # получаем по id нужный объект
+            form = Marriage_form(request.POST, instance=distribution)  # distribution будет изменен новой формой request.POST
+
+        if form.is_valid():
+            print('+++++++++++cleaned_data+++++++++++++++++++')
+            # данные перед сохранением, но до обработки бизнес-логикой
+            print(form.cleaned_data)
+            form.save()
+            return redirect('/divorce')
+
+        # если есть проблемы с формой - ValueError из forms.py
+        else:
+            return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
 
 ########################################################
 # def fiz_l_form_add(request, id=0):

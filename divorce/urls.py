@@ -16,6 +16,7 @@ urlpatterns = [
     path('form_property_2_nm/<int:id>/', PropertyForm2nmView.as_view(), name='property_2_nm_update'),
     path('form_property_2_m/', PropertyForm2mView.as_view(), name='property_2_m'),
     path('form_property_2_m/<int:id>/', PropertyForm2mView.as_view(), name='property_2_m_update'),
+    path('form_distribution/', DistributionFormView.as_view(), name='form_add_distribution'),
 ]
 
 #path('add_person/', add_person, name='add_person'),
