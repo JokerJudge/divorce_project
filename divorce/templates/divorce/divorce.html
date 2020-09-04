@@ -254,33 +254,23 @@
                                                 <div class="col-lg-4 col-md-4 col-sm-4">
                                                     <div class="card m-3">
                                                         <div class="card-header">
-                                                            Личное имущество А
+                                                            <b>{{ distribution_names|get_item:'person_1' }}</b>
+                                                            <br>
+                                                            личная собственность
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
-                                                                <li>Некое имущество раз</li>
-                                                                <li>Некое имущество два</li>
-                                                                <li>Некое имущество три</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="card m-3">
-                                                        <div class="card-header">
-                                                            Общее имущество А и Б
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <ul>
-                                                                {% for property, value in property_list.items %}
-                                                                <li>{{ value|get_item:'name' }}</li>
-                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                        <i class="fas fa-arrow-circle-left"></i>
-                                                                    </a>
-                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                        <i class="fas fa-arrow-circle-right"></i>
-                                                                    </a>
+                                                            {% for property, value in distribution_property.items %}
+                                                                {% for i in value|get_item:'quantity_of_owners'|to_range %}
+                                                                    {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_1'%}
+                                                                        {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
+                                                                            <li>{{ value|get_item:"name" }}</li>
+                                                                        {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}</li>
+                                                                        {% endif %}
+                                                                    {% endif %}
                                                                 {% endfor %}
+                                                            {% endfor %}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -288,13 +278,58 @@
                                                 <div class="col-lg-4 col-md-4 col-sm-4">
                                                     <div class="card m-3">
                                                         <div class="card-header">
-                                                            Личное имущество Б
+                                                            <b>{{ distribution_names|get_item:'person_1' }} и {{ distribution_names|get_item:'person_2' }}</b>
+                                                            <br>
+                                                            список общей собственности
+                                                        </div>
+                                                        <div class="card-body text-left">
+                                                            <p class="text-center">Совместная собственность:</p>
+                                                            <ul>
+                                                            {% for property, value in distribution_property.items %}
+                                                                {{ counter.set_to_zero }}
+                                                                {% for i in value|get_item:'owners' %}
+                                                                    {% if i|get_item:'совместные сособственники' != None %}
+                                                                        {% if counter.counter == 0 %}
+                                                                            {% if i|get_item:"совместная доля" == 1 %}
+                                                                                <li>{{ value|get_item:"name" }}</li>
+                                                                            {% else %}
+                                                                                <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }}</li>
+                                                                            {% endif %}
+                                                                            <a href="{% url 'property_update' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
+                                                                                <i class="fas fa-arrow-circle-left"></i>
+                                                                            </a>
+                                                                            <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                <i class="fas fa-arrow-circle-right"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                    {{ counter.increment }}
+                                                                {% endfor %}
+                                                            {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="card m-3">
+                                                        <div class="card-header">
+                                                            <b>{{ distribution_names|get_item:'person_2' }}</b>
+                                                            <br>
+                                                            личная собственность
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
-                                                                <li>Некое имущество раз</li>
-                                                                <li>Некое имущество два</li>
-                                                                <li>Некое имущество три</li>
+                                                            {% for property, value in distribution_property.items %}
+                                                                {% for i in value|get_item:'quantity_of_owners'|to_range %}
+                                                                    {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_2'%}
+                                                                        {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
+                                                                            <li>{{ value|get_item:"name" }}</li>
+                                                                        {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}</li>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endfor %}
                                                             </ul>
                                                         </div>
                                                     </div>

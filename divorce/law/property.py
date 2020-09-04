@@ -2400,21 +2400,46 @@ def filter_for_distribution(all_property: dict, distribution):
     :param distribution: объект раздела имущества (стороны раздела + дата раздела)
     :return:
     '''
-    print(distribution)
     parties = list(list(distribution)[0].parties.all())
+    distribution_date = list(distribution)[0].date_of_distribution
     parties_names = []
     for i in parties:
         parties_names.append(i.name)
     distribution_property = {}
     for k1, v1 in all_property.items():
-        print(v1['owners'])
         for i in v1['owners']:
-            if i['name'] in parties_names:
-                print(i['name'])
+            if i['name'] in parties_names and v1['date_of_purchase'] < distribution_date:
                 distribution_property[k1] = v1
                 break
+    names = {}
+    names['person_1'] = parties_names[0]
+    names['person_2'] = parties_names[1]
+    return distribution_property, names
 
-    return distribution_property
+
+def transform_into_money(distribution_property):
+    '''
+
+    :param distribution_property:
+    :return:
+    '''
+    changed_dict = distribution_property.copy()
+    for k, v in distribution_property.items():
+        count = 0
+        for i in v['owners']:
+            if i['доля'] != None:
+                if i['доля'] == 1:
+                    changed_dict[k]['owners'][count]['личная доля в деньгах'] = v['price']
+                else:
+                    changed_dict[k]['owners'][count]['личная доля в деньгах'] = v['price'] // int(v['owners'][count]['доля'].split('/')[1]) * int(v['owners'][count]['доля'].split('/')[0])
+            if i['совместная доля'] != None:
+                if i['совместная доля'] == 1:
+                    changed_dict[k]['owners'][count]['совместная доля в деньгах'] = v['price']
+                else:
+                    changed_dict[k]['owners'][count]['совместная доля в деньгах'] = v['price'] // int(v['owners'][count]['совместная доля'].split('/')[1]) * int(v['owners'][count]['совместная доля'].split('/')[0])
+            count += 1
+    return changed_dict
+
 
 
 

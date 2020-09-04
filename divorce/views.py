@@ -8,7 +8,7 @@ from .models import Fiz_l, Marriage, Property, Distribution
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
-    ownership_to_display, filter_for_distribution
+    ownership_to_display, filter_for_distribution, transform_into_money
 from divorce.law.utils import Counter
 
 # Create your views here.
@@ -20,7 +20,10 @@ class DivorceView(View):
         print('property_to_display')
         print(property_to_display)
         distribution = Distribution.objects.all()
-        distribution_property = filter_for_distribution(property_to_display, distribution)
+        #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
+        distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+        #cчитаем деньги (переводим доли в рубли)
+        distribution_property = transform_into_money(distribution_property_1)
 
         counter = Counter()
         context = {'fiz_l_list': Fiz_l.objects.all(),
@@ -28,7 +31,8 @@ class DivorceView(View):
                    'property_list': property_to_display,
                    'counter': counter,
                    'distribution_list': Distribution.objects.all(),
-                   'distribution_property': distribution_property}
+                   'distribution_property': distribution_property,
+                   'distribution_names': distribution_names}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
