@@ -266,7 +266,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -274,10 +274,14 @@ class PropertyForm2nmView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                if for_child:
+                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -306,7 +310,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             #form = Property_form(form_example)
@@ -315,10 +319,14 @@ class PropertyForm2nmView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                if for_child:
+                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -364,7 +372,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -372,10 +380,14 @@ class PropertyForm2mView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                if for_child:
+                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -404,7 +416,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -412,10 +424,14 @@ class PropertyForm2mView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                if for_child:
+                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -458,6 +474,7 @@ def merging_forms(form: dict):
 
 class DistributionFormView(View):
     def get(self, request, id=0):
+        # TODO - вероятно, id вообще тут не нужен
         if id == 0:
             form = Distribution_form()  # пустая форма
             return render(request, 'divorce/form_distribution.html', {'form': form})
@@ -469,6 +486,7 @@ class DistributionFormView(View):
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
             form = Distribution_form(request.POST) # заполняем форму из словаря POST
+            print('request.POST')
             print(request.POST)
             distribution = None
         else:
@@ -479,7 +497,7 @@ class DistributionFormView(View):
             print('+++++++++++cleaned_data+++++++++++++++++++')
             # данные перед сохранением, но до обработки бизнес-логикой
             print(form.cleaned_data)
-            form.save()
+            #form.save()
             return redirect('/divorce')
 
         # если есть проблемы с формой - ValueError из forms.py

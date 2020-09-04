@@ -40,6 +40,9 @@ class Property(models.Model):
     source_of_purchase = models.ManyToManyField('Fiz_l', blank=True, related_name='property_source')
     price = models.PositiveIntegerField(default=0)
     pay_before_marriage = models.BooleanField(default=False)
+    for_child_accomodation = models.CharField(max_length=200, blank=True, null=True)
+    individual_use_party = models.CharField(max_length=200, blank=True, null=True)
+    after_break_up = models.BooleanField(default=False)
     for_child = models.BooleanField(default=False)
     individual_use = models.BooleanField(default=False)
 

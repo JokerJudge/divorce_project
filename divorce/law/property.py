@@ -1693,7 +1693,19 @@ def to_ownership(form_full: dict):
     type_of_relationships = {'Собственность': owners}
     i_ownership = {hash(period_of_time): type_of_relationships}
     ownership = {'ownership': i_ownership}
-    return ownership, list_of_links
+
+    # проверяем, есть ли имущество для детей
+    for_child = {}
+    if 'for_child' in form_full:
+        if 'child_accomodation_mother' in form_full and 'child_accomodation_fater' in form_full:
+            for_child['child_accomodation'] = 'Мать и Отец'
+        elif 'child_accomodation_mother' in form_full:
+            for_child['child_accomodation'] = 'Мать'
+        elif 'child_accomodation_father' in form_full:
+            for_child['child_accomodation'] = 'Отец'
+
+
+    return ownership, list_of_links, for_child
 
 def clean_coowners(data: dict):
     '''
@@ -2354,7 +2366,7 @@ def ownership_to_display(property_object_queryset):
         byte_ownership = i.ownership_b
         ownership = pickle.loads(byte_ownership)
         owners_dict = ownership[hash(period_of_time)]['Собственность']
-        print(owners_dict)
+        #print(owners_dict)
         sobstvennik_list = []
         property_properties['name'] = i.name
         property_properties['type_of_property_form'] = i.type_of_property_form
