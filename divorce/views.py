@@ -486,6 +486,13 @@ class DistributionFormView(View):
         else:
             return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
 
+
+def del_distribution(request, distribution_id):
+    distribution_to_delete = Distribution.objects.get(id=distribution_id)
+    distribution_to_delete.delete()
+    # TODO - необходимо будет также удалить данные по ключу Period_of_time, которые создадутся при разделе имущества
+    return redirect('/divorce')
+
 ########################################################
 # def fiz_l_form_add(request, id=0):
 #     if request.method == "GET":
