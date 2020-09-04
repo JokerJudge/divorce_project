@@ -233,6 +233,8 @@
         <br>
         </section>
 
+        <!-- Заготовка -->
+
         <section>
             <div class="row justify-content-start">
                 <div class="col-12 text-center">
@@ -246,27 +248,10 @@
                                             <div class="row justify-content-around">
                                                 <div class="col-lg-4 col-md-4 col-sm-4">
                                                     <div class="card m-3">
-                                                        <div class="card-hedder">
+                                                        <div class="card-header">
                                                             Личное имущество А
                                                         </div>
-                                                        <div class="card-body">
-                                                            <div class="card-text">
-                                                                <p class="text-left">
-                                                                    Некое имущество раз
-                                                                    Некое имущество два
-                                                                    Некое имущество три
-                                                                </p>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="card m-3">
-                                                        <div class="card-hedder">
-                                                            Общее имущество А и Б
-                                                        </div>
-                                                        <div class="card-body">
+                                                        <div class="card-body text-left">
                                                             <ul>
                                                                 <li>Некое имущество раз</li>
                                                                 <li>Некое имущество два</li>
@@ -277,10 +262,30 @@
                                                 </div>
                                                 <div class="col-lg-4 col-md-4 col-sm-4">
                                                     <div class="card m-3">
-                                                        <div class="card-hedder">
+                                                        <div class="card-header">
+                                                            Общее имущество А и Б
+                                                        </div>
+                                                        <div class="card-body text-left">
+                                                            <ul>
+                                                                {% for property, value in property_list.items %}
+                                                                <li>{{ value|get_item:'name' }}</li>
+                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                        <i class="fas fa-arrow-circle-left"></i>
+                                                                    </a>
+                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                        <i class="fas fa-arrow-circle-right"></i>
+                                                                    </a>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="card m-3">
+                                                        <div class="card-header">
                                                             Личное имущество Б
                                                         </div>
-                                                        <div class="card-body">
+                                                        <div class="card-body text-left">
                                                             <ul>
                                                                 <li>Некое имущество раз</li>
                                                                 <li>Некое имущество два</li>
