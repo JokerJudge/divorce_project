@@ -1757,7 +1757,6 @@ def clean_coowners(data: dict):
     if data['purchase_type'] == 'purchase_type_buy':
         print('Покупка')
         #обрабатываем вариант, если включен чекбокс "Часть/все деньги за имущество вносились до брака"
-        # TODO - сделать без before_marriage
         if 'before_marriage' in data:
             # обрабатываем вариант, когда выбрано, что деньги до брака вносились только женой в части
             if 'before_marriage_wife' in data and 'before_marriage_husband' not in data:
@@ -2393,4 +2392,29 @@ def ownership_to_display(property_object_queryset):
         property_dict[i.name] = property_properties
 
     return property_dict
+
+def filter_for_distribution(all_property: dict, distribution):
+    '''
+    Функция, принимающая на вход всё имущество из БД и возвращающая имущество только тех лиц, чье имущество делится
+    :param all_property: Всё имущество в БД
+    :param distribution: объект раздела имущества (стороны раздела + дата раздела)
+    :return:
+    '''
+    print(distribution)
+    parties = list(list(distribution)[0].parties.all())
+    parties_names = []
+    for i in parties:
+        parties_names.append(i.name)
+    distribution_property = {}
+    for k1, v1 in all_property.items():
+        print(v1['owners'])
+        for i in v1['owners']:
+            if i['name'] in parties_names:
+                print(i['name'])
+                distribution_property[k1] = v1
+                break
+
+    return distribution_property
+
+
 

@@ -7,7 +7,8 @@ from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage, Property, Distribution
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
-from divorce.law.property import form_1_processing, to_ownership, clean_coowners, ownership_to_display
+from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
+    ownership_to_display, filter_for_distribution
 from divorce.law.utils import Counter
 
 # Create your views here.
@@ -16,15 +17,18 @@ class DivorceView(View):
     def get(self, request):
         # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
         property_to_display = ownership_to_display(Property.objects.all())
+        print('property_to_display')
         print(property_to_display)
+        distribution = Distribution.objects.all()
+        distribution_property = filter_for_distribution(property_to_display, distribution)
 
         counter = Counter()
-
         context = {'fiz_l_list': Fiz_l.objects.all(),
                    'marriages_list': Marriage.objects.all(),
                    'property_list': property_to_display,
                    'counter': counter,
-                   'distribution_list': Distribution.objects.all()}
+                   'distribution_list': Distribution.objects.all(),
+                   'distribution_property': distribution_property}
         return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
@@ -497,7 +501,7 @@ class DistributionFormView(View):
             print('+++++++++++cleaned_data+++++++++++++++++++')
             # данные перед сохранением, но до обработки бизнес-логикой
             print(form.cleaned_data)
-            #form.save()
+            form.save()
             return redirect('/divorce')
 
         # если есть проблемы с формой - ValueError из forms.py
