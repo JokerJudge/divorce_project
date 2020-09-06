@@ -16,6 +16,9 @@ from divorce.law.utils import Counter
 class DivorceView(View):
     def get(self, request, property_id=0):
         if property_id == 0:
+            cache_flag = cache.get('distribution_property_changed', None)
+            if cache_flag is not None:
+                cache.delete('distribution_property_changed')
             # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
             property_to_display = ownership_to_display(Property.objects.all())
             distribution = Distribution.objects.all()

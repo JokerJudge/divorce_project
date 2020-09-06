@@ -18,7 +18,8 @@ urlpatterns = [
     path('form_property_2_m/<int:id>/', PropertyForm2mView.as_view(), name='property_2_m_update'),
     path('form_distribution/', DistributionFormView.as_view(), name='form_add_distribution'),
     path('del_distribution/<int:distribution_id>/', del_distribution, name='delete_distribution'),
-    path('<int:property_id>/person_1', DivorceView.as_view(), name='common_to_person_1')
+    path('<int:property_id>/person_1', DivorceView.as_view(), name='common_to_person_1'),
+    path('<int:property_id>/person_2', DivorceView.as_view(), name='common_to_person_2'),
 ]
 
 #path('add_person/', add_person, name='add_person'),
