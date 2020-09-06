@@ -18,13 +18,17 @@ class DivorceView(View):
         # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
         property_to_display = ownership_to_display(Property.objects.all())
         distribution = Distribution.objects.all()
+        distribution_names = {}
+        distribution_property = {}
+        money_sum = {}
         #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
-        distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
-        #cчитаем деньги (переводим доли в рубли)
-        distribution_property = transform_into_money(distribution_property_1)
-        print(distribution_property)
-        # подсчитываем общее количество денег по имуществу
-        money_sum = sum_money(distribution_property, distribution_names)
+        if property_to_display and distribution:
+            distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+            #cчитаем деньги (переводим доли в рубли)
+            distribution_property = transform_into_money(distribution_property_1)
+            print(distribution_property)
+            # подсчитываем общее количество денег по имуществу
+            money_sum = sum_money(distribution_property, distribution_names)
 
         counter = Counter()
         context = {'fiz_l_list': Fiz_l.objects.all(),

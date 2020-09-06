@@ -301,6 +301,12 @@
                                                             <ul>
                                                             {% for property, value in distribution_property.items %}
                                                                 {{ counter.set_to_zero }}
+                                                                {% if value|get_item:"for_child_accomodation" != None %}
+                                                                    <i><small>Увага! Детское</small></i>
+                                                                {% endif %}
+                                                                {% if value|get_item:"after_break_up" == True %}
+                                                                    <i><small>Увага! После расставания</small></i>
+                                                                {% endif %}
                                                                 {% for i in value|get_item:'owners' %}
                                                                     {% if i|get_item:'совместные сособственники' != None %}
                                                                         {% if counter.counter == 0 %}
