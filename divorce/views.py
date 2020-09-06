@@ -8,38 +8,69 @@ from .models import Fiz_l, Marriage, Property, Distribution
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
-    ownership_to_display, filter_for_distribution, transform_into_money, sum_money
+    ownership_to_display, filter_for_distribution, transform_into_money, sum_money, change_distribution_property
 from divorce.law.utils import Counter
 
 # Create your views here.
 # Представление для основной страницы
 class DivorceView(View):
-    def get(self, request):
-        # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
-        property_to_display = ownership_to_display(Property.objects.all())
-        distribution = Distribution.objects.all()
-        distribution_names = {}
-        distribution_property = {}
-        money_sum = {}
-        #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
-        if property_to_display and distribution:
-            distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
-            #cчитаем деньги (переводим доли в рубли)
-            distribution_property = transform_into_money(distribution_property_1)
-            print(distribution_property)
-            # подсчитываем общее количество денег по имуществу
-            money_sum = sum_money(distribution_property, distribution_names)
+    def get(self, request, property_id=0):
+        if property_id == 0:
+            # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
+            property_to_display = ownership_to_display(Property.objects.all())
+            distribution = Distribution.objects.all()
+            distribution_names = {}
+            distribution_property = {}
+            money_sum = {}
+            #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
+            if property_to_display and distribution:
+                distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                #cчитаем деньги (переводим доли в рубли)
+                distribution_property = transform_into_money(distribution_property_1)
+                print(distribution_property)
+                # подсчитываем общее количество денег по имуществу
+                money_sum = sum_money(distribution_property, distribution_names)
 
-        counter = Counter()
-        context = {'fiz_l_list': Fiz_l.objects.all(),
-                   'marriages_list': Marriage.objects.all(),
-                   'property_list': property_to_display,
-                   'counter': counter,
-                   'distribution_list': Distribution.objects.all(),
-                   'distribution_property': distribution_property,
-                   'distribution_names': distribution_names,
-                   'money_sum': money_sum}
-        return render(request, 'divorce/divorce.html', context)
+            counter = Counter()
+            context = {'fiz_l_list': Fiz_l.objects.all(),
+                       'marriages_list': Marriage.objects.all(),
+                       'property_list': property_to_display,
+                       'counter': counter,
+                       'distribution_list': Distribution.objects.all(),
+                       'distribution_property': distribution_property,
+                       'distribution_names': distribution_names,
+                       'money_sum': money_sum}
+            return render(request, 'divorce/divorce.html', context)
+        else:
+            distribution_to = request.path.split('/')[-1]
+            property_to_display = ownership_to_display(Property.objects.all())
+            distribution = Distribution.objects.all()
+            distribution_names = {}
+            distribution_property = {}
+            money_sum = {}
+            distribution_property_changed = {}
+            # фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
+            if property_to_display and distribution:
+                distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                # меняем собственников
+                distribution_property_changed = change_distribution_property(distribution_property_1, distribution_names,
+                                                                             distribution_to, property_id)
+                # cчитаем деньги (переводим доли в рубли)
+                distribution_property_changed = transform_into_money(distribution_property_changed)
+                print(distribution_property)
+                # подсчитываем общее количество денег по имуществу
+                money_sum = sum_money(distribution_property_changed, distribution_names)
+                #cache.set('form_1', form.cleaned_data)
+            counter = Counter()
+            context = {'fiz_l_list': Fiz_l.objects.all(),
+                       'marriages_list': Marriage.objects.all(),
+                       'property_list': property_to_display,
+                       'counter': counter,
+                       'distribution_list': Distribution.objects.all(),
+                       'distribution_property': distribution_property_changed,
+                       'distribution_names': distribution_names,
+                       'money_sum': money_sum}
+            return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
 class FizLFormView(View):

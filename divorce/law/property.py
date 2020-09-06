@@ -2447,6 +2447,12 @@ def transform_into_money(distribution_property):
     return changed_dict
 
 def sum_money(distribution_property, distribution_names):
+    '''
+    Функция, суммирующая личную собственность каждого из лиц и совместную собственность
+    :param distribution_property: словарь с собственностью лиц, делящих имущество
+    :param distribution_names: лица, делящие имущество
+    :return: словарь с суммами значений
+    '''
     p1 = 0
     p2 = 0
     common = 0
@@ -2470,5 +2476,59 @@ def sum_money(distribution_property, distribution_names):
     money_dict['common'] = common
     return money_dict
 
+def change_distribution_property(distribution_property, distribution_names, distribution_to, property_id):
+
+
+    distribution_property_changed = distribution_property.copy()
+    for k, v in distribution_property.items():
+        if v['id'] == property_id:
+            count = 0
+            for i in v['owners']:
+                print(count)
+                if i['name'] == distribution_names[distribution_to]:
+                    if i['совместная доля'] == 1:
+                        distribution_property_changed[k]['owners'][count]['доля'] = i['совместная доля']
+                        distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                        distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+                    else:
+                        if i['доля'] == None:
+                            distribution_property_changed[k]['owners'][count]['доля'] = i['совместная доля']
+                            distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                            distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+                        else:
+                            current_chislitel = int(i['доля'].split('/')[0])
+                            sovm_chislitel = int(i['совместная доля'].split('/')[0])
+                            znam = int(i['совместная доля'].split('/')[1])
+                            if current_chislitel + sovm_chislitel == znam:
+                                distribution_property_changed[k]['owners'][count]['доля'] = 1
+                            else:
+                                distribution_property_changed[k]['owners'][count]['доля'] = str(current_chislitel + sovm_chislitel)+'/'+str(znam)
+                            distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                            distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+
+                elif i['name'] == 'Иные сособственники':
+                    pass
+                else:
+                    if i['совместная доля'] == 1:
+                        distribution_property_changed[k]['owners'][count]['name'] = None
+                        distribution_property_changed[k]['owners'][count]['доля'] = None
+                        distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                        distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+                        #distribution_property_changed[k]['owners'].remove(distribution_property_changed[k]['owners'][count])
+                    else:
+                        if i['доля'] == None:
+                            #distribution_property_changed[k]['owners'].pop(count)
+                            distribution_property_changed[k]['owners'][count]['name'] = None
+                            distribution_property_changed[k]['owners'][count]['доля'] = None
+                            distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                            distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+                            #distribution_property_changed[k]['owners'].remove(distribution_property_changed[k]['owners'][count])
+                        else:
+                            distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
+                            distribution_property_changed[k]['owners'][count]['совместная доля'] = None
+                count += 1
+        else:
+            distribution_property_changed[k] = v
+    return distribution_property_changed
 
 
