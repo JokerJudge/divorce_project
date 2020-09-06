@@ -51,16 +51,26 @@ class DivorceView(View):
             distribution_property_changed = {}
             # фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
             if property_to_display and distribution:
-                distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
-                # меняем собственников
-                distribution_property_changed = change_distribution_property(distribution_property_1, distribution_names,
-                                                                             distribution_to, property_id)
+                cache_flag = cache.get('distribution_property_changed', None)
+                if cache_flag is not None:
+                    distribution_property_changed = cache.get('distribution_property_changed')
+                    print('Я тут')
+                    print(distribution_property_changed)
+                    distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                    distribution_property_changed = change_distribution_property(distribution_property_changed,
+                                                                                 distribution_names,
+                                                                                 distribution_to, property_id)
+                else:
+                    distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                    # меняем собственников
+                    distribution_property_changed = change_distribution_property(distribution_property_1, distribution_names,
+                                                                                 distribution_to, property_id)
                 # cчитаем деньги (переводим доли в рубли)
                 distribution_property_changed = transform_into_money(distribution_property_changed)
-                print(distribution_property)
+                print(distribution_property_changed)
                 # подсчитываем общее количество денег по имуществу
                 money_sum = sum_money(distribution_property_changed, distribution_names)
-                #cache.set('form_1', form.cleaned_data)
+                cache.set('distribution_property_changed', distribution_property_changed)
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),
