@@ -1697,12 +1697,14 @@ def to_ownership(form_full: dict):
     # проверяем, есть ли имущество для детей
     for_child = {}
     if 'for_child' in form_full:
-        if 'child_accomodation_mother' in form_full and 'child_accomodation_fater' in form_full:
+        if 'child_accomodation_mother' in form_full and 'child_accomodation_father' in form_full:
             for_child['child_accomodation'] = 'Мать и Отец'
         elif 'child_accomodation_mother' in form_full:
             for_child['child_accomodation'] = 'Мать'
         elif 'child_accomodation_father' in form_full:
             for_child['child_accomodation'] = 'Отец'
+    else:
+        for_child['child_accomodation'] = None
 
 
     return ownership, list_of_links, for_child
@@ -2372,6 +2374,8 @@ def ownership_to_display(property_object_queryset):
         property_properties['date_of_purchase'] = i.date_of_purchase
         property_properties['price'] = i.price
         property_properties['id'] = i.id
+        property_properties['for_child_accomodation'] = i.for_child_accomodation
+        property_properties['after_break_up'] = i.after_break_up
         counter = 0
         for j in owners_dict:
             sobstvennik = {}
@@ -2443,7 +2447,6 @@ def transform_into_money(distribution_property):
     return changed_dict
 
 def sum_money(distribution_property, distribution_names):
-    print(distribution_names)
     p1 = 0
     p2 = 0
     common = 0

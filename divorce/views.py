@@ -289,8 +289,7 @@ class PropertyForm2nmView(View):
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
-                if for_child:
-                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
@@ -334,8 +333,7 @@ class PropertyForm2nmView(View):
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
-                if for_child:
-                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
@@ -395,8 +393,7 @@ class PropertyForm2mView(View):
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
-                if for_child:
-                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
@@ -439,8 +436,7 @@ class PropertyForm2mView(View):
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
-                if for_child:
-                    temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
