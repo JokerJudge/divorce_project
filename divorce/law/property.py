@@ -2419,9 +2419,11 @@ def filter_for_distribution(all_property: dict, distribution):
 
 def transform_into_money(distribution_property):
     '''
-
-    :param distribution_property:
-    :return:
+    Функция, преобразующая доли в деньги. На вход идет словарь для отображения в разделе "Раздел имущества"
+    Возвращает словарь с добавленным ключом(ключами) по цене доли (личная доля в деньгах или совместная доля в деньгах)
+    :param distribution_property: словарь для отображения в разделе "Раздел имущества"
+    :param distribution_names: стороны раздела
+    :return: changed_dict - словарь для отображения в разделе "Раздел имущества" с ключами по деньгам
     '''
     changed_dict = distribution_property.copy()
     for k, v in distribution_property.items():
@@ -2440,6 +2442,30 @@ def transform_into_money(distribution_property):
             count += 1
     return changed_dict
 
+def sum_money(distribution_property, distribution_names):
+    print(distribution_names)
+    p1 = 0
+    p2 = 0
+    common = 0
+    for k, v in distribution_property.items():
+        counter = 0
+        for i in v['owners']:
+            if i['name'] == distribution_names['person_1']:
+                if i['доля'] != None:
+                    p1 += i['личная доля в деньгах']
+            elif i['name'] == distribution_names['person_2']:
+                if i['доля'] != None:
+                    p2 += i['личная доля в деньгах']
+            if i['совместные сособственники'] != None:
+                if counter == 0:
+                    common += i['совместная доля в деньгах']
+                    counter += 1
+
+    money_dict = {}
+    money_dict['person_1'] = p1
+    money_dict['person_2'] = p2
+    money_dict['common'] = common
+    return money_dict
 
 
 

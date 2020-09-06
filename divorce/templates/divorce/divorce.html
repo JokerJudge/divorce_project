@@ -257,6 +257,8 @@
                                                             <b>{{ distribution_names|get_item:'person_1' }}</b>
                                                             <br>
                                                             личная собственность
+                                                            <br>
+                                                            <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"person_1" }} руб</span>
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
@@ -264,9 +266,9 @@
                                                                 {% for i in value|get_item:'quantity_of_owners'|to_range %}
                                                                     {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_1'%}
                                                                         {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
-                                                                            <li>{{ value|get_item:"name" }}</li>
+                                                                            <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                         {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
-                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}</li>
+                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах" }} руб</span></li>
                                                                         {% endif %}
                                                                     {% endif %}
                                                                 {% endfor %}
@@ -281,6 +283,8 @@
                                                             <b>{{ distribution_names|get_item:'person_1' }} и {{ distribution_names|get_item:'person_2' }}</b>
                                                             <br>
                                                             список общей собственности
+                                                            <br>
+                                                            <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"common" }} руб</span>
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <p class="text-center">Совместная собственность:</p>
@@ -291,15 +295,19 @@
                                                                     {% if i|get_item:'совместные сособственники' != None %}
                                                                         {% if counter.counter == 0 %}
                                                                             {% if i|get_item:"совместная доля" == 1 %}
-                                                                                <li>{{ value|get_item:"name" }}</li>
+                                                                                <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                             {% else %}
-                                                                                <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }}</li>
+                                                                                <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }} <span class="badge badge-pill badge-secondary">{{ i|get_item:"совместная доля в деньгах" }} руб</span></li>
                                                                             {% endif %}
                                                                             <a href="{% url 'property_update' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
-                                                                                <i class="fas fa-arrow-circle-left"></i>
+                                                                                <i class="fas fa-arrow-circle-left"></i>передать
                                                                             </a>
                                                                             <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                <i class="fas fa-arrow-circle-right"></i>
+                                                                                передать<i class="fas fa-arrow-circle-right"></i>
+                                                                            </a>
+                                                                            <br>
+                                                                            <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                преобразовать в долевую
                                                                             </a>
                                                                         {% endif %}
                                                                     {% endif %}
@@ -316,6 +324,8 @@
                                                             <b>{{ distribution_names|get_item:'person_2' }}</b>
                                                             <br>
                                                             личная собственность
+                                                            <br>
+                                                            <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"person_2" }} руб</span>
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
@@ -323,9 +333,9 @@
                                                                 {% for i in value|get_item:'quantity_of_owners'|to_range %}
                                                                     {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_2'%}
                                                                         {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
-                                                                            <li>{{ value|get_item:"name" }}</li>
+                                                                            <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                         {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
-                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }}</li>
+                                                                            <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах"}} руб</span></li>
                                                                         {% endif %}
                                                                     {% endif %}
                                                                 {% endfor %}
