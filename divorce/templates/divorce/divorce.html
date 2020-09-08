@@ -236,8 +236,8 @@
         <!-- Заготовка -->
 
         <section>
-            <div class="row justify-content-start">
-                <div class="col-12 text-center">
+            <div class="row justify-content-center">
+                <div class="col-12 text-center" id="to_scroll">
                     {% for distribution in distribution_list %}
                     <h4>{{ distribution }}
                         <form action="{% url 'delete_distribution' distribution.id %}" method="post" class="float-right d-inline">
@@ -255,6 +255,8 @@
                                 </p>
                             </div>
                         </div>
+
+
                         <div class="container">
                             <div class="row justify-content-center">
                                 <div class="col-lg-12 col-md-12 col-sm-12">
@@ -276,8 +278,20 @@
                                                                 {% for i in value|get_item:'quantity_of_owners'|to_range %}
                                                                     {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_1'%}
                                                                         {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
+                                                                            {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                <i><small>Увага! Детское</small></i>
+                                                                            {% endif %}
+                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                                <i><small>Увага! После расставания</small></i>
+                                                                            {% endif %}
                                                                             <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                         {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                                            {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                <i><small>Увага! Детское</small></i>
+                                                                            {% endif %}
+                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                                <i><small>Увага! После расставания</small></i>
+                                                                            {% endif %}
                                                                             <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах" }} руб</span></li>
                                                                         {% endif %}
                                                                     {% endif %}
@@ -297,34 +311,36 @@
                                                             <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"common" }} руб</span>
                                                         </div>
                                                         <div class="card-body text-left">
-                                                            <p class="text-center">Совместная собственность:</p>
                                                             <ul>
                                                             {% for property, value in distribution_property.items %}
                                                                 {{ counter.set_to_zero }}
-                                                                {% if value|get_item:"for_child_accomodation" != None %}
-                                                                    <i><small>Увага! Детское</small></i>
-                                                                {% endif %}
-                                                                {% if value|get_item:"after_break_up" == True %}
-                                                                    <i><small>Увага! После расставания</small></i>
-                                                                {% endif %}
+
                                                                 {% for i in value|get_item:'owners' %}
                                                                     {% if i|get_item:'совместные сособственники' != None %}
                                                                         {% if counter.counter == 0 %}
-                                                                            {% if i|get_item:"совместная доля" == 1 %}
-                                                                                <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
-                                                                            {% else %}
-                                                                                <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }} <span class="badge badge-pill badge-secondary">{{ i|get_item:"совместная доля в деньгах" }} руб</span></li>
+                                                                            {% if i|get_item:"name" == distribution_names|get_item:'person_1' and i|get_item:"совместные сособственники" == distribution_names|get_item:'person_2' or i|get_item:"name" == distribution_names|get_item:'person_2' and i|get_item:"совместные сособственники" == distribution_names|get_item:'person_1'%}
+                                                                                {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                    <i><small>Увага! Детское</small></i>
+                                                                                {% endif %}
+                                                                                {% if value|get_item:"after_break_up" == True %}
+                                                                                    <i><small>Увага! После расставания</small></i>
+                                                                                {% endif %}
+                                                                                {% if i|get_item:"совместная доля" == 1 %}
+                                                                                    <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
+                                                                                {% else %}
+                                                                                    <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }} <span class="badge badge-pill badge-secondary">{{ i|get_item:"совместная доля в деньгах" }} руб</span></li>
+                                                                                {% endif %}
+                                                                                <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
+                                                                                    <i class="fas fa-arrow-circle-left"></i>передать
+                                                                                </a>
+                                                                                <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                    передать<i class="fas fa-arrow-circle-right"></i>
+                                                                                </a>
+                                                                                <br>
+                                                                                <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                    преобразовать в долевую
+                                                                                </a>
                                                                             {% endif %}
-                                                                            <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
-                                                                                <i class="fas fa-arrow-circle-left"></i>передать
-                                                                            </a>
-                                                                            <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                передать<i class="fas fa-arrow-circle-right"></i>
-                                                                            </a>
-                                                                            <br>
-                                                                            <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                преобразовать в долевую
-                                                                            </a>
                                                                         {% endif %}
                                                                     {% endif %}
                                                                     {{ counter.increment }}
@@ -349,8 +365,20 @@
                                                                 {% for i in value|get_item:'quantity_of_owners'|to_range %}
                                                                     {% if value|get_item:"owners"|get_item:i|get_item:"name" == distribution_names|get_item:'person_2'%}
                                                                         {% if value|get_item:"owners"|get_item:i|get_item:"доля" == 1 %}
+                                                                            {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                <i><small>Увага! Детское</small></i>
+                                                                            {% endif %}
+                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                                <i><small>Увага! После расставания</small></i>
+                                                                            {% endif %}
                                                                             <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                         {% elif value|get_item:"owners"|get_item:i|get_item:"доля" != None %}
+                                                                            {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                <i><small>Увага! Детское</small></i>
+                                                                            {% endif %}
+                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                                <i><small>Увага! После расставания</small></i>
+                                                                            {% endif %}
                                                                             <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах"}} руб</span></li>
                                                                         {% endif %}
                                                                     {% endif %}
@@ -362,6 +390,18 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    <br>
+                                    <div class="row justify-content-center">
+                                        <div class="card-body text-center pb-3">
+                                            <button type="button" class="btn btn-primary btn m-1" id="myButton5">Распределить по-другому</button>
+                                                <script type="text/javascript">
+                                                    document.getElementById("myButton5").onclick = function () {
+                                                    location.href = "{% url 'main' %}";
+                                                };
+                                                </script>
+                                        </div>
+                                    </div>
+                                    <br>
                                     </div>
                                 </div>
                             </div>
@@ -386,8 +426,12 @@
                 </div>
             </div>
 
-
-
+        {% if distribution_list %}
+        <script type="text/javascript">
+            var objDiv = document.getElementById("to_scroll");
+            objDiv.scrollIntoView();
+        </script>
+        {% endif %}
 
 
         </section>

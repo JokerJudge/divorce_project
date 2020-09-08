@@ -2466,9 +2466,11 @@ def sum_money(distribution_property, distribution_names):
                 if i['доля'] != None:
                     p2 += i['личная доля в деньгах']
             if i['совместные сособственники'] != None:
-                if counter == 0:
-                    common += i['совместная доля в деньгах']
-                    counter += 1
+                if i['name'] == distribution_names['person_1'] and i['совместные сособственники'] == distribution_names['person_2'] \
+                        or i['name'] == distribution_names['person_2'] and i['совместные сособственники'] == distribution_names['person_1']:
+                    if counter == 0:
+                        common += i['совместная доля в деньгах']
+                        counter += 1
 
     money_dict = {}
     money_dict['person_1'] = p1
