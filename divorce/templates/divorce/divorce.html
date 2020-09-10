@@ -271,6 +271,23 @@
                                                             личная собственность
                                                             <br>
                                                             <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"person_1" }} руб</span>
+                                                            <br>
+                                                            {% if money_sum|get_item:"common" == 0 %}
+                                                                {% if money_sum|get_item:"distribute_to_person_1" > 0 %}
+                                                                    Вам должен заплатить компенсацию супруг в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_1" }} руб</span>
+                                                                {% elif money_sum|get_item:"distribute_to_person_1" < 0 %}
+                                                                    Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_1_positive" }} руб</span>
+                                                                {% else %}
+                                                                    Имущество разделено поровну
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {% if money_sum|get_item:"distribute_to_person_1" > 0 %}
+                                                                    осталось передать на сумму: <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"distribute_to_person_1" }} руб</span>
+                                                                {% elif money_sum|get_item:"distribute_to_person_1" < 0 %}
+                                                                    Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_1_positive" }} руб</span>
+                                                                {% endif %}
+                                                            {% endif %}
+
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
@@ -309,6 +326,7 @@
                                                             список общей собственности
                                                             <br>
                                                             <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"common" }} руб</span>
+
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>
@@ -358,6 +376,22 @@
                                                             личная собственность
                                                             <br>
                                                             <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"person_2" }} руб</span>
+                                                            <br>
+                                                            {% if money_sum|get_item:"common" == 0 %}
+                                                                {% if money_sum|get_item:"distribute_to_person_2" > 0 %}
+                                                                    Вам должен заплатить компенсацию супруг в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_2" }} руб</span>
+                                                                {% elif money_sum|get_item:"distribute_to_person_2" < 0 %}
+                                                                    Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_2_positive" }} руб</span>
+                                                                {% else %}
+                                                                    Имущество разделено поровну
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {% if money_sum|get_item:"distribute_to_person_2" > 0 %}
+                                                                    осталось передать на сумму: <span class="badge badge-pill badge-secondary">{{ money_sum|get_item:"distribute_to_person_2" }} руб</span>
+                                                                {% elif money_sum|get_item:"distribute_to_person_2" < 0 %}
+                                                                    Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_2_positive" }} руб</span>
+                                                                {% endif %}
+                                                            {% endif %}
                                                         </div>
                                                         <div class="card-body text-left">
                                                             <ul>

@@ -19,6 +19,8 @@ class DivorceView(View):
             cache_flag = cache.get('distribution_property_changed', None)
             if cache_flag is not None:
                 cache.delete('distribution_property_changed')
+                cache.delete('money_sum_initial')
+                cache.delete('distribution_property_initial')
             # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
             property_to_display = ownership_to_display(Property.objects.all())
             distribution = Distribution.objects.all()
@@ -30,9 +32,11 @@ class DivorceView(View):
                 distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                 #cчитаем деньги (переводим доли в рубли)
                 distribution_property = transform_into_money(distribution_property_1)
-                print(distribution_property)
+                #print(distribution_property)
                 # подсчитываем общее количество денег по имуществу
                 money_sum = sum_money(distribution_property, distribution_names)
+                cache.set('distribution_property_initial', distribution_property)
+                cache.set('money_sum_initial', money_sum)
 
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
@@ -70,10 +74,12 @@ class DivorceView(View):
                                                                                  distribution_to, property_id)
                 # cчитаем деньги (переводим доли в рубли)
                 distribution_property_changed = transform_into_money(distribution_property_changed)
-                print(distribution_property_changed)
                 # подсчитываем общее количество денег по имуществу
-                money_sum = sum_money(distribution_property_changed, distribution_names)
+                money_sum_initial = cache.get('money_sum_initial')
+                money_sum = sum_money(distribution_property_changed, distribution_names, money_sum_initial)
                 cache.set('distribution_property_changed', distribution_property_changed)
+                distribution_property_initial = cache.get('distribution_property_initial')
+
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),

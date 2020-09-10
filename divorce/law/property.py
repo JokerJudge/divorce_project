@@ -2446,11 +2446,12 @@ def transform_into_money(distribution_property):
             count += 1
     return changed_dict
 
-def sum_money(distribution_property, distribution_names):
+def sum_money(distribution_property, distribution_names, money_sum_initial=None):
     '''
     Функция, суммирующая личную собственность каждого из лиц и совместную собственность
     :param distribution_property: словарь с собственностью лиц, делящих имущество
     :param distribution_names: лица, делящие имущество
+    :param money_sum_initial: словарь с распределением по деньгам до начала раздела и передачи имущества супругам
     :return: словарь с суммами значений
     '''
     p1 = 0
@@ -2476,17 +2477,23 @@ def sum_money(distribution_property, distribution_names):
     money_dict['person_1'] = p1
     money_dict['person_2'] = p2
     money_dict['common'] = common
+    # будет отличаться от common тем, что не будет включать предметы for_child и after_break_up
+    money_dict['distribute_to_person_1'] = common // 2
+    money_dict['distribute_to_person_2'] = common // 2
+    if money_sum_initial != None:
+        money_dict['distribute_to_person_1'] = money_sum_initial['common'] // 2 - (p1 - money_sum_initial['person_1'])
+        money_dict['distribute_to_person_1_positive'] = abs(money_dict['distribute_to_person_1'])
+        money_dict['distribute_to_person_2'] = money_sum_initial['common'] // 2 - (p2 - money_sum_initial['person_2'])
+        money_dict['distribute_to_person_2_positive'] = abs(money_dict['distribute_to_person_2'])
     return money_dict
 
 def change_distribution_property(distribution_property, distribution_names, distribution_to, property_id):
-
 
     distribution_property_changed = distribution_property.copy()
     for k, v in distribution_property.items():
         if v['id'] == property_id:
             count = 0
             for i in v['owners']:
-                print(count)
                 if i['name'] == distribution_names[distribution_to]:
                     if i['совместная доля'] == 1:
                         distribution_property_changed[k]['owners'][count]['доля'] = i['совместная доля']
@@ -2532,5 +2539,4 @@ def change_distribution_property(distribution_property, distribution_names, dist
         else:
             distribution_property_changed[k] = v
     return distribution_property_changed
-
 
