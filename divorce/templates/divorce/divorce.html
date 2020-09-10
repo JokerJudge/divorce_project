@@ -274,7 +274,7 @@
                                                             <br>
                                                             {% if money_sum|get_item:"common" == 0 %}
                                                                 {% if money_sum|get_item:"distribute_to_person_1" > 0 %}
-                                                                    Вам должен заплатить компенсацию супруг в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_1" }} руб</span>
+                                                                    Вам должны заплатить компенсацию в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_1" }} руб</span>
                                                                 {% elif money_sum|get_item:"distribute_to_person_1" < 0 %}
                                                                     Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_1_positive" }} руб</span>
                                                                 {% else %}
@@ -348,12 +348,26 @@
                                                                                 {% else %}
                                                                                     <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }} <span class="badge badge-pill badge-secondary">{{ i|get_item:"совместная доля в деньгах" }} руб</span></li>
                                                                                 {% endif %}
-                                                                                <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
-                                                                                    <i class="fas fa-arrow-circle-left"></i>передать
-                                                                                </a>
-                                                                                <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                    передать<i class="fas fa-arrow-circle-right"></i>
-                                                                                </a>
+                                                                                {% if value|get_item:"for_child_accomodation" != None %}
+                                                                                    {% if value|get_item:"for_child_accomodation" == distribution_names|get_item:'person_1' %}
+                                                                                        <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
+                                                                                            <i class="fas fa-arrow-circle-left"></i>передать
+                                                                                        </a>
+                                                                                    {% endif %}
+                                                                                    {% if value|get_item:"for_child_accomodation" == distribution_names|get_item:'person_2' %}
+                                                                                        <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                            передать<i class="fas fa-arrow-circle-right"></i>
+                                                                                        </a>
+                                                                                    {% endif %}
+                                                                                {% else %}
+                                                                                    <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
+                                                                                        <i class="fas fa-arrow-circle-left"></i>передать
+                                                                                    </a>
+                                                                                    <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                        передать<i class="fas fa-arrow-circle-right"></i>
+                                                                                    </a>
+                                                                                {% endif %}
+
                                                                                 <br>
                                                                                 <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
                                                                                     преобразовать в долевую
@@ -379,7 +393,7 @@
                                                             <br>
                                                             {% if money_sum|get_item:"common" == 0 %}
                                                                 {% if money_sum|get_item:"distribute_to_person_2" > 0 %}
-                                                                    Вам должен заплатить компенсацию супруг в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_2" }} руб</span>
+                                                                    Вам должны заплатить компенсацию в размере <span class="badge badge-pill badge-success">{{ money_sum|get_item:"distribute_to_person_2" }} руб</span>
                                                                 {% elif money_sum|get_item:"distribute_to_person_2" < 0 %}
                                                                     Вы должны заплатить компенсацию супругу в размере <span class="badge badge-pill badge-danger">{{ money_sum|get_item:"distribute_to_person_2_positive" }} руб</span>
                                                                 {% else %}

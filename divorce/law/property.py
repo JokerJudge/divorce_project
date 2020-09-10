@@ -2383,6 +2383,12 @@ def ownership_to_display(property_object_queryset):
                 sobstvennik['name'] = 'Иные сособственники'
             else:
                 sobstvennik['name'] = j.name
+                # меняем "мать" и "отец" на имена родителей
+                if j.sex == 'М' and property_properties['for_child_accomodation'] == 'Отец':
+                    property_properties['for_child_accomodation'] = j.name
+                elif j.sex == 'Ж' and property_properties['for_child_accomodation'] == 'Мать':
+                    property_properties['for_child_accomodation'] = j.name
+
             sobstvennik['доля'] = owners_dict[j]['доля']
             if isinstance(owners_dict[j]['совместные сособственники'], Fiz_l):
                 sobstvennik['совместные сособственники'] = owners_dict[j]['совместные сособственники'].name
@@ -2457,15 +2463,26 @@ def sum_money(distribution_property, distribution_names, money_sum_initial=None)
     p1 = 0
     p2 = 0
     common = 0
+    for_child = 0
+    p1_child = 0
+    p2_child = 0
     for k, v in distribution_property.items():
+        # проверяем есть ли детское имущество и с кем остается ребенок
+        if v['for_child_accomodation'] == distribution_names['person_1'] or v['for_child_accomodation'] == distribution_names['person_2']:
+            # запоминаем цену детского имущества
+            for_child = v['price']
         counter = 0
         for i in v['owners']:
             if i['name'] == distribution_names['person_1']:
                 if i['доля'] != None:
                     p1 += i['личная доля в деньгах']
+                    if distribution_names['person_1'] == v['for_child_accomodation']:
+                        p1_child += i['личная доля в деньгах']
             elif i['name'] == distribution_names['person_2']:
                 if i['доля'] != None:
                     p2 += i['личная доля в деньгах']
+                    if distribution_names['person_2'] == v['for_child_accomodation']:
+                        p2_child += i['личная доля в деньгах']
             if i['совместные сособственники'] != None:
                 if i['name'] == distribution_names['person_1'] and i['совместные сособственники'] == distribution_names['person_2'] \
                         or i['name'] == distribution_names['person_2'] and i['совместные сособственники'] == distribution_names['person_1']:
@@ -2475,15 +2492,17 @@ def sum_money(distribution_property, distribution_names, money_sum_initial=None)
 
     money_dict = {}
     money_dict['person_1'] = p1
+    money_dict['person_1_for_child'] = p1_child
     money_dict['person_2'] = p2
+    money_dict['person_2_for_child'] = p2_child
     money_dict['common'] = common
-    # будет отличаться от common тем, что не будет включать предметы for_child и after_break_up
-    money_dict['distribute_to_person_1'] = common // 2
-    money_dict['distribute_to_person_2'] = common // 2
+    # детское имущество не будет включаться в подсчет того, сколько кому нужно передать. Но будет входить в common
+    money_dict['distribute_to_person_1'] = (common - for_child) // 2
+    money_dict['distribute_to_person_2'] = (common - for_child) // 2
     if money_sum_initial != None:
-        money_dict['distribute_to_person_1'] = money_sum_initial['common'] // 2 - (p1 - money_sum_initial['person_1'])
+        money_dict['distribute_to_person_1'] = (money_sum_initial['common'] - for_child) // 2 - (p1 - p1_child - money_sum_initial['person_1'])
         money_dict['distribute_to_person_1_positive'] = abs(money_dict['distribute_to_person_1'])
-        money_dict['distribute_to_person_2'] = money_sum_initial['common'] // 2 - (p2 - money_sum_initial['person_2'])
+        money_dict['distribute_to_person_2'] = (money_sum_initial['common'] - for_child) // 2 - (p2 - p2_child - money_sum_initial['person_2'])
         money_dict['distribute_to_person_2_positive'] = abs(money_dict['distribute_to_person_2'])
     return money_dict
 
