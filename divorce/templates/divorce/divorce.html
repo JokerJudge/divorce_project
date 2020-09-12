@@ -298,7 +298,7 @@
                                                                             {% if value|get_item:"for_child_accomodation" != None %}
                                                                                 <i><small>Увага! Детское</small></i>
                                                                             {% endif %}
-                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                            {% if value|get_item:"after_break_up" != False %}
                                                                                 <i><small>Увага! После расставания</small></i>
                                                                             {% endif %}
                                                                             <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
@@ -306,7 +306,7 @@
                                                                             {% if value|get_item:"for_child_accomodation" != None %}
                                                                                 <i><small>Увага! Детское</small></i>
                                                                             {% endif %}
-                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                            {% if value|get_item:"after_break_up" != False %}
                                                                                 <i><small>Увага! После расставания</small></i>
                                                                             {% endif %}
                                                                             <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах" }} руб</span></li>
@@ -339,39 +339,59 @@
                                                                             {% if i|get_item:"name" == distribution_names|get_item:'person_1' and i|get_item:"совместные сособственники" == distribution_names|get_item:'person_2' or i|get_item:"name" == distribution_names|get_item:'person_2' and i|get_item:"совместные сособственники" == distribution_names|get_item:'person_1'%}
                                                                                 {% if value|get_item:"for_child_accomodation" != None %}
                                                                                     <i><small>Увага! Детское</small></i>
+                                                                                    <br>
                                                                                 {% endif %}
-                                                                                {% if value|get_item:"after_break_up" == True %}
+                                                                                {% if value|get_item:"after_break_up" != False %}
                                                                                     <i><small>Увага! После расставания</small></i>
+                                                                                    <br>
                                                                                 {% endif %}
                                                                                 {% if i|get_item:"совместная доля" == 1 %}
                                                                                     <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
                                                                                 {% else %}
                                                                                     <li>{{ value|get_item:"name" }} {{ i|get_item:"совместная доля" }} <span class="badge badge-pill badge-secondary">{{ i|get_item:"совместная доля в деньгах" }} руб</span></li>
                                                                                 {% endif %}
+                                                                                <!-- обработка варианта, когда имущество было приобретено для ребенка -->
                                                                                 {% if value|get_item:"for_child_accomodation" != None %}
                                                                                     {% if value|get_item:"for_child_accomodation" == distribution_names|get_item:'person_1' %}
                                                                                         <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
                                                                                             <i class="fas fa-arrow-circle-left"></i>передать
                                                                                         </a>
+                                                                                        <br>
                                                                                     {% endif %}
                                                                                     {% if value|get_item:"for_child_accomodation" == distribution_names|get_item:'person_2' %}
                                                                                         <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
                                                                                             передать<i class="fas fa-arrow-circle-right"></i>
                                                                                         </a>
+                                                                                        <br>
                                                                                     {% endif %}
                                                                                 {% else %}
+                                                                                    <!-- обработка варианта, когда имущество было приобретено после фактического прекращения брачных отношений-->
+                                                                                    {% if value|get_item:"after_break_up" != False %}
+                                                                                        <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
+                                                                                        <i class="fas fa-arrow-circle-left"></i>передать
+                                                                                        </a>
+                                                                                        <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                            передать<i class="fas fa-arrow-circle-right"></i>
+                                                                                        </a>
+                                                                                        <a href="{% url 'common_to_private_after_break_up' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                        преобразовать в личную
+                                                                                        </a>
+                                                                                        <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                        преобразовать в долевую
+                                                                                        </a>
+                                                                                    {% else %}
                                                                                     <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
                                                                                         <i class="fas fa-arrow-circle-left"></i>передать
                                                                                     </a>
                                                                                     <a href="{% url 'common_to_person_2' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
                                                                                         передать<i class="fas fa-arrow-circle-right"></i>
                                                                                     </a>
+                                                                                    <br>
+                                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
+                                                                                        преобразовать в долевую
+                                                                                    </a>
+                                                                                    {% endif %}
                                                                                 {% endif %}
-
-                                                                                <br>
-                                                                                <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                    преобразовать в долевую
-                                                                                </a>
                                                                             {% endif %}
                                                                         {% endif %}
                                                                     {% endif %}
@@ -416,7 +436,7 @@
                                                                             {% if value|get_item:"for_child_accomodation" != None %}
                                                                                 <i><small>Увага! Детское</small></i>
                                                                             {% endif %}
-                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                            {% if value|get_item:"after_break_up" != False %}
                                                                                 <i><small>Увага! После расставания</small></i>
                                                                             {% endif %}
                                                                             <li>{{ value|get_item:"name" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"price" }} руб</span></li>
@@ -424,7 +444,7 @@
                                                                             {% if value|get_item:"for_child_accomodation" != None %}
                                                                                 <i><small>Увага! Детское</small></i>
                                                                             {% endif %}
-                                                                            {% if value|get_item:"after_break_up" == True %}
+                                                                            {% if value|get_item:"after_break_up" != False %}
                                                                                 <i><small>Увага! После расставания</small></i>
                                                                             {% endif %}
                                                                             <li>{{ value|get_item:"name" }} {{ value|get_item:"owners"|get_item:i|get_item:"доля" }} <span class="badge badge-pill badge-secondary">{{ value|get_item:"owners"|get_item:i|get_item:"личная доля в деньгах"}} руб</span></li>

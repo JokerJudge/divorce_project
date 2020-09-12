@@ -2388,6 +2388,9 @@ def ownership_to_display(property_object_queryset):
                     property_properties['for_child_accomodation'] = j.name
                 elif j.sex == 'Ж' and property_properties['for_child_accomodation'] == 'Мать':
                     property_properties['for_child_accomodation'] = j.name
+                # меняем boolean after_break_up на конкретных лиц
+                if j.name == i.obtaining_person.name and property_properties['after_break_up'] == True:
+                    property_properties['after_break_up'] = j.name
 
             sobstvennik['доля'] = owners_dict[j]['доля']
             if isinstance(owners_dict[j]['совместные сособственники'], Fiz_l):
@@ -2452,7 +2455,7 @@ def transform_into_money(distribution_property):
             count += 1
     return changed_dict
 
-def sum_money(distribution_property, distribution_names, money_sum_initial=None):
+def sum_money(distribution_property, distribution_names, property_id=None, money_sum_initial=None, change_to_private_after_break_up=False):
     '''
     Функция, суммирующая личную собственность каждого из лиц и совместную собственность
     :param distribution_property: словарь с собственностью лиц, делящих имущество
@@ -2464,13 +2467,20 @@ def sum_money(distribution_property, distribution_names, money_sum_initial=None)
     p2 = 0
     common = 0
     for_child = 0
+    # p1_child и p2_child - для целей того, чтобы не учитывать цену этого имущества в общих подсчетах
     p1_child = 0
     p2_child = 0
+    # after_break_up
+    after_break_up = 0
+    p1_after_break_up = 0
+    p2_after_break_up = 0
     for k, v in distribution_property.items():
         # проверяем есть ли детское имущество и с кем остается ребенок
         if v['for_child_accomodation'] == distribution_names['person_1'] or v['for_child_accomodation'] == distribution_names['person_2']:
             # запоминаем цену детского имущества
-            for_child = v['price']
+            for_child += v['price']
+        if v['id'] == property_id and change_to_private_after_break_up == True:
+            after_break_up += v['price']
         counter = 0
         for i in v['owners']:
             if i['name'] == distribution_names['person_1']:
@@ -2478,11 +2488,15 @@ def sum_money(distribution_property, distribution_names, money_sum_initial=None)
                     p1 += i['личная доля в деньгах']
                     if distribution_names['person_1'] == v['for_child_accomodation']:
                         p1_child += i['личная доля в деньгах']
+                    if i['name'] == v['after_break_up'] and change_to_private_after_break_up == True:
+                        p1_after_break_up += i['личная доля в деньгах']
             elif i['name'] == distribution_names['person_2']:
                 if i['доля'] != None:
                     p2 += i['личная доля в деньгах']
                     if distribution_names['person_2'] == v['for_child_accomodation']:
                         p2_child += i['личная доля в деньгах']
+                    if i['name'] == v['after_break_up'] and change_to_private_after_break_up == True:
+                        p2_after_break_up += i['личная доля в деньгах']
             if i['совместные сособственники'] != None:
                 if i['name'] == distribution_names['person_1'] and i['совместные сособственники'] == distribution_names['person_2'] \
                         or i['name'] == distribution_names['person_2'] and i['совместные сособственники'] == distribution_names['person_1']:
@@ -2493,27 +2507,48 @@ def sum_money(distribution_property, distribution_names, money_sum_initial=None)
     money_dict = {}
     money_dict['person_1'] = p1
     money_dict['person_1_for_child'] = p1_child
+    money_dict['person_1_after_break_up'] = p1_after_break_up
     money_dict['person_2'] = p2
     money_dict['person_2_for_child'] = p2_child
+    money_dict['person_2_after_break_up'] = p2_after_break_up
     money_dict['common'] = common
+    if money_sum_initial == None:
+        money_dict['after_break_up'] = 0
+        money_dict['person_1_after_break_up'] = 0
+        money_dict['person_2_after_break_up'] = 0
     # детское имущество не будет включаться в подсчет того, сколько кому нужно передать. Но будет входить в common
     money_dict['distribute_to_person_1'] = (common - for_child) // 2
     money_dict['distribute_to_person_2'] = (common - for_child) // 2
+    dict_after_break_up_cache = dict()
     if money_sum_initial != None:
-        money_dict['distribute_to_person_1'] = (money_sum_initial['common'] - for_child) // 2 - (p1 - p1_child - money_sum_initial['person_1'])
+        # добавляем к текущей итерации сохраненные значения из предыдущей итерации
+        after_break_up += money_sum_initial['after_break_up']
+        p1_after_break_up += money_sum_initial['person_1_after_break_up']
+        p2_after_break_up += money_sum_initial['person_2_after_break_up']
+        money_dict['distribute_to_person_1'] = (money_sum_initial['common'] - for_child - after_break_up) // 2 - (
+                    p1 - p1_child - p1_after_break_up - money_sum_initial['person_1'])
         money_dict['distribute_to_person_1_positive'] = abs(money_dict['distribute_to_person_1'])
-        money_dict['distribute_to_person_2'] = (money_sum_initial['common'] - for_child) // 2 - (p2 - p2_child - money_sum_initial['person_2'])
+        money_dict['distribute_to_person_2'] = (money_sum_initial['common'] - for_child - after_break_up) // 2 - (
+                    p2 - p2_child - p2_after_break_up - money_sum_initial['person_2'])
         money_dict['distribute_to_person_2_positive'] = abs(money_dict['distribute_to_person_2'])
-    return money_dict
+        # сохраняем некоторые значения, которые нам понадобятся в следующей итерации
+        dict_after_break_up_cache['after_break_up'] = after_break_up
+        dict_after_break_up_cache['person_1_after_break_up'] = p1_after_break_up
+        dict_after_break_up_cache['person_2_after_break_up'] = p2_after_break_up
+    return money_dict, dict_after_break_up_cache
 
-def change_distribution_property(distribution_property, distribution_names, distribution_to, property_id):
+def change_distribution_property(distribution_property, distribution_names, distribution_to, property_id, change_to_private_after_break_up=False):
 
     distribution_property_changed = distribution_property.copy()
     for k, v in distribution_property.items():
         if v['id'] == property_id:
             count = 0
+            if change_to_private_after_break_up == False:
+                person_to = distribution_names[distribution_to]
+            else:
+                person_to = v['after_break_up']
             for i in v['owners']:
-                if i['name'] == distribution_names[distribution_to]:
+                if i['name'] == person_to:
                     if i['совместная доля'] == 1:
                         distribution_property_changed[k]['owners'][count]['доля'] = i['совместная доля']
                         distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None

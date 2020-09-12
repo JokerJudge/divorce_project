@@ -20,6 +20,7 @@ urlpatterns = [
     path('del_distribution/<int:distribution_id>/', del_distribution, name='delete_distribution'),
     path('<int:property_id>/person_1', DivorceView.as_view(), name='common_to_person_1'),
     path('<int:property_id>/person_2', DivorceView.as_view(), name='common_to_person_2'),
+    path('<int:property_id>/after_break_up', DivorceView.as_view(), name='common_to_private_after_break_up'),
 ]
 
 #path('add_person/', add_person, name='add_person'),

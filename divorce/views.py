@@ -34,7 +34,7 @@ class DivorceView(View):
                 distribution_property = transform_into_money(distribution_property_1)
                 #print(distribution_property)
                 # подсчитываем общее количество денег по имуществу
-                money_sum = sum_money(distribution_property, distribution_names)
+                money_sum, after_break_up = sum_money(distribution_property, distribution_names)
                 cache.set('distribution_property_initial', distribution_property)
                 cache.set('money_sum_initial', money_sum)
 
@@ -49,7 +49,12 @@ class DivorceView(View):
                        'money_sum': money_sum}
             return render(request, 'divorce/divorce.html', context)
         else:
-            distribution_to = request.path.split('/')[-1]
+            distribution_to = None
+            change_to_private_after_break_up = False
+            if request.path.split('/')[-1] == 'after_break_up':
+                change_to_private_after_break_up = True
+            else:
+                distribution_to = request.path.split('/')[-1]
             property_to_display = ownership_to_display(Property.objects.all())
             distribution = Distribution.objects.all()
             distribution_names = {}
@@ -66,17 +71,25 @@ class DivorceView(View):
                     distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                     distribution_property_changed = change_distribution_property(distribution_property_changed,
                                                                                  distribution_names,
-                                                                                 distribution_to, property_id)
+                                                                                 distribution_to, property_id, change_to_private_after_break_up)
                 else:
                     distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                     # меняем собственников
                     distribution_property_changed = change_distribution_property(distribution_property_1, distribution_names,
-                                                                                 distribution_to, property_id)
+                                                                                 distribution_to, property_id, change_to_private_after_break_up)
                 # cчитаем деньги (переводим доли в рубли)
                 distribution_property_changed = transform_into_money(distribution_property_changed)
                 # подсчитываем общее количество денег по имуществу
                 money_sum_initial = cache.get('money_sum_initial')
-                money_sum = sum_money(distribution_property_changed, distribution_names, money_sum_initial)
+                print()
+                print('money_sum_initial')
+                print(money_sum_initial)
+                money_sum, after_break_up = sum_money(distribution_property_changed, distribution_names, property_id, money_sum_initial, change_to_private_after_break_up)
+                money_sum_initial.update(after_break_up)
+                cache.set('money_sum_initial', money_sum_initial)
+                print()
+                print('money_sum_initial_update')
+                print(money_sum_initial)
                 cache.set('distribution_property_changed', distribution_property_changed)
                 distribution_property_initial = cache.get('distribution_property_initial')
 
