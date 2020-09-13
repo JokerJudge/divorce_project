@@ -2550,9 +2550,6 @@ def change_distribution_property(distribution_property,
         znamenatel_person_1 = int(dolya['insert_dolya_znamenatel_person_1'])
         chislitel_person_2 = int(dolya['insert_dolya_znamenatel_person_1']) - int(dolya['insert_dolya_chislitel_person_1'])
     distribution_property_changed = distribution_property.copy()
-    print()
-    print('distribution_property')
-    print(distribution_property)
     for k, v in distribution_property.items():
         if v['id'] == property_id:
             count = 0
@@ -2645,8 +2642,5 @@ def change_distribution_property(distribution_property,
                 count += 1
         else:
             distribution_property_changed[k] = v
-    print()
-    print('distribution_property_changed')
-    print(distribution_property_changed)
     return distribution_property_changed
 
