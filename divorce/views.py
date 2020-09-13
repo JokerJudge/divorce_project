@@ -51,6 +51,7 @@ class DivorceView(View):
         else:
             distribution_to = None
             change_to_private_after_break_up = False
+            # если пошло по пути after_break_up
             if request.path.split('/')[-1] == 'after_break_up':
                 change_to_private_after_break_up = True
             else:
@@ -66,30 +67,29 @@ class DivorceView(View):
                 cache_flag = cache.get('distribution_property_changed', None)
                 if cache_flag is not None:
                     distribution_property_changed = cache.get('distribution_property_changed')
-                    print('Я тут')
-                    print(distribution_property_changed)
                     distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                     distribution_property_changed = change_distribution_property(distribution_property_changed,
                                                                                  distribution_names,
-                                                                                 distribution_to, property_id, change_to_private_after_break_up)
+                                                                                 distribution_to,
+                                                                                 property_id,
+                                                                                 change_to_private_after_break_up,
+                                                                                 request.GET)
                 else:
                     distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                     # меняем собственников
-                    distribution_property_changed = change_distribution_property(distribution_property_1, distribution_names,
-                                                                                 distribution_to, property_id, change_to_private_after_break_up)
+                    distribution_property_changed = change_distribution_property(distribution_property_1,
+                                                                                 distribution_names,
+                                                                                 distribution_to,
+                                                                                 property_id,
+                                                                                 change_to_private_after_break_up,
+                                                                                 request.GET)
                 # cчитаем деньги (переводим доли в рубли)
                 distribution_property_changed = transform_into_money(distribution_property_changed)
                 # подсчитываем общее количество денег по имуществу
                 money_sum_initial = cache.get('money_sum_initial')
-                print()
-                print('money_sum_initial')
-                print(money_sum_initial)
                 money_sum, after_break_up = sum_money(distribution_property_changed, distribution_names, property_id, money_sum_initial, change_to_private_after_break_up)
                 money_sum_initial.update(after_break_up)
                 cache.set('money_sum_initial', money_sum_initial)
-                print()
-                print('money_sum_initial_update')
-                print(money_sum_initial)
                 cache.set('distribution_property_changed', distribution_property_changed)
                 distribution_property_initial = cache.get('distribution_property_initial')
 

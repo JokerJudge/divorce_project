@@ -248,7 +248,7 @@
                         <div class="container">
                             <div class="row justify-content-center">
                                 <p>
-                                    <i>Обратите внимание, что по общему правилу, совместно нажитое имущество делится поплам.
+                                    <i>Обратите внимание, что по общему правилу, совместно нажитое имущество делится пополам.
                                     Поэтому Вам необходимо распределить имущество таким образом, чтобы каждому досталось имущества
                                     на сумму, равняющуюся половине стоимости общего совместного имущества. Разница при неравном делении
                                         должна быть компенсирована супругу, которому досталось меньше имущества</i>
@@ -376,9 +376,38 @@
                                                                                         <a href="{% url 'common_to_private_after_break_up' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
                                                                                         преобразовать в личную
                                                                                         </a>
-                                                                                        <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                        преобразовать в долевую
-                                                                                        </a>
+                                                                                        <form action="{% url 'convert_to_dolevaya' value|get_item:"id" %}" method="get" autocomplete="off">
+
+                                                                                            <button type="button" class="btn text-secondary d-inline-flex" id="convert_to_dolevaya_{{ value|get_item:"id" }}">
+                                                                                                преобразовать в долевую
+                                                                                            </button>
+                                                                                            <div style="display: none" id="insert_dolya_{{ value|get_item:"id" }}">
+                                                                                                <input type="number" id="insert_dolya_chislitel_person_1" name="insert_dolya_chislitel_person_1" size="3px" min="1" max="10000">
+                                                                                                <label for="insert_dolya_chislitel_person_1">/</label>
+                                                                                                <input type="number" id="insert_dolya_znamenatel_person_1" name="insert_dolya_znamenatel_person_1" size="3px" min="1" max="10000">
+                                                                                                <label for="insert_dolya_znamenatel_person_1">  </label>
+                                                                                                <br>
+                                                                                                <small>Укажите, какую долю получит {{ distribution_names|get_item:'person_1' }}.
+                                                                                                Остаток получит {{ distribution_names|get_item:'person_2' }}</small>
+                                                                                            </div>
+
+                                                                                            <!-- TODO нужно очистить данные, если окно закрывается + нужно обозвать "свернуть" 256-262 из form_property_2_m-->
+
+                                                                                            <script type="text/javascript">
+                                                                                                document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").onclick = function() {
+                                                                                                T = document.getElementById("insert_dolya_{{ value|get_item:'id' }}")
+                                                                                                if (T.style.display == 'none')
+                                                                                                    {document.getElementById("insert_dolya_{{ value|get_item:'id' }}").style.display = "block";
+                                                                                                    document.getElementById("button_convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = "block";
+                                                                                                    document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = 'none';}
+                                                                                                else
+                                                                                                    {document.getElementById("insert_dolya_{{ value|get_item:'id' }}").style.display = "none";
+                                                                                                    document.getElementById("button_convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = "none";
+                                                                                                    document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = 'block';}}
+                                                                                            </script>
+
+                                                                                            <button type="submit" class="btn btn-sm btn-primary" style="display: none" id="button_convert_to_dolevaya_{{ value|get_item:"id" }}">Разделить</button>
+                                                                                        </form>
                                                                                     {% else %}
                                                                                     <a href="{% url 'common_to_person_1' value|get_item:"id"  %}" class="btn text-secondary d-inline-flex">
                                                                                         <i class="fas fa-arrow-circle-left"></i>передать
@@ -387,9 +416,39 @@
                                                                                         передать<i class="fas fa-arrow-circle-right"></i>
                                                                                     </a>
                                                                                     <br>
-                                                                                    <a href="{% url 'property_update' value|get_item:"id" %}" class="btn text-secondary d-inline-flex">
-                                                                                        преобразовать в долевую
-                                                                                    </a>
+                                                                                    <form action="{% url 'convert_to_dolevaya' value|get_item:"id" %}" method="get" autocomplete="off">
+
+                                                                                        <button type="button" class="btn text-secondary d-inline-flex" id="convert_to_dolevaya_{{ value|get_item:"id" }}">
+                                                                                            преобразовать в долевую
+                                                                                        </button>
+                                                                                        <div style="display: none" id="insert_dolya_{{ value|get_item:"id" }}">
+                                                                                            <input type="number" id="insert_dolya_chislitel_person_1" name="insert_dolya_chislitel_person_1" size="3px" min="1" max="10000">
+                                                                                            <label for="insert_dolya_chislitel_person_1">/</label>
+                                                                                            <input type="number" id="insert_dolya_znamenatel_person_1" name="insert_dolya_znamenatel_person_1" size="3px" min="1" max="10000">
+                                                                                            <label for="insert_dolya_znamenatel_person_1">  </label>
+                                                                                            <br>
+                                                                                            <small>Укажите, какую долю получит {{ distribution_names|get_item:'person_1' }}.
+                                                                                            Остаток получит {{ distribution_names|get_item:'person_2' }}</small>
+                                                                                        </div>
+
+                                                                                        <!-- TODO нужно очистить данные, если окно закрывается + нужно обозвать "свернуть" 256-262 из form_property_2_m-->
+
+                                                                                        <script type="text/javascript">
+                                                                                            document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").onclick = function() {
+                                                                                            T = document.getElementById("insert_dolya_{{ value|get_item:'id' }}")
+                                                                                            if (T.style.display == 'none')
+                                                                                                {document.getElementById("insert_dolya_{{ value|get_item:'id' }}").style.display = "block";
+                                                                                                document.getElementById("button_convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = "block";
+                                                                                                document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = 'none';}
+                                                                                            else
+                                                                                                {document.getElementById("insert_dolya_{{ value|get_item:'id' }}").style.display = "none";
+                                                                                                document.getElementById("button_convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = "none";
+                                                                                                document.getElementById("convert_to_dolevaya_{{ value|get_item:'id' }}").style.display = 'block';}}
+                                                                                        </script>
+
+                                                                                        <button type="submit" class="btn btn-sm btn-primary" style="display: none" id="button_convert_to_dolevaya_{{ value|get_item:"id" }}">Разделить</button>
+                                                                                    </form>
+
                                                                                     {% endif %}
                                                                                 {% endif %}
                                                                             {% endif %}
