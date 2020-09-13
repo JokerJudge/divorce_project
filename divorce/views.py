@@ -41,6 +41,7 @@ class DivorceView(View):
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),
+                       'property_raw': Property.objects.all(),
                        'property_list': property_to_display,
                        'counter': counter,
                        'distribution_list': Distribution.objects.all(),
@@ -96,6 +97,7 @@ class DivorceView(View):
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),
+                       'property_raw': Property.objects.all(),
                        'property_list': property_to_display,
                        'counter': counter,
                        'distribution_list': Distribution.objects.all(),
