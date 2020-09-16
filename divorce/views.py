@@ -27,6 +27,7 @@ class DivorceView(View):
             distribution_names = {}
             distribution_property_str = {}
             money_sum_str = {}
+            money_sum = {}
             #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
             if property_to_display and distribution:
                 distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
@@ -52,6 +53,9 @@ class DivorceView(View):
                 cache.set('distribution_property_initial', distribution_property)
                 cache.set('money_sum_initial', money_sum)
 
+            num_visits = request.session.get('num_visits', 0)
+            request.session['num_visits'] = num_visits + 1
+
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),
@@ -62,7 +66,8 @@ class DivorceView(View):
                        'distribution_property': distribution_property_str,
                        'distribution_names': distribution_names,
                        'money_sum': money_sum_str,
-                       'money_sum_digits': money_sum}
+                       'money_sum_digits': money_sum,
+                       'num_visits': num_visits}
             return render(request, 'divorce/divorce.html', context)
         else:
             distribution_to = None
@@ -77,6 +82,7 @@ class DivorceView(View):
             distribution_names = {}
             distribution_property = {}
             money_sum_str = {}
+            money_sum = {}
             distribution_property_changed_str = {}
             # фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
             if property_to_display and distribution:
@@ -123,6 +129,9 @@ class DivorceView(View):
                 cache.set('distribution_property_changed', distribution_property_changed)
                 distribution_property_initial = cache.get('distribution_property_initial')
 
+            num_visits = request.session.get('num_visits', 0)
+            request.session['num_visits'] = num_visits + 1
+
             counter = Counter()
             context = {'fiz_l_list': Fiz_l.objects.all(),
                        'marriages_list': Marriage.objects.all(),
@@ -133,7 +142,8 @@ class DivorceView(View):
                        'distribution_property': distribution_property_changed_str,
                        'distribution_names': distribution_names,
                        'money_sum': money_sum_str,
-                       'money_sum_digits': money_sum}
+                       'money_sum_digits': money_sum,
+                       'num_visits': num_visits}
             return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице

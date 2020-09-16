@@ -228,6 +228,9 @@
         <section>
             <div class="row justify-content-center">
                 <div class="col-12 text-center" id="to_scroll">
+                    <!--
+                    <p>Вы посетили эту страницу {{ num_visits }}{% if num_visits == 1 %} раз {% else %} раза {% endif %}</p>
+                    -->
                     {% for distribution in distribution_list %}
                     <h4>{{ distribution }}
                         <form action="{% url 'delete_distribution' distribution.id %}" method="post" class="float-right d-inline">
