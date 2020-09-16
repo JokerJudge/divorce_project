@@ -4,7 +4,7 @@ from django.forms import ModelMultipleChoiceField
 
 import datetime
 
-from .models import Fiz_l, Marriage, Property
+from .models import Fiz_l, Marriage, Property, Distribution
 
 class Fiz_l_form(forms.ModelForm):
     class Meta:
@@ -149,7 +149,7 @@ class Property_form(forms.ModelForm):
             'type_of_property_form': 'Вид имущества',
             'obtaining_person': 'Лицо (одно из лиц), приобретших имущество',
             'date_of_purchase': 'Дата приобретения имущества (переход права собственности)',
-            'price': 'Цена имущества (можно примерно), руб'
+            'price': 'Текущая цена имущества (можно примерно), руб'
         }
         widgets = {
             'name': forms.TextInput(),
@@ -175,3 +175,27 @@ class Property_form(forms.ModelForm):
         else:
             return date_of_purchase
 
+class Distribution_form(forms.ModelForm):
+    class Meta:
+        model = Distribution
+        fields = ('parties',
+                  'date_of_distribution')
+        labels = {
+            'parties': 'Лица, делящие имущество',
+            'date_of_distribution': 'Дата, на которую делится имущество'
+        }
+        widgets = {
+            'parties': forms.CheckboxSelectMultiple(),
+            'date_of_distribution': forms.DateInput()
+        }
+
+    def clean_parties(self):
+        '''
+        Проверка на то, что пользователь выбрал именно 2 физ.лица для раздела имущества
+        :return: отвалидированное значение parties
+        '''
+        parties = self.cleaned_data['parties']
+        if len(list(parties)) != 2:
+            raise ValidationError('Нужно выбрать 2 лица')
+        else:
+            return parties

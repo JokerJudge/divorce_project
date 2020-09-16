@@ -38,10 +38,24 @@ class Property(models.Model):
     purchase_type = models.CharField(max_length=30, choices=PURCHASE_TYPE_CHOICES, blank=True, null=True)
     obtaining_person = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
     source_of_purchase = models.ManyToManyField('Fiz_l', blank=True, related_name='property_source')
-    price = models.PositiveIntegerField(blank=True, null=True)
+    price = models.PositiveIntegerField(default=0)
     pay_before_marriage = models.BooleanField(default=False)
+    for_child_accomodation = models.CharField(max_length=200, blank=True, null=True)
+    individual_use_party = models.CharField(max_length=200, blank=True, null=True)
+    after_break_up = models.BooleanField(default=False)
     for_child = models.BooleanField(default=False)
     individual_use = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
+
+class Distribution(models.Model):
+    date_of_distribution = models.DateField()
+    parties = models.ManyToManyField('Fiz_l', blank=True, related_name='distribution')
+
+    def __str__(self):
+        list_to_display = list(self.parties.all())
+        if len(list_to_display) == 2:
+            return f'{list_to_display[0]} и {list_to_display[1]} - раздел имущества'
+        else:
+            return f'Раздел имущества указан некорректно'

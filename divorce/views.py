@@ -4,25 +4,137 @@ from django.core.cache import cache
 import datetime
 import pickle
 from django.http import HttpResponse, HttpRequest
-from .models import Fiz_l, Marriage, Property
-from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form
+from .models import Fiz_l, Marriage, Property, Distribution
+from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
-from divorce.law.property import form_1_processing, to_ownership, clean_coowners, ownership_to_display
+from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
+    ownership_to_display, filter_for_distribution, transform_into_money, sum_money, change_distribution_property
+from divorce.law.utils import Counter, digits_to_readable_property_list, digits_to_readable_distribution_property, digits_to_readable_money_sum
 
 # Create your views here.
 # Представление для основной страницы
 class DivorceView(View):
-    def get(self, request):
-        # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
-        property_to_display = ownership_to_display(Property.objects.all())
-        print(property_to_display)
+    def get(self, request, property_id=0):
+        if property_id == 0:
+            cache_flag = cache.get('distribution_property_changed', None)
+            if cache_flag is not None:
+                cache.delete('distribution_property_changed')
+                cache.delete('money_sum_initial')
+                cache.delete('distribution_property_initial')
+            # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
+            property_to_display = ownership_to_display(Property.objects.all())
+            distribution = Distribution.objects.all()
+            distribution_names = {}
+            distribution_property_str = {}
+            money_sum_str = {}
+            #фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
+            if property_to_display and distribution:
+                distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                #cчитаем деньги (переводим доли в рубли)
+                distribution_property = transform_into_money(distribution_property_1)
+                #print(distribution_property)
+                # подсчитываем общее количество денег по имуществу
+                money_sum, after_break_up = sum_money(distribution_property, distribution_names)
+                print()
+                print('property_to_display')
+                print(property_to_display)
+                print()
+                print('money_sum')
+                print(money_sum)
+                print()
+                print('distribution_property')
+                print(distribution_property)
+                # делаем читабельными цифры в представлении
+                property_to_display = digits_to_readable_property_list(property_to_display)
+                distribution_property_str = digits_to_readable_distribution_property(distribution_property)
+                money_sum_str = digits_to_readable_money_sum(money_sum)
+                #кэшируем вариант с цифрами в ценах, а не строки. Строки идут в представление
+                cache.set('distribution_property_initial', distribution_property)
+                cache.set('money_sum_initial', money_sum)
 
-        #'property_list': Property.objects.all()
+            counter = Counter()
+            context = {'fiz_l_list': Fiz_l.objects.all(),
+                       'marriages_list': Marriage.objects.all(),
+                       'property_raw': Property.objects.all(),
+                       'property_list': property_to_display,
+                       'counter': counter,
+                       'distribution_list': Distribution.objects.all(),
+                       'distribution_property': distribution_property_str,
+                       'distribution_names': distribution_names,
+                       'money_sum': money_sum_str,
+                       'money_sum_digits': money_sum}
+            return render(request, 'divorce/divorce.html', context)
+        else:
+            distribution_to = None
+            change_to_private_after_break_up = False
+            # если пошло по пути after_break_up
+            if request.path.split('/')[-1] == 'after_break_up':
+                change_to_private_after_break_up = True
+            else:
+                distribution_to = request.path.split('/')[-1]
+            property_to_display = ownership_to_display(Property.objects.all())
+            distribution = Distribution.objects.all()
+            distribution_names = {}
+            distribution_property = {}
+            money_sum_str = {}
+            distribution_property_changed_str = {}
+            # фильтруем имущество и записываем только то, которое принадлежит лицам, делящим имущество
+            if property_to_display and distribution:
+                cache_flag = cache.get('distribution_property_changed', None)
+                if cache_flag is not None:
+                    distribution_property_changed = cache.get('distribution_property_changed')
+                    distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                    distribution_property_changed = change_distribution_property(distribution_property_changed,
+                                                                                 distribution_names,
+                                                                                 distribution_to,
+                                                                                 property_id,
+                                                                                 change_to_private_after_break_up,
+                                                                                 request.GET)
+                else:
+                    distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
+                    # меняем собственников
+                    distribution_property_changed = change_distribution_property(distribution_property_1,
+                                                                                 distribution_names,
+                                                                                 distribution_to,
+                                                                                 property_id,
+                                                                                 change_to_private_after_break_up,
+                                                                                 request.GET)
+                # cчитаем деньги (переводим доли в рубли)
+                distribution_property_changed = transform_into_money(distribution_property_changed)
+                # подсчитываем общее количество денег по имуществу
+                money_sum_initial = cache.get('money_sum_initial')
+                money_sum, after_break_up = sum_money(distribution_property_changed, distribution_names, property_id, money_sum_initial, change_to_private_after_break_up)
+                money_sum_initial.update(after_break_up)
+                print()
+                print('property_to_display')
+                print(property_to_display)
+                print()
+                print('money_sum')
+                print(money_sum)
+                print()
+                print('distribution_property_changed')
+                print(distribution_property_changed)
+                # делаем читабельными цифры в представлении
+                property_to_display = digits_to_readable_property_list(property_to_display)
+                distribution_property_changed_str = digits_to_readable_distribution_property(distribution_property_changed)
+                money_sum_str = digits_to_readable_money_sum(money_sum)
+                # кэшируем вариант с цифрами в ценах, а не строки. Строки идут в представление
+                cache.set('money_sum_initial', money_sum_initial)
+                cache.set('distribution_property_changed', distribution_property_changed)
+                distribution_property_initial = cache.get('distribution_property_initial')
 
-        context = {'fiz_l_list': Fiz_l.objects.all(),
-                   'marriages_list': Marriage.objects.all(),
-                   'property_list': property_to_display}
-        return render(request, 'divorce/divorce.html', context)
+            counter = Counter()
+            context = {'fiz_l_list': Fiz_l.objects.all(),
+                       'marriages_list': Marriage.objects.all(),
+                       'property_raw': Property.objects.all(),
+                       'property_list': property_to_display,
+                       'counter': counter,
+                       'distribution_list': Distribution.objects.all(),
+                       'distribution_property': distribution_property_changed_str,
+                       'distribution_names': distribution_names,
+                       'money_sum': money_sum_str,
+                       'money_sum_digits': money_sum}
+            return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
 class FizLFormView(View):
@@ -263,7 +375,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -271,10 +383,13 @@ class PropertyForm2nmView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -303,7 +418,7 @@ class PropertyForm2nmView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             #form = Property_form(form_example)
@@ -312,10 +427,13 @@ class PropertyForm2nmView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -361,7 +479,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -369,10 +487,13 @@ class PropertyForm2mView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -401,7 +522,7 @@ class PropertyForm2mView(View):
             # готовим форму № 2 к работе
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
-            ownership, list_of_links = to_ownership(form_full)
+            ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -409,10 +530,13 @@ class PropertyForm2mView(View):
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
+                form.cleaned_data.update(for_child)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
+                temp.for_child_accomodation = form.cleaned_data['child_accomodation']
+                temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
@@ -452,6 +576,45 @@ def merging_forms(form: dict):
     print(form_example)
     return form_example, form_1, form_1_processed_data
 
+
+class DistributionFormView(View):
+    def get(self, request, id=0):
+        # TODO - вероятно, id вообще тут не нужен
+        if id == 0:
+            form = Distribution_form()  # пустая форма
+            return render(request, 'divorce/form_distribution.html', {'form': form})
+        else:  # update operation
+            distribution = Distribution.objects.get(pk=id)
+            form = Distribution_form(instance=distribution)  # заполненная имеющимися данными форма
+            return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
+
+    def post(self, request, id=0):
+        if id == 0:  # если данные пока не записаны в БД
+            form = Distribution_form(request.POST) # заполняем форму из словаря POST
+            print('request.POST')
+            print(request.POST)
+            distribution = None
+        else:
+            distribution = Distribution.objects.get(pk=id)  # получаем по id нужный объект
+            form = Marriage_form(request.POST, instance=distribution)  # distribution будет изменен новой формой request.POST
+
+        if form.is_valid():
+            print('+++++++++++cleaned_data+++++++++++++++++++')
+            # данные перед сохранением, но до обработки бизнес-логикой
+            print(form.cleaned_data)
+            form.save()
+            return redirect('/divorce')
+
+        # если есть проблемы с формой - ValueError из forms.py
+        else:
+            return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
+
+
+def del_distribution(request, distribution_id):
+    distribution_to_delete = Distribution.objects.get(id=distribution_id)
+    distribution_to_delete.delete()
+    # TODO - необходимо будет также удалить данные по ключу Period_of_time, которые создадутся при разделе имущества
+    return redirect('/divorce')
 
 ########################################################
 # def fiz_l_form_add(request, id=0):

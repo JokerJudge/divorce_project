@@ -16,6 +16,12 @@ urlpatterns = [
     path('form_property_2_nm/<int:id>/', PropertyForm2nmView.as_view(), name='property_2_nm_update'),
     path('form_property_2_m/', PropertyForm2mView.as_view(), name='property_2_m'),
     path('form_property_2_m/<int:id>/', PropertyForm2mView.as_view(), name='property_2_m_update'),
+    path('form_distribution/', DistributionFormView.as_view(), name='form_add_distribution'),
+    path('del_distribution/<int:distribution_id>/', del_distribution, name='delete_distribution'),
+    path('<int:property_id>/person_1', DivorceView.as_view(), name='common_to_person_1'),
+    path('<int:property_id>/person_2', DivorceView.as_view(), name='common_to_person_2'),
+    path('<int:property_id>/after_break_up', DivorceView.as_view(), name='common_to_private_after_break_up'),
+    path('<int:property_id>/person_1', DivorceView.as_view(), name='convert_to_dolevaya'),
 ]
 
 #path('add_person/', add_person, name='add_person'),

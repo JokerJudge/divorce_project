@@ -15,3 +15,10 @@ def get_from_object(obj, atribute):
 @register.filter
 def to_range(object):
     return range(object)
+
+@register.filter
+def plus_one(object):
+    sum = object + 1
+    return sum
+
+
