@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.cache import cache
+from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
 import pickle
 from django.http import HttpResponse, HttpRequest
@@ -147,7 +148,7 @@ class DivorceView(View):
             return render(request, 'divorce/divorce.html', context)
 
 # Представление для формы добавления/изменения сведений о физ.лице
-class FizLFormView(View):
+class FizLFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         if id == 0:
             form = Fiz_l_form()  # пустая форма
@@ -191,7 +192,7 @@ def del_person(request, person_id):
     person_to_delete.delete()
     return redirect('/divorce')
 
-class MarriageFormView(View):
+class MarriageFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         if id == 0:
             form = Marriage_form()  # пустая форма
@@ -239,7 +240,7 @@ class MarriageFormView(View):
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
 
 
-class MarriageFormDivorceView(View):
+class MarriageFormDivorceView(LoginRequiredMixin, View):
     def get(self, request, id):
         marriage = Marriage.objects.get(pk=id)
         form = Marriage_form_divorce(instance=marriage) # показываем пустую форму / или форму с имеющимися данными
@@ -281,7 +282,7 @@ def del_marriage(request, marriage_id):
     return redirect('/divorce')
 
 
-class PropertyFormView(View):
+class PropertyFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         if id == 0:
             form = Property_form()  # пустая форма
@@ -355,7 +356,7 @@ def del_property(request, property_id):
     return redirect('/divorce')
 
 
-class PropertyForm2nmView(View):
+class PropertyForm2nmView(LoginRequiredMixin, View):
     '''
     Форма № 2 для варианта, когда приобретение имущества не совпало с браками
     '''
@@ -454,7 +455,7 @@ class PropertyForm2nmView(View):
                 return redirect('/divorce')
 
 
-class PropertyForm2mView(View):
+class PropertyForm2mView(LoginRequiredMixin, View):
     '''
     Форма № 2 для варианта, когда приобретение имущества совпало с браком
     '''
@@ -587,7 +588,7 @@ def merging_forms(form: dict):
     return form_example, form_1, form_1_processed_data
 
 
-class DistributionFormView(View):
+class DistributionFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         # TODO - вероятно, id вообще тут не нужен
         if id == 0:
