@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.cache import cache
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
 import pickle
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage, Property, Distribution
 from django.contrib.auth.models import User
-from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
+from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form, SignUpForm
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
     ownership_to_display, filter_for_distribution, transform_into_money, sum_money, change_distribution_property
@@ -26,9 +28,7 @@ class DivorceView(View):
             # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
             #property_to_display = ownership_to_display(Property.objects.all())
             property_to_display = ownership_to_display(Property.objects.filter(service_user_id=request.user.id))
-            #distribution = Distribution.objects.all()
             distribution = Distribution.objects.filter(service_user_id=request.user.id)
-            print(request.user.id)
             distribution_names = {}
             distribution_property_str = {}
             money_sum_str = {}
@@ -38,18 +38,8 @@ class DivorceView(View):
                 distribution_property_1, distribution_names = filter_for_distribution(property_to_display, distribution)
                 #cчитаем деньги (переводим доли в рубли)
                 distribution_property = transform_into_money(distribution_property_1)
-                #print(distribution_property)
                 # подсчитываем общее количество денег по имуществу
                 money_sum, after_break_up = sum_money(distribution_property, distribution_names)
-                # print()
-                # print('property_to_display')
-                # print(property_to_display)
-                # print()
-                # print('money_sum')
-                # print(money_sum)
-                # print()
-                # print('distribution_property')
-                # print(distribution_property)
                 # делаем читабельными цифры в представлении
                 property_to_display = digits_to_readable_property_list(property_to_display)
                 distribution_property_str = digits_to_readable_distribution_property(distribution_property)
@@ -118,15 +108,6 @@ class DivorceView(View):
                 money_sum_initial = cache.get('money_sum_initial')
                 money_sum, after_break_up = sum_money(distribution_property_changed, distribution_names, property_id, money_sum_initial, change_to_private_after_break_up)
                 money_sum_initial.update(after_break_up)
-                # print()
-                # print('property_to_display')
-                # print(property_to_display)
-                # print()
-                # print('money_sum')
-                # print(money_sum)
-                # print()
-                # print('distribution_property_changed')
-                # print(distribution_property_changed)
                 # делаем читабельными цифры в представлении
                 property_to_display = digits_to_readable_property_list(property_to_display)
                 distribution_property_changed_str = digits_to_readable_distribution_property(distribution_property_changed)
@@ -225,16 +206,11 @@ class MarriageFormView(LoginRequiredMixin, View):
             form = Marriage_form(request.POST, instance=marriage)  # marriage будет изменен новой формой request.POST
 
         if form.is_valid():
-            print('+++++++++++cleaned_data+++++++++++++++++++')
-            print(form.cleaned_data)
             # данные перед сохранением, но до обработки бизнес-логикой
             date_of_marriage_registration = form.cleaned_data['date_of_marriage_registration']
             parties = list(form.cleaned_data['parties'])
             person_1 = parties[0]
             person_2 = parties[1]
-            print(date_of_marriage_registration)
-            print(person_1)
-            print(person_2)
             resolution, link_list = marriage_law(person_1, person_2, date_of_marriage_registration, marriage)
 
             if resolution is True:
@@ -245,7 +221,6 @@ class MarriageFormView(LoginRequiredMixin, View):
                 form.save()
                 temp = form.save(commit=False)
                 temp.service_user_id = form.cleaned_data['service_user_id']
-                print(form.cleaned_data)
                 temp.save()
                 return redirect('/divorce')
             else:
@@ -254,6 +229,7 @@ class MarriageFormView(LoginRequiredMixin, View):
                     'Ссылка на норму': f'{link_list[-1].law_link} {link_list[-1].npa.short_title_for_link}',
                     'Текст нормы': link_list[-1].law_text
                 }
+                form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})
         # если есть проблемы с формой - ValueError из forms.py
         else:
@@ -270,8 +246,6 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
         marriage = Marriage.objects.get(pk=id)
         form = Marriage_form_divorce(request.POST, instance=marriage) # marriage будет изменен новой формой request.POST
         if form.is_valid():
-            print('+++++++++++cleaned_data+++++++++++++++++++')
-            print(form.cleaned_data)
             # данные перед сохранением, но до обработки бизнес-логикой
             date_of_divorce = form.cleaned_data['date_of_marriage_divorce']
             date_of_break_up = form.cleaned_data['date_of_break_up']
@@ -289,8 +263,6 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
                         'Дата прекращения брачных отношений не может быть раньше заключения брака': f'{date_of_marriage_registration}'
                     }
                     return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage, 'errors': errors})
-            print(marriage)
-            print(date_of_divorce)
             user_dict = {'service_user_id': request.user.id}
             form.cleaned_data.update(user_dict)
             form.save()
@@ -618,13 +590,7 @@ def merging_forms(form: dict):
     '''
     # грузим из кэша форму № 1 и обработанную форму
     form_1 = cache.get('form_1')
-    print()
-    print('form_1')
-    print(form_1)
     form_1_processed_data = cache.get('form_1_processed_data')
-    print()
-    print('form_1_processed_data')
-    print(form_1_processed_data)
 
     # готовим форму № 2 к работе
     form_2 = form
@@ -632,15 +598,11 @@ def merging_forms(form: dict):
     form_example = form_1.copy()
     form_example.update(form_1_processed_data)
     form_example.update(form_2)
-    print()
-    print('form_example')
-    print(form_example)
     return form_example, form_1, form_1_processed_data
 
 
 class DistributionFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
-        # TODO - вероятно, id вообще тут не нужен
         if id == 0:
             form = Distribution_form()  # пустая форма
             # фильтруем форму только актуальными для пользователя значениями
@@ -655,8 +617,6 @@ class DistributionFormView(LoginRequiredMixin, View):
     def post(self, request, id=0):
         if id == 0:  # если данные пока не записаны в БД
             form = Distribution_form(request.POST) # заполняем форму из словаря POST
-            print('request.POST')
-            print(request.POST)
             distribution = None
         else:
             distribution = Distribution.objects.get(pk=id)  # получаем по id нужный объект
@@ -664,9 +624,7 @@ class DistributionFormView(LoginRequiredMixin, View):
 
         user_dict = {'service_user_id': request.user.id}
         if form.is_valid():
-            print('+++++++++++cleaned_data+++++++++++++++++++')
             # данные перед сохранением, но до обработки бизнес-логикой
-            print(form.cleaned_data)
             form.cleaned_data.update(user_dict)
             form.save()
             temp = form.save(commit=False)
@@ -683,8 +641,34 @@ class DistributionFormView(LoginRequiredMixin, View):
 def del_distribution(request, distribution_id):
     distribution_to_delete = Distribution.objects.get(id=distribution_id)
     distribution_to_delete.delete()
-    # TODO - необходимо будет также удалить данные по ключу Period_of_time, которые создадутся при разделе имущества
     return redirect('/divorce')
+
+class SignUpView(View):
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, 'registration/signup.html', {'form': form})
+
+    def post(self, request):
+        form = SignUpForm(request.POST)
+        print(form)
+        print(form.errors)
+        if form.is_valid():
+            print(form.cleaned_data)
+            user = User.objects.create_user('myusername', 'myemail@test.com', 'mypassword')
+            user.username = form.cleaned_data.get('username')
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_name = form.cleaned_data.get('last_name')
+            user.email = form.cleaned_data.get('email')
+            user.set_password(form.cleaned_data.get('password1'))
+            user.check_password(form.cleaned_data.get('password1'))
+            user.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('/divorce')
+        else:
+            return render(request, 'registration/signup.html', {'form': form})
 
 ########################################################
 # def fiz_l_form_add(request, id=0):
