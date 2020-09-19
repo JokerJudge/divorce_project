@@ -36,8 +36,15 @@ class Fiz_l_form(forms.ModelForm):
 
 class Marriage_form(forms.ModelForm):
 
+    # def __init__(self, *args, **kwargs):
+    #     super(Marriage_form, self).__init__(*args, **kwargs)
+    #     self.fields['parties'] = Fiz_l.objects.filter(service_user_id=2)
+
     class Meta:
         model = Marriage
+        print(model.parties)
+
+        #model = Marriage.objects.filter(service_user_id=Marriage.service_user)
         # можно fields = '__all__'
         fields = ('date_of_marriage_registration', 'parties', 'date_of_marriage_divorce', 'date_of_break_up',)
         labels = {

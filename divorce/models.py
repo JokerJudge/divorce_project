@@ -1,5 +1,6 @@
 from django.db import models
 from divorce.law.links_and_texts import PURCHASE_TYPE_CHOICES, TYPES_OF_PROPERTY_CHOICES
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Fiz_l(models.Model):
@@ -8,6 +9,7 @@ class Fiz_l(models.Model):
     name = models.CharField(max_length=100)
     date_of_birth = models.DateField(default='2020-1-1')
     sex = models.CharField(max_length=1, choices=sex_choices)
+    service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     #marriages = models.ManyToManyField('Marriage', blank=True, related_name='parties')
 
     def __str__(self):
@@ -19,10 +21,14 @@ class Marriage(models.Model):
     date_of_marriage_registration = models.DateField(default='2020-1-1')
     date_of_marriage_divorce = models.DateField(blank=True, null=True)
     date_of_break_up = models.DateField(blank=True, null=True)
+    service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     parties = models.ManyToManyField('Fiz_l', blank=True, related_name='marriages')
+    #service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    #limit_choices_to= {'service_user': service_user}
 
     def __str__(self):
         list_to_display = list(self.parties.all())
+        print(list(self.parties.all()))
         if len(list_to_display) == 2:
             return f'Брак между {list_to_display[0]} и {list_to_display[1]}'
         else:
@@ -45,6 +51,7 @@ class Property(models.Model):
     after_break_up = models.BooleanField(default=False)
     for_child = models.BooleanField(default=False)
     individual_use = models.BooleanField(default=False)
+    service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -52,6 +59,7 @@ class Property(models.Model):
 class Distribution(models.Model):
     date_of_distribution = models.DateField()
     parties = models.ManyToManyField('Fiz_l', blank=True, related_name='distribution')
+    service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         list_to_display = list(self.parties.all())
