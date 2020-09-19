@@ -207,10 +207,13 @@ class MarriageFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         if id == 0:
             form = Marriage_form()  # пустая форма
+            #фильтруем только актуальные для пользователя варианты
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_marriage.html', {'form': form})
         else:  # update operation
             marriage = Marriage.objects.get(pk=id)
             form = Marriage_form(instance=marriage)  # заполненная имеющимися данными форма
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
 
     def post(self, request, id=0):
@@ -254,8 +257,9 @@ class MarriageFormView(LoginRequiredMixin, View):
             return render(request, 'divorce/form_marriage.html', {'form': form, 'errors': errors, 'marriage': marriage})
         # если есть проблемы с формой - ValueError из forms.py
         else:
+            #фильтруем физ.лица для конкретного пользователя
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_marriage.html', {'form': form, 'marriage': marriage})
-
 
 class MarriageFormDivorceView(LoginRequiredMixin, View):
     def get(self, request, id):
@@ -635,10 +639,13 @@ class DistributionFormView(LoginRequiredMixin, View):
         # TODO - вероятно, id вообще тут не нужен
         if id == 0:
             form = Distribution_form()  # пустая форма
+            # фильтруем форму только актуальными для пользователя значениями
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_distribution.html', {'form': form})
         else:  # update operation
             distribution = Distribution.objects.get(pk=id)
             form = Distribution_form(instance=distribution)  # заполненная имеющимися данными форма
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
 
     def post(self, request, id=0):
@@ -665,6 +672,7 @@ class DistributionFormView(LoginRequiredMixin, View):
 
         # если есть проблемы с формой - ValueError из forms.py
         else:
+            form.fields['parties'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_distribution.html', {'form': form, 'distribution': distribution})
 
 
