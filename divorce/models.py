@@ -27,11 +27,6 @@ class Marriage(models.Model):
     #limit_choices_to= {'service_user': service_user}
 
     def __str__(self):
-        print(self.date_of_marriage_registration)
-        print(self.service_user)
-        print(self.service_user_id)
-        print(dir(self.parties))
-        print(self.parties.values())
         list_to_display = list(self.parties.all())
         print(list(self.parties.all()))
         if len(list_to_display) == 2:

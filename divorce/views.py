@@ -178,6 +178,7 @@ class FizLFormView(LoginRequiredMixin, View):
                 print(f'проверки пройдены - {links}')
                 user_dict = {'service_user_id': request.user.id}
                 form.cleaned_data.update(user_dict)
+                form.save()
                 temp = form.save(commit=False)
                 temp.service_user_id = form.cleaned_data['service_user_id']
                 temp.save()
@@ -238,6 +239,7 @@ class MarriageFormView(LoginRequiredMixin, View):
                 print(f'проверки пройдены - {links}')
                 user_dict = {'service_user_id': request.user.id}
                 form.cleaned_data.update(user_dict)
+                form.save()
                 temp = form.save(commit=False)
                 temp.service_user_id = form.cleaned_data['service_user_id']
                 print(form.cleaned_data)
@@ -287,6 +289,7 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
             print(date_of_divorce)
             user_dict = {'service_user_id': request.user.id}
             form.cleaned_data.update(user_dict)
+            form.save()
             temp = form.save(commit=False)
             temp.service_user_id = form.cleaned_data['service_user_id']
             temp.save()
@@ -417,6 +420,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
+                form.save()
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -465,6 +469,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
+                form.save()
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -529,6 +534,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
+                form.save()
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -576,6 +582,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
+                form.save()
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -650,6 +657,7 @@ class DistributionFormView(LoginRequiredMixin, View):
             # данные перед сохранением, но до обработки бизнес-логикой
             print(form.cleaned_data)
             form.cleaned_data.update(user_dict)
+            form.save()
             temp = form.save(commit=False)
             temp.service_user_id = form.cleaned_data['service_user_id']
             temp.save()
