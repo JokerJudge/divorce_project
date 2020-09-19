@@ -30,6 +30,15 @@
                     <div class="card mb-3">
                         <div class="card-body text-center">
                             <h3 class="text-center">Физ. лица
+                                <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton">
+                                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                    </button>
+                                    <script type="text/javascript">
+                                        document.getElementById("myButton").onclick = function () {
+                                        location.href = "{% url 'form_add_fiz_l' %}";
+                                        };
+                                    </script>
+                                <!--
                                 {% if not property_raw %}
                                     <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton">
                                         <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -40,6 +49,7 @@
                                         };
                                     </script>
                                 {% endif %}
+                                -->
                             </h3>
                             <hr/>
 
@@ -73,6 +83,15 @@
                     <div class="card mb-3">
                         <div class="card-body text-center">
                             <h3 class="text-center">Брак
+                                <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
+                                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                    </button>
+                                    <script type="text/javascript">
+                                        document.getElementById("myButton2").onclick = function () {
+                                            location.href = "{% url 'form_add_marriage' %}";
+                                        };
+                                    </script>
+                                <!--
                                 {% if not property_raw %}
                                     <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
                                         <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -83,6 +102,7 @@
                                         };
                                     </script>
                                 {% endif %}
+                                -->
                             </h3>
 
                             <hr/>

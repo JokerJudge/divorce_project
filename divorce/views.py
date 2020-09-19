@@ -6,6 +6,7 @@ import datetime
 import pickle
 from django.http import HttpResponse, HttpRequest
 from .models import Fiz_l, Marriage, Property, Distribution
+from django.contrib.auth.models import User
 from .forms import Fiz_l_form, Marriage_form, Marriage_form_divorce, Property_form, Distribution_form
 from divorce.law.marriage import marriage_law, person_edit_check
 from divorce.law.property import form_1_processing, to_ownership, clean_coowners,\
@@ -23,8 +24,11 @@ class DivorceView(View):
                 cache.delete('money_sum_initial')
                 cache.delete('distribution_property_initial')
             # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
-            property_to_display = ownership_to_display(Property.objects.all())
-            distribution = Distribution.objects.all()
+            #property_to_display = ownership_to_display(Property.objects.all())
+            property_to_display = ownership_to_display(Property.objects.filter(service_user_id=request.user.id))
+            #distribution = Distribution.objects.all()
+            distribution = Distribution.objects.filter(service_user_id=request.user.id)
+            print(request.user.id)
             distribution_names = {}
             distribution_property_str = {}
             money_sum_str = {}
@@ -37,15 +41,15 @@ class DivorceView(View):
                 #print(distribution_property)
                 # подсчитываем общее количество денег по имуществу
                 money_sum, after_break_up = sum_money(distribution_property, distribution_names)
-                print()
-                print('property_to_display')
-                print(property_to_display)
-                print()
-                print('money_sum')
-                print(money_sum)
-                print()
-                print('distribution_property')
-                print(distribution_property)
+                # print()
+                # print('property_to_display')
+                # print(property_to_display)
+                # print()
+                # print('money_sum')
+                # print(money_sum)
+                # print()
+                # print('distribution_property')
+                # print(distribution_property)
                 # делаем читабельными цифры в представлении
                 property_to_display = digits_to_readable_property_list(property_to_display)
                 distribution_property_str = digits_to_readable_distribution_property(distribution_property)
@@ -58,12 +62,12 @@ class DivorceView(View):
             request.session['num_visits'] = num_visits + 1
 
             counter = Counter()
-            context = {'fiz_l_list': Fiz_l.objects.all(),
-                       'marriages_list': Marriage.objects.all(),
-                       'property_raw': Property.objects.all(),
+            context = {'fiz_l_list': Fiz_l.objects.filter(service_user_id=request.user.id),
+                       'marriages_list': Marriage.objects.filter(service_user_id=request.user.id),
+                       'property_raw': Property.objects.filter(service_user_id=request.user.id),
                        'property_list': property_to_display,
                        'counter': counter,
-                       'distribution_list': Distribution.objects.all(),
+                       'distribution_list': Distribution.objects.filter(service_user_id=request.user.id),
                        'distribution_property': distribution_property_str,
                        'distribution_names': distribution_names,
                        'money_sum': money_sum_str,
@@ -78,8 +82,10 @@ class DivorceView(View):
                 change_to_private_after_break_up = True
             else:
                 distribution_to = request.path.split('/')[-1]
-            property_to_display = ownership_to_display(Property.objects.all())
-            distribution = Distribution.objects.all()
+            #property_to_display = ownership_to_display(Property.objects.all())
+            property_to_display = ownership_to_display(Property.objects.filter(service_user_id=request.user.id))
+            #distribution = Distribution.objects.all()
+            distribution = Distribution.objects.filter(service_user_id=request.user.id)
             distribution_names = {}
             distribution_property = {}
             money_sum_str = {}
@@ -112,15 +118,15 @@ class DivorceView(View):
                 money_sum_initial = cache.get('money_sum_initial')
                 money_sum, after_break_up = sum_money(distribution_property_changed, distribution_names, property_id, money_sum_initial, change_to_private_after_break_up)
                 money_sum_initial.update(after_break_up)
-                print()
-                print('property_to_display')
-                print(property_to_display)
-                print()
-                print('money_sum')
-                print(money_sum)
-                print()
-                print('distribution_property_changed')
-                print(distribution_property_changed)
+                # print()
+                # print('property_to_display')
+                # print(property_to_display)
+                # print()
+                # print('money_sum')
+                # print(money_sum)
+                # print()
+                # print('distribution_property_changed')
+                # print(distribution_property_changed)
                 # делаем читабельными цифры в представлении
                 property_to_display = digits_to_readable_property_list(property_to_display)
                 distribution_property_changed_str = digits_to_readable_distribution_property(distribution_property_changed)
@@ -134,12 +140,12 @@ class DivorceView(View):
             request.session['num_visits'] = num_visits + 1
 
             counter = Counter()
-            context = {'fiz_l_list': Fiz_l.objects.all(),
-                       'marriages_list': Marriage.objects.all(),
-                       'property_raw': Property.objects.all(),
+            context = {'fiz_l_list': Fiz_l.objects.filter(service_user_id=request.user.id),
+                       'marriages_list': Marriage.objects.filter(service_user_id=request.user.id),
+                       'property_raw': Property.objects.filter(service_user_id=request.user.id),
                        'property_list': property_to_display,
                        'counter': counter,
-                       'distribution_list': Distribution.objects.all(),
+                       'distribution_list': Distribution.objects.filter(service_user_id=request.user.id),
                        'distribution_property': distribution_property_changed_str,
                        'distribution_names': distribution_names,
                        'money_sum': money_sum_str,
@@ -170,7 +176,11 @@ class FizLFormView(LoginRequiredMixin, View):
             if resolution is True:
                 links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
-                form.save()
+                user_dict = {'service_user_id': request.user.id}
+                form.cleaned_data.update(user_dict)
+                temp = form.save(commit=False)
+                temp.service_user_id = form.cleaned_data['service_user_id']
+                temp.save()
                 return redirect('/divorce')
             else:
                 errors = {
@@ -226,7 +236,12 @@ class MarriageFormView(LoginRequiredMixin, View):
             if resolution is True:
                 links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
                 print(f'проверки пройдены - {links}')
-                form.save()
+                user_dict = {'service_user_id': request.user.id}
+                form.cleaned_data.update(user_dict)
+                temp = form.save(commit=False)
+                temp.service_user_id = form.cleaned_data['service_user_id']
+                print(form.cleaned_data)
+                temp.save()
                 return redirect('/divorce')
             else:
                 errors = {
@@ -270,7 +285,11 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
                     return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage, 'errors': errors})
             print(marriage)
             print(date_of_divorce)
-            form.save()
+            user_dict = {'service_user_id': request.user.id}
+            form.cleaned_data.update(user_dict)
+            temp = form.save(commit=False)
+            temp.service_user_id = form.cleaned_data['service_user_id']
+            temp.save()
             return redirect('/divorce')
         else:
             return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage})
@@ -387,6 +406,8 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
             form_2 = request.POST
             # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
             ownership, list_of_links, for_child = to_ownership(form_full)
+            # определяем пользователя, который добавляет имущество
+            user_dict = {'service_user_id': request.user.id}
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
@@ -395,6 +416,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
+                form.cleaned_data.update(user_dict)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -402,6 +424,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
+                temp.service_user_id = form.cleaned_data['service_user_id']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
                 temp.save()
@@ -432,6 +455,8 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
+            # определяем пользователя, который добавляет имущество
+            user_dict = {'service_user_id': request.user.id}
             #form = Property_form(form_example)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
                 # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
@@ -439,6 +464,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
+                form.cleaned_data.update(user_dict)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -446,6 +472,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
+                temp.service_user_id = form.cleaned_data['service_user_id']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
                 temp.save()
@@ -493,12 +520,15 @@ class PropertyForm2mView(LoginRequiredMixin, View):
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
+            # определяем пользователя, который добавляет имущество
+            user_dict = {'service_user_id': request.user.id}
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
                 # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
+                form.cleaned_data.update(user_dict)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -506,6 +536,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
+                temp.service_user_id = form.cleaned_data['service_user_id']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
                 temp.save()
@@ -536,12 +567,15 @@ class PropertyForm2mView(LoginRequiredMixin, View):
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
+            # определяем пользователя, который добавляет имущество
+            user_dict = {'service_user_id': request.user.id}
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
                 # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
+                form.cleaned_data.update(user_dict)
                 # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
                 # ручками сохранить конкретную строку
                 temp = form.save(commit=False)
@@ -549,6 +583,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
                 temp.after_break_up = form.cleaned_data['after_break_up']
                 temp.ownership = form.cleaned_data['ownership']
+                temp.service_user_id = form.cleaned_data['service_user_id']
                 pick_own = pickle.dumps(form.cleaned_data['ownership'])
                 temp.ownership_b = pick_own
                 temp.save()
@@ -609,11 +644,15 @@ class DistributionFormView(LoginRequiredMixin, View):
             distribution = Distribution.objects.get(pk=id)  # получаем по id нужный объект
             form = Marriage_form(request.POST, instance=distribution)  # distribution будет изменен новой формой request.POST
 
+        user_dict = {'service_user_id': request.user.id}
         if form.is_valid():
             print('+++++++++++cleaned_data+++++++++++++++++++')
             # данные перед сохранением, но до обработки бизнес-логикой
             print(form.cleaned_data)
-            form.save()
+            form.cleaned_data.update(user_dict)
+            temp = form.save(commit=False)
+            temp.service_user_id = form.cleaned_data['service_user_id']
+            temp.save()
             return redirect('/divorce')
 
         # если есть проблемы с формой - ValueError из forms.py
