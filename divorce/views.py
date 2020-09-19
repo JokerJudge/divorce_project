@@ -312,10 +312,13 @@ class PropertyFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
         if id == 0:
             form = Property_form()  # пустая форма
+            # фильтруем только актуальные для пользователя варианты
+            form.fields['obtaining_person'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_property_1.html', {'form': form})
         else:  # update operation
             property = Property.objects.get(pk=id)
             form = Property_form(instance=property)  # заполненная имеющимися данными форма
+            form.fields['obtaining_person'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property, 'id': id})
 
     def post(self, request, id=0):
@@ -374,6 +377,7 @@ class PropertyFormView(LoginRequiredMixin, View):
                     #return redirect(f'/divorce/form_property_2_m/{id}')
         # если есть проблемы с формой - ValueError из forms.py
         else:
+            form.fields['obtaining_person'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
             return render(request, 'divorce/form_property_1.html', {'form': form, 'property': property})
 
 def del_property(request, property_id):

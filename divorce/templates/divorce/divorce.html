@@ -73,15 +73,6 @@
                     <div class="card mb-3">
                         <div class="card-body text-center">
                             <h3 class="text-center">Брак
-                                <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
-                                        <i class="fa fa-user-plus" aria-hidden="true"></i>
-                                    </button>
-                                    <script type="text/javascript">
-                                        document.getElementById("myButton2").onclick = function () {
-                                            location.href = "{% url 'form_add_marriage' %}";
-                                        };
-                                    </script>
-                                <!--
                                 {% if not property_raw %}
                                     <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
                                         <i class="fa fa-user-plus" aria-hidden="true"></i>
@@ -92,7 +83,6 @@
                                         };
                                     </script>
                                 {% endif %}
-                                -->
                             </h3>
 
                             <hr/>
@@ -102,19 +92,6 @@
                                 <li class="list-group-item">{{ marriage }}.
                                     Зарегистрирован: <span class="badge badge-pill badge-info">{{ marriage.date_of_marriage_registration }}</span>
                                     <br>
-                                    <form action="{% url 'delete_marriage' marriage.id %}" method="post" class="float-right d-inline">
-                                            {% csrf_token %}
-                                        <button type="submit" class="close text-danger" aria-label="Close"><span aria-hidden="false">&times;</span></button>
-                                    </form>
-                                    <a href="{% url 'marriage_update' marriage.id %}" class="btn text-secondary float-right">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                    {% if marriage.date_of_marriage_divorce is None %}
-                                    <a href="{% url 'marriage_divorce' marriage.id %}" class="btn btn-outline-danger btn-sm m-1">
-                                        Расторгнуть брак
-                                    </a>
-                                    {% endif %}
-                                    <!--
                                     {% if not property_raw %}
                                         <form action="{% url 'delete_marriage' marriage.id %}" method="post" class="float-right d-inline">
                                             {% csrf_token %}
@@ -129,7 +106,6 @@
                                         </a>
                                         {% endif %}
                                     {% endif %}
-                                    -->
                                     {% if marriage.date_of_marriage_divorce %}
                                         Расторгнут: <span class="badge badge-pill badge-danger">{{ marriage.date_of_marriage_divorce }}</span>
                                     {% endif %}
