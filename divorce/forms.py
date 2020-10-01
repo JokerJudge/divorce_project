@@ -1,6 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError #№7 25:25, 36:07, 43:33
 from django.forms import ModelMultipleChoiceField
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 import datetime
 
@@ -38,6 +40,7 @@ class Marriage_form(forms.ModelForm):
 
     class Meta:
         model = Marriage
+
         # можно fields = '__all__'
         fields = ('date_of_marriage_registration', 'parties', 'date_of_marriage_divorce', 'date_of_break_up',)
         labels = {
@@ -199,3 +202,38 @@ class Distribution_form(forms.ModelForm):
             raise ValidationError('Нужно выбрать 2 лица')
         else:
             return parties
+
+class SignUpForm(UserCreationForm):
+    username = forms.CharField(max_length=150, required=True, label='Логин', help_text='Обязательное поле')
+    first_name = forms.CharField(max_length=30, required=False, label='Имя', help_text='Не обязательно')
+    last_name = forms.CharField(max_length=30, required=False, label='Фамилия', help_text='Не обязательно')
+    email = forms.EmailField(max_length=254, required=True, help_text='Обязательное поле. Необходим действительный e-mail адрес.')
+    password1 = forms.CharField(label='Пароль', help_text='Пароль должен содержать не менее 8 символов и не должен быть исключительно числовой')
+    password2 = forms.CharField(label='Подтвердите пароль', help_text='Укажите пароль еще раз.')
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
+
+        labels = {
+            'username': 'Логин',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'E-mail',
+            'password1': 'Пароль',
+            'password2': 'Подтвердите пароль'
+        }
+        widgets = {
+            'username': forms.TextInput(),
+            'first_name': forms.TextInput(),
+            'last_name': forms.TextInput(),
+            'email': forms.EmailInput(),
+            'password1': forms.PasswordInput(),
+            'password2': forms.PasswordInput()
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Этот email ранее уже указывался на этом сайте")
+        return email

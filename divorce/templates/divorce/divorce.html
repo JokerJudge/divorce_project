@@ -40,11 +40,8 @@
                                         };
                                     </script>
                                 {% endif %}
-
                             </h3>
                             <hr/>
-
-                            <br/>
 
                             <ul class="list-group text-left">
                                 {% for fiz_l in fiz_l_list %}
@@ -75,6 +72,7 @@
                         <div class="card-body text-center">
                             <h3 class="text-center">Брак
                                 {% if not property_raw %}
+                                    {% if fiz_l_list %}
                                     <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton2">
                                         <i class="fa fa-user-plus" aria-hidden="true"></i>
                                     </button>
@@ -83,6 +81,7 @@
                                             location.href = "{% url 'form_add_marriage' %}";
                                         };
                                     </script>
+                                    {% endif %}
                                 {% endif %}
                             </h3>
 
@@ -110,8 +109,6 @@
                                     {% if marriage.date_of_marriage_divorce %}
                                         Расторгнут: <span class="badge badge-pill badge-danger">{{ marriage.date_of_marriage_divorce }}</span>
                                     {% endif %}
-
-
                                 </li>
                                 {% empty %}
                                 <li class="list-group-item">
@@ -128,14 +125,16 @@
                     <div class="card mb-3">
                         <div class="card-body text-center">
                             <h3 class="text-center">Имущество
-                            <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton3">
+                                {% if marriages_list %}
+                                <button type="button" class="btn btn-outline-primary btn-sm m-1 float-right" id="myButton3">
                                 <i class="fa fa-plus-square" aria-hidden="true"></i>
-                            </button>
-                            <script type="text/javascript">
-                                document.getElementById("myButton3").onclick = function () {
-                                    location.href = "{% url 'form_add_property_1' %}";
-                                };
-                            </script>
+                                </button>
+                                <script type="text/javascript">
+                                    document.getElementById("myButton3").onclick = function () {
+                                        location.href = "{% url 'form_add_property_1' %}";
+                                    };
+                                </script>
+                                {% endif %}
                             </h3>
                             <hr/>
                             <ul class="list-group text-left">
@@ -228,6 +227,9 @@
         <section>
             <div class="row justify-content-center">
                 <div class="col-12 text-center" id="to_scroll">
+                    <!--
+                    <p>Вы посетили эту страницу {{ num_visits }}{% if num_visits == 1 %} раз {% else %} раза {% endif %}</p>
+                    -->
                     {% for distribution in distribution_list %}
                     <h4>{{ distribution }}
                         <form action="{% url 'delete_distribution' distribution.id %}" method="post" class="float-right d-inline">

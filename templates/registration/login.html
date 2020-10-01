@@ -1,0 +1,54 @@
+{% extends 'divorce/base.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6">
+                <br/>
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                    <p>Ваш логин или пароль неверны. Попробуйте еще раз.</p>
+                    </div>
+                {% endif %}
+                {% if next %}
+                    {% if user.is_authenticated %}
+                        <p>Your account doesn't have access to this page. To proceed,
+                            please login with an account that has access.</p>
+                    {% else %}
+                        <p>Пожалуйста, залогиньтесь, чтобы получить доступ к этой странице</p>
+                    {% endif %}
+                {% endif %}
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <table class="table table-borderless">
+                        <thead>
+                            <h5>Для авторизации введите Ваш логин и пароль</h5>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="mr-3">Логин: </td>
+                                <td>{{ form.username }}</td>
+                            </tr>
+                                <tr>
+                                <td class="mr-3">Пароль: </td>
+                                <td>{{ form.password }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="submit" value="Войти" class="btn btn-primary" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </form>
+
+                {# Assumes you setup the password_reset view in your URLconf #}
+                <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
