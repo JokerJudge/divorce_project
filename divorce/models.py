@@ -2,7 +2,6 @@ from django.db import models
 from divorce.law.links_and_texts import PURCHASE_TYPE_CHOICES, TYPES_OF_PROPERTY_CHOICES
 from django.contrib.auth.models import User
 
-# Create your models here.
 class Fiz_l(models.Model):
     sex_choices = [('М', 'Мужской'), ('Ж', 'Женский')]
 
@@ -10,21 +9,16 @@ class Fiz_l(models.Model):
     date_of_birth = models.DateField(default='2020-1-1')
     sex = models.CharField(max_length=1, choices=sex_choices)
     service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    #marriages = models.ManyToManyField('Marriage', blank=True, related_name='parties')
 
     def __str__(self):
         return self.name
 
 class Marriage(models.Model):
-    #party_m = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
-    #party_f = models.ForeignKey(Fiz_l, on_delete=models.CASCADE)
     date_of_marriage_registration = models.DateField(default='2020-1-1')
     date_of_marriage_divorce = models.DateField(blank=True, null=True)
     date_of_break_up = models.DateField(blank=True, null=True)
     service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     parties = models.ManyToManyField('Fiz_l', blank=True, related_name='marriages')
-    #service_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    #limit_choices_to= {'service_user': service_user}
 
     def __str__(self):
         list_to_display = list(self.parties.all())

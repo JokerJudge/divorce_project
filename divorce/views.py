@@ -15,7 +15,6 @@ from divorce.law.property import form_1_processing, to_ownership, clean_coowners
     ownership_to_display, filter_for_distribution, transform_into_money, sum_money, change_distribution_property
 from divorce.law.utils import Counter, digits_to_readable_property_list, digits_to_readable_distribution_property, digits_to_readable_money_sum
 
-# Create your views here.
 # Представление для основной страницы
 class DivorceView(View):
     def get(self, request, property_id=0):
@@ -26,7 +25,6 @@ class DivorceView(View):
                 cache.delete('money_sum_initial')
                 cache.delete('distribution_property_initial')
             # преобразовываем данные из БД в формат для вывода в divorce.html в колонке имущество
-            #property_to_display = ownership_to_display(Property.objects.all())
             property_to_display = ownership_to_display(Property.objects.filter(service_user_id=request.user.id))
             distribution = Distribution.objects.filter(service_user_id=request.user.id)
             distribution_names = {}
@@ -72,9 +70,7 @@ class DivorceView(View):
                 change_to_private_after_break_up = True
             else:
                 distribution_to = request.path.split('/')[-1]
-            #property_to_display = ownership_to_display(Property.objects.all())
             property_to_display = ownership_to_display(Property.objects.filter(service_user_id=request.user.id))
-            #distribution = Distribution.objects.all()
             distribution = Distribution.objects.filter(service_user_id=request.user.id)
             distribution_names = {}
             distribution_property = {}
@@ -302,8 +298,6 @@ class PropertyFormView(LoginRequiredMixin, View):
             form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
 
         if form.is_valid():
-            #print('+++++++++++cleaned_data+++++++++++++++++++')
-            #print(form.cleaned_data)
             # кэшируем полученные данные
             cache.set('form_1', form.cleaned_data)
             # обработка формы № 1
@@ -321,9 +315,8 @@ class PropertyFormView(LoginRequiredMixin, View):
                     return redirect('/divorce/form_property_2_nm')
                 else:
                     return redirect(f'/divorce/form_property_2_nm/{id}')
-                #return render(request, 'divorce/form_property_2_nm.html', {'form': form, 'property': property, 'form_1': form_1})
             else:
-                # вытаскиваем из брака родителей, которые необходимы, чтобы ответить на вопрос № 2 формы № 2
+                # получаем из брака родителей, которые необходимы, чтобы ответить на вопрос № 2 формы № 2
                 list_of_parties = list(marriage.parties.all())
                 parents = {}
                 for i in list_of_parties:
@@ -346,7 +339,6 @@ class PropertyFormView(LoginRequiredMixin, View):
                                   {'form_1_processed_data': form_1_processed_data,
                                    'form_1': form.cleaned_data,
                                    'parents': parents})
-                    #return redirect(f'/divorce/form_property_2_m/{id}')
         # если есть проблемы с формой - ValueError из forms.py
         else:
             form.fields['obtaining_person'].queryset = Fiz_l.objects.filter(service_user_id=request.user.id)
@@ -381,28 +373,26 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                     return render(request, 'divorce/form_property_2_nm.html', {'errors': errors})
 
             # если всё хорошо:
-            # грузим из кэша форму № 1 и обработанную форму
+            # выгружаем из кэша форму № 1 и обработанную форму
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             # для сохранения в БД
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
             # готовим форму № 2 к работе
             form_2 = request.POST
-            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
             ownership, list_of_links, for_child = to_ownership(form_full)
             # определяем пользователя, который добавляет имущество
             user_dict = {'service_user_id': request.user.id}
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
-                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                # обновляем словарь cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
                 form.save()
-                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
-                # ручками сохранить конкретную строку
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
@@ -429,29 +419,26 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 else:
                     return render(request, f'divorce/form_property_2_nm.html', {'errors': errors})
             # если всё хорошо:
-            # грузим из кэша форму № 1 и обработанную форму
+            # выгружаем из кэша форму № 1 и обработанную форму
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             # для сохранения в БД
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
             # готовим форму № 2 к работе
             form_2 = request.POST
-            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             # определяем пользователя, который добавляет имущество
             user_dict = {'service_user_id': request.user.id}
-            #form = Property_form(form_example)
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
-                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                # обновляем словарь cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
                 form.save()
-                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
-                # ручками сохранить конкретную строку
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
@@ -481,7 +468,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
             return render(request, 'divorce/form_property_2_m.html', {'form': form, 'property': property})
 
     def post(self, request, id=0):
-        # Вытаскиваем из кэша id, если у нас идет процедура внесения изменений
+        # Выгружаем из кэша id, если у нас идет процедура внесения изменений
         if cache.get('id') != None:
             id = cache.get('id')
         if id == 0:  # если данные пока не записаны в БД
@@ -489,7 +476,6 @@ class PropertyForm2mView(LoginRequiredMixin, View):
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
 
-            #if 'coowners' in request.POST:
             # проверка на сособственников (помимо супругов)
             # + проверка на правильность заполнения полей с долями (валидация долей)
             errors = clean_coowners(request.POST)
@@ -501,22 +487,20 @@ class PropertyForm2mView(LoginRequiredMixin, View):
 
             # готовим форму № 2 к работе
             form_2 = request.POST
-            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full)
             # определяем пользователя, который добавляет имущество
             user_dict = {'service_user_id': request.user.id}
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
-                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                # обновляем словарь cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
                 form.save()
-                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
-                # ручками сохранить конкретную строку
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
@@ -538,7 +522,6 @@ class PropertyForm2mView(LoginRequiredMixin, View):
             parents = cache.get('parents')
             # объединяем форму № 1, обработанную форму № 1, форму № 2 (request.POST) и self.ownership в form
             form_full, form_1, form_1_processed_data = merging_forms(request.POST)
-            #form = Property_form(request.POST, instance=property)  # property будет изменен новой формой request.POST
 
             errors = clean_coowners(request.POST)
             if errors:
@@ -549,22 +532,20 @@ class PropertyForm2mView(LoginRequiredMixin, View):
 
             # готовим форму № 2 к работе
             form_2 = request.POST
-            # TODO - готовим self.ownership (доделывать по мере заполнения видов имущества)
             ownership, list_of_links, for_child = to_ownership(form_full)
             # создаем новую форму, которая будет записана в БД
             form = Property_form(form_full, instance=property)  # property будет изменен новой формой request.POST
             # определяем пользователя, который добавляет имущество
             user_dict = {'service_user_id': request.user.id}
             if form.is_valid(): # нужно обязательно вызвать метод is_valid - без него не появится словарь cleaned_data
-                # обновляем руками словать cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
+                # обновляем словарь cleaned_data, так как часть сведений не валидировалась из формы, а получена из кэша
                 form.cleaned_data.update(form_1_processed_data)
                 form.cleaned_data.update(form_2)
                 form.cleaned_data.update(ownership)
                 form.cleaned_data.update(for_child)
                 form.cleaned_data.update(user_dict)
                 form.save()
-                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно
-                # ручками сохранить конкретную строку
+                # Так как в форме type_of_property не валидировалась, то чтобы её записать в БД, нужно сохранить конкретную строку
                 temp = form.save(commit=False)
                 temp.type_of_property = form.cleaned_data['type_of_property']
                 temp.for_child_accomodation = form.cleaned_data['child_accomodation']
@@ -588,13 +569,13 @@ def merging_forms(form: dict):
     :param form: request.POST (формы 2)
     :return: соединенный словарь, кэшированная form_1 и кэшированная form_1_processed_data
     '''
-    # грузим из кэша форму № 1 и обработанную форму
+    # выгружаем из кэша форму № 1 и обработанную форму
     form_1 = cache.get('form_1')
     form_1_processed_data = cache.get('form_1_processed_data')
 
     # готовим форму № 2 к работе
     form_2 = form
-    # сливаем всё в один словарь
+    # соединяем всё в один словарь
     form_example = form_1.copy()
     form_example.update(form_1_processed_data)
     form_example.update(form_2)
@@ -650,10 +631,7 @@ class SignUpView(View):
 
     def post(self, request):
         form = SignUpForm(request.POST)
-        print(form)
-        print(form.errors)
         if form.is_valid():
-            print(form.cleaned_data)
             user = User.objects.create_user('myusername', 'myemail@test.com', 'mypassword')
             user.username = form.cleaned_data.get('username')
             user.first_name = form.cleaned_data.get('first_name')
@@ -670,33 +648,4 @@ class SignUpView(View):
         else:
             return render(request, 'registration/signup.html', {'form': form})
 
-########################################################
-# def fiz_l_form_add(request, id=0):
-#     if request.method == "GET":
-#         if id == 0: #insert operation
-#             form = Fiz_l_form() # пустая форма
-#             return render(request, 'divorce/form_fiz_l.html', {'form': form})
-#         else: #update operation
-#             person = Fiz_l.objects.get(pk=id)
-#             form = Fiz_l_form(instance=person) # заполненная имеющимися данными форма
-#             return render(request, 'divorce/form_fiz_l.html', {'form': form})
-#
-#     else:
-#         if id == 0: # если данные пока не записаны в БД
-#             form = Fiz_l_form(request.POST)
-#         else:
-#             person = Fiz_l.objects.get(pk=id) # получаем по id нужный объект
-#             form = Fiz_l_form(request.POST, instance=person) #person будет изменен новой формой request.POST
-#         if form.is_valid():
-#             form.save()
-#             return redirect('/divorce')
-
-# def add_person(request:HttpRequest):
-#     # прочитать из input
-#     # content = request.POST['name']
-#     # create model for ORM
-#     # создать конструктор
-#     fiz_l = Fiz_l(name = request.POST['name'])
-#     fiz_l.save()
-#     return redirect('/divorce')
 

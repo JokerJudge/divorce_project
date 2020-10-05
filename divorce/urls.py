@@ -24,6 +24,3 @@ urlpatterns = [
     path('<int:property_id>/person_1', DivorceView.as_view(), name='convert_to_dolevaya'),
     path('signup/', SignUpView.as_view(), name='signup'),
 ]
-
-#path('add_person/', add_person, name='add_person'),
-#path('form_fiz_l/', fiz_l_form_add, name='form_add'),

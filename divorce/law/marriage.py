@@ -8,7 +8,6 @@ from .links_and_texts import *
 на соответствие брака необходимым требованиям
 '''
 
-#третий вариант основной функции
 def marriage_law(person_1: Fiz_l,
         person_2: Fiz_l,
         date_of_marriage_registration: datetime.date,
@@ -96,7 +95,6 @@ def sex_verification(person_1: Fiz_l, person_2: Fiz_l):
 def age_verification(person_1: Fiz_l, person_2: Fiz_l, date_of_marriage_registration: datetime.date):
     '''
     Проверка на достижение лицами брачного возраста
-    #TODO - законами субъекта может быть установлен более ранний брачный возраст
     :param person_1: лицо № 1
     :param person_2: лицо № 2
     :param date_of_marriage_registration: дата заключения брака
