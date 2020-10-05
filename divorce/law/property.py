@@ -1540,7 +1540,7 @@ def to_ownership(form_full: dict):
                                 'совместные сособственники': husband,
                                 'совместная доля': 1}
                 list_of_links.append(to_link('sozdanie_imushestva'))
-                list_of_links.append(to_link('common_property_sovmastnaya'))
+                #list_of_links.append(to_link('common_property_sovmastnaya'))
 
         # обрабатываем вариант, где выбран "Подарок"
         if form_full['purchase_type'] == ['purchase_type_present']:
