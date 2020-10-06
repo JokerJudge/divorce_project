@@ -8,7 +8,6 @@ class TestUrls(SimpleTestCase):
 
     def test_main_is_resolved(self):
         url = reverse('main')
-        print(resolve(url))
         self.assertEquals(resolve(url).func.view_class, DivorceView)
 
     # если аргументы обязательны - нужно указать в параметрах reverse необходимые аргумент (например, любой int)
