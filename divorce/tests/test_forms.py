@@ -22,14 +22,11 @@ class TestForms(TestCase):
         })
         self.assertTrue(form.has_error('date_of_birth'))
 
-        # print(form.has_error('date_of_birth'))
-        # print(form['date_of_birth'].value())
-
     def test_clean_marriage_parties_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -40,13 +37,12 @@ class TestForms(TestCase):
         })
 
         self.assertTrue(form.is_valid())
-        #self.assertTrue(form.has_error('date_of_birth'))
 
     def test_clean_marriage_parties_invalid_lack_of_parties(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -59,10 +55,10 @@ class TestForms(TestCase):
         self.assertTrue(form.has_error('parties'))
 
     def test_clean_marriage_date_of_marriage_divorce_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -75,10 +71,10 @@ class TestForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_marriage_date_of_marriage_divorce_invalid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -91,10 +87,10 @@ class TestForms(TestCase):
         self.assertTrue(form.has_error('date_of_marriage_divorce'))
 
     def test_clean_marriage_date_of_break_up_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -108,10 +104,10 @@ class TestForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_marriage_date_of_break_up_invalid_earlier(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -126,10 +122,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_clean_marriage_date_of_break_up_invalid_later(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -144,10 +140,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_clean_marriage_form_divorce_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
         self.marriage_1 = Marriage.objects.create(
@@ -164,10 +160,10 @@ class TestForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_marriage_form_divorce_invalid_later(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
         self.marriage_1 = Marriage.objects.create(
@@ -185,7 +181,7 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_clean_property_date_of_purchase_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
 
@@ -200,7 +196,7 @@ class TestForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_property_date_of_purchase_invalid_earlier(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
 
@@ -216,7 +212,7 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_clean_property_date_of_purchase_invalid_later(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
 
@@ -232,10 +228,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_clean_distribution_parties_valid(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 
@@ -246,10 +242,10 @@ class TestForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_clean_distribution_parties_invalid_lack_of_parties(self):
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М')
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж')
 

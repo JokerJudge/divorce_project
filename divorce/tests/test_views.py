@@ -12,11 +12,11 @@ class TestViews(TestCase):
         self.user = User.objects.create_user(username='django_test_user',
                                              password='password',
                                              email='jdsjks@mail.ru')
-        self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
+        self.fiz_l_1 = Fiz_l.objects.create(name='Петр',
                                             date_of_birth='1988-4-2',
                                             sex='М',
                                             service_user=self.user)
-        self.fiz_l_2 = Fiz_l.objects.create(name='Анка',
+        self.fiz_l_2 = Fiz_l.objects.create(name='Анна',
                                             date_of_birth='1990-6-12',
                                             sex='Ж',
                                             service_user=self.user)
@@ -262,7 +262,6 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 302)
         marriage = list(Marriage.objects.filter(date_of_marriage_registration=datetime.date(2018, 4, 3)))
         self.assertEquals(len(marriage), 1)
-        #marriage = list(Marriage.objects.filter(parties__name='Анка'))
 
     def test_marriage_update_POST(self):
         self.client.login(username='django_test_user', password='password')
