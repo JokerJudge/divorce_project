@@ -10,8 +10,8 @@ class TestViews(TestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(username='django_test_user',
-                                        password='password',
-                                        email='jdsjks@mail.ru')
+                                             password='password',
+                                             email='jdsjks@mail.ru')
         self.fiz_l_1 = Fiz_l.objects.create(name='Петька',
                                             date_of_birth='1988-4-2',
                                             sex='М',
