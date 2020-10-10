@@ -32,25 +32,6 @@ class NPA:
     def __str__(self):
         return self.short_title
 
-'''
-    def __init__(self,
-                 initial_date: datetime.date,
-                 number: str,
-                 title: str,
-                 type_of_act: str,
-                 short_title: str,
-                 office: str,
-                 area: str):
-        self.initial_date = initial_date
-        self.number = number
-        self.title = title
-        self.type_of_act = type_of_act
-        self.short_title = short_title
-        self.office = office
-        self.area = area
-        self.norms = []
-'''
-
 family_code = NPA(datetime.date(1995, 12, 29), '223-ФЗ', 'Семейный кодекс Российской Федерации', 'Кодекс', 'Семейный кодекс РФ', 'Семейного кодекса РФ', 'Государственная Дума РФ', 'Федеральный')
 
 @dataclass
@@ -65,19 +46,8 @@ class Link:
     link_name: str
     law_link: str
     law_text: str = field(repr=False)
-    #npa: NPA = field(repr=False, default=family_code)
     npa: NPA = field(repr=False)
     errors: List[str] = field(repr=False, init=False, default_factory=list)
 
     def __str__(self):
         return f'{self.law_link} {self.npa.short_title_for_link}'
-'''
-    def __init__(self, law_link: str, law_text: str, npa: NPA = family_code):
-        self.law_link = law_link
-        self.law_text = law_text
-        self.npa = npa
-        self.errors = []
-
-    def __str__(self):
-        return self.law_link
-'''

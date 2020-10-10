@@ -11,7 +11,6 @@ from .models import Fiz_l, Marriage, Property, Distribution
 class Fiz_l_form(forms.ModelForm):
     class Meta:
         model = Fiz_l
-        # можно fields = '__all__'
         fields = ('name', 'date_of_birth', 'sex')
         labels = {
             'name': 'Имя',
@@ -32,16 +31,13 @@ class Fiz_l_form(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(Fiz_l_form, self).__init__(*args, **kwargs)
-        self.fields['sex'].empty_label = 'Укажите пол' # почему-то не работает
-        # убрать обязательность поля
-        #self.fields['sex'].required = False
+        self.fields['sex'].empty_label = 'Укажите пол'
 
 class Marriage_form(forms.ModelForm):
 
     class Meta:
         model = Marriage
 
-        # можно fields = '__all__'
         fields = ('date_of_marriage_registration', 'parties', 'date_of_marriage_divorce', 'date_of_break_up',)
         labels = {
             'date_of_marriage_registration': 'Дата регистрации брака',
@@ -54,7 +50,6 @@ class Marriage_form(forms.ModelForm):
             'date_of_marriage_registration': forms.DateInput(),
             'parties': forms.CheckboxSelectMultiple(),
             'date_of_marriage_divorce': forms.DateInput(),
-            #'date_of_break_up': forms.SelectDateWidget(),
             'date_of_break_up': forms.DateInput(),
         }
 
@@ -75,7 +70,6 @@ class Marriage_form(forms.ModelForm):
         :return: отвалидированное значение date_of_marriage_divorce
         '''
         date_of_marriage_divorce = self.cleaned_data['date_of_marriage_divorce']
-        # если есть запись о date_of_marriage_divorce
         if date_of_marriage_divorce is not None:
             date_of_marriage_registration = self.cleaned_data['date_of_marriage_registration']
             if date_of_marriage_divorce <= date_of_marriage_registration:
@@ -122,20 +116,10 @@ class Marriage_form_divorce(forms.ModelForm):
         date_of_break_up = self.cleaned_data['date_of_break_up']
         date_of_marriage_divorce = self.cleaned_data['date_of_marriage_divorce']
         if date_of_break_up is not None and date_of_marriage_divorce is not None:
-            print()
-            print('++++++++++++!!!!!!!!!!!!!')
-            print('Я тут!!')
-            print()
             # date_of_marriage_registration = Marriage.objects.get() self.cleaned_data['date_of_marriage_registration']
             # if date_of_break_up <= date_of_marriage_registration:
             #     raise ValidationError('Прекращение отношений не может наступить ранее заключения брака')
-            print(date_of_marriage_divorce)
-            print(date_of_break_up)
             if date_of_marriage_divorce < date_of_break_up:
-                print()
-                print('++++++++++++!!!!!!!!!!!!!')
-                print('Теперь я тут!!')
-                print()
                 raise ValidationError('Прекращение отношений не может наступить позднее даты прекращения брака')
         return date_of_break_up
 

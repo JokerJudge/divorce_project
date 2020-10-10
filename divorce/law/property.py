@@ -7,7 +7,7 @@ from .law import *
 from .links_and_texts import *
 '''
 модуль делающий проверки в соответствии с законодательством РФ
-для добавления имущества в базу данных
+для добавления имущества в базу данных и работы с имуществом
 '''
 
 def form_1_processing(cleaned_data: dict):
@@ -21,11 +21,9 @@ def form_1_processing(cleaned_data: dict):
     указание на то, произошло ли приобретение имущества после фактического прекращения брачных отношений
     (after_break_up), список ссылок на НПА (list_of_links)
     '''
-    #name = cleaned_data['name']
     type_of_property_form = cleaned_data['type_of_property_form']
     date_of_purchase = cleaned_data['date_of_purchase']
     obtaining_person = cleaned_data['obtaining_person']
-    #price = cleaned_data['price']
 
     list_of_links = []
     # на основании введенного пользователем вида имущества - указываем вид имущества в соответствии со ст. 128 ГК РФ
@@ -55,7 +53,6 @@ def type_of_property_func(type_of_property_form):
         type_of_property = 'Исключительное право'
     elif type_of_property_form in OBJECTS_OF_CIVIL_LAW['INOE_IMUSHESTVO']:
         type_of_property = 'Иное имущество'
-    #лишний else
     else:
         type_of_property = None
     return type_of_property, link
@@ -122,7 +119,6 @@ def marriage_periods(obtaining_person: Fiz_l, date_of_purchase: datetime.date):
         return marriage, after_break_up, list_of_links
 
     # если браков нет - возвращается default значение
-        # TODO - можно отправлять форму № 2 и доп.вопросы, связанные с видом имущества
     return marriage, after_break_up, list_of_links
 
 class Period_of_time():
@@ -142,7 +138,6 @@ class Period_of_time():
     def __hash__(self):
         delta = self.end - self.start
         return hash(delta)
-        #return hash((self.start, self.end))
 
 
 def to_ownership(form_full: dict):
@@ -195,8 +190,6 @@ def to_ownership(form_full: dict):
         inheritance_dolya_znamenatel_husband = form_full['inheritance_dolya_znamenatel_husband'][0]
 
     period_of_time = Period_of_time(date_of_purchase, datetime.date(2050, 1, 1))
-    print('Хэш period_of_time')
-    print(hash(period_of_time))
 
 
     owners = {}
@@ -269,7 +262,6 @@ def to_ownership(form_full: dict):
                                                                        before_marriage_dolya_znamenatel_wife),
                                                         ostatok=True,
                                                         flag_ownership='ownership')
-                                print(dolya_dict)
 
                                 owners[wife] = {'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
                                                 'совместные сособственники': husband,
@@ -290,8 +282,6 @@ def to_ownership(form_full: dict):
                                                                 before_marriage_dolya_znamenatel_wife),
                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
                                     flag_ownership='ownership')
-
-                                print(dolya_dict)
 
                                 owners[wife] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
@@ -323,8 +313,6 @@ def to_ownership(form_full: dict):
                                     ostatok=True,
                                     flag_ownership='ownership')
 
-                                print(dolya_dict)
-
                                 owners[wife] = {
                                     'доля': 1,
                                     'совместные сособственники': None,
@@ -341,7 +329,6 @@ def to_ownership(form_full: dict):
                                     private_dolya_wife=(private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
                                     flag_ownership='ownership')
 
-                                print(dolya_dict)
                                 # необходимо сложить дроби личного имущества до брака и во время брака
                                 dolya_wife_chislitel = dolya_dict["before_marriage_dolya_wife"][0] + dolya_dict["private_dolya_wife"][0]
                                 if dolya_wife_chislitel == dolya_dict["before_marriage_dolya_wife"][1]:
@@ -375,8 +362,6 @@ def to_ownership(form_full: dict):
                                     ostatok=True,
                                     flag_ownership='ownership')
 
-                                print(dolya_dict)
-
                                 owners[wife] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
                                     'совместные сособственники': None,
@@ -396,8 +381,6 @@ def to_ownership(form_full: dict):
                                                                 before_marriage_dolya_znamenatel_wife),
                                     private_dolya_husband=(private_dolya_chislitel_husband, private_dolya_znamenatel_husband),
                                     flag_ownership='ownership')
-
-                                print(dolya_dict)
 
                                 owners[wife] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_wife"][0]}/{dolya_dict["before_marriage_dolya_wife"][1]}',
@@ -588,7 +571,6 @@ def to_ownership(form_full: dict):
                                                                 before_marriage_dolya_znamenatel_husband),
                                     ostatok=True,
                                     flag_ownership='ownership')
-                                print(dolya_dict)
 
                                 owners[husband] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
@@ -610,8 +592,6 @@ def to_ownership(form_full: dict):
                                                                 before_marriage_dolya_znamenatel_husband),
                                     common_dolya=(common_dolya_chislitel, common_dolya_znamenatel),
                                     flag_ownership='ownership')
-
-                                print(dolya_dict)
 
                                 owners[husband] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
@@ -644,8 +624,6 @@ def to_ownership(form_full: dict):
                                     ostatok=True,
                                     flag_ownership='ownership')
 
-                                print(dolya_dict)
-
                                 owners[husband] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
                                     'совместные сособственники': None,
@@ -667,8 +645,6 @@ def to_ownership(form_full: dict):
                                     private_dolya_wife=(
                                     private_dolya_chislitel_wife, private_dolya_znamenatel_wife),
                                     flag_ownership='ownership')
-
-                                print(dolya_dict)
 
                                 owners[husband] = {
                                     'доля': f'{dolya_dict["before_marriage_dolya_husband"][0]}/{dolya_dict["before_marriage_dolya_husband"][1]}',
@@ -1540,7 +1516,6 @@ def to_ownership(form_full: dict):
                                 'совместные сособственники': husband,
                                 'совместная доля': 1}
                 list_of_links.append(to_link('sozdanie_imushestva'))
-                list_of_links.append(to_link('common_property_sovmastnaya'))
 
         # обрабатываем вариант, где выбран "Подарок"
         if form_full['purchase_type'] == ['purchase_type_present']:
@@ -1689,7 +1664,7 @@ def to_ownership(form_full: dict):
                                 'совместная доля': None}
                             list_of_links.append(to_link('common_property_dolevaya'))
 
-    # создаем монструозную структуру для хранения данных о собственности
+    # создаем структуру для хранения данных о собственности
     type_of_relationships = {'Собственность': owners}
     i_ownership = {hash(period_of_time): type_of_relationships}
     ownership = {'ownership': i_ownership}
@@ -1757,7 +1732,6 @@ def clean_coowners(data: dict):
 
     # обрабатываем вариант, где выбрана "Покупка"
     if data['purchase_type'] == 'purchase_type_buy':
-        print('Покупка')
         #обрабатываем вариант, если включен чекбокс "Часть/все деньги за имущество вносились до брака"
         if 'before_marriage' in data:
             # обрабатываем вариант, когда выбрано, что деньги до брака вносились только женой в части
@@ -2177,7 +2151,6 @@ def clean_coowners(data: dict):
 
     # обрабатываем вариант, где выбран "Подарок"
     if data['purchase_type'] == 'purchase_type_present':
-        print('Подарок')
         # обрабатываем вариант, когда выбрано, что подарено было жене
         if 'present_receiver_wife' in data and 'present_receiver_husband' not in data:
             # если выбран вариант "в части"
@@ -2212,7 +2185,6 @@ def clean_coowners(data: dict):
 
     # обрабатываем вариант, где выбрано "Наследование"
     if data['purchase_type'] == 'purchase_type_inheritance':
-        print('Наследство')
         # обрабатываем вариант, когда выбрано, что имущество унаследовано женой
         if data['inheritance_receiver'] == 'inheritance_receiver_wife':
             # если выбран вариант "в части"
@@ -2305,7 +2277,6 @@ def dolya_math(before_marriage_dolya_wife=('', ''),
                 #znam = (list_of_znamenatels[i] * list_of_znamenatels[i-1] // gcd(list_of_znamenatels[i], list_of_znamenatels[i-1]))
                 znam = (list_of_znamenatels[i] * temp_znam // gcd(list_of_znamenatels[i], temp_znam))
                 temp_znam = znam
-            #print(znam)
 
         # преобразовываем всё, переданное в функцию, в дроби с общим знаменателем
         list_for_display = []
@@ -2341,8 +2312,6 @@ def to_link(text_link):
     :param text_link: ключ словаря TEXTS с нормами права в links_and_texts.py
     :return: готовая ссылка
     '''
-    #link_name, law_link, law_text, npa = TEXTS[text_link]
-    #link = Link(link_name, law_link, law_text, npa)
     link = Link(*TEXTS[text_link])
     return link
 
@@ -2367,7 +2336,6 @@ def ownership_to_display(property_object_queryset):
         byte_ownership = i.ownership_b
         ownership = pickle.loads(byte_ownership)
         owners_dict = ownership[hash(period_of_time)]['Собственность']
-        #print(owners_dict)
         sobstvennik_list = []
         property_properties['name'] = i.name
         property_properties['type_of_property_form'] = i.type_of_property_form
@@ -2611,10 +2579,8 @@ def change_distribution_property(distribution_property,
                             distribution_property_changed[k]['owners'][count]['доля'] = None
                         distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
                         distribution_property_changed[k]['owners'][count]['совместная доля'] = None
-                        #distribution_property_changed[k]['owners'].remove(distribution_property_changed[k]['owners'][count])
                     else:
                         if i['доля'] == None:
-                            #distribution_property_changed[k]['owners'].pop(count)
                             if dolya:
                                 chislitel_sovmestnaya = int(i['совместная доля'].split('/')[0])
                                 znamenatel_sovmestnaya = int(i['совместная доля'].split('/')[1])
@@ -2624,7 +2590,6 @@ def change_distribution_property(distribution_property,
                                 distribution_property_changed[k]['owners'][count]['доля'] = None
                             distribution_property_changed[k]['owners'][count]['совместные сособственники'] = None
                             distribution_property_changed[k]['owners'][count]['совместная доля'] = None
-                            #distribution_property_changed[k]['owners'].remove(distribution_property_changed[k]['owners'][count])
                         else:
                             current_chislitel = int(i['доля'].split('/')[0])
                             current_znam = int(i['доля'].split('/')[1])
