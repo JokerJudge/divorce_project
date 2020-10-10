@@ -69,6 +69,7 @@ def person_edit_check(person_1: Fiz_l):
                 continue
             else:
                 return False, list_of_links
+        list_of_links = []
         return True, list_of_links
     # если браков нет
     else:
