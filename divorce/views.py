@@ -152,14 +152,14 @@ class FizLFormView(LoginRequiredMixin, View):
             resolution, link_list = person_edit_check(person)
             if resolution is True:
                 links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
-                print(f'проверки пройдены - {links}')
+                #print(f'проверки пройдены - {links}')
                 user_dict = {'service_user_id': request.user.id}
                 form.cleaned_data.update(user_dict)
                 form.save()
                 temp = form.save(commit=False)
                 temp.service_user_id = form.cleaned_data['service_user_id']
                 temp.save()
-                return redirect('/divorce')
+                return redirect('/divorce/')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
@@ -178,7 +178,7 @@ def del_person(request, person_id):
     for i in list(person_to_delete.marriages.all()): #Fiz_l.marriages.all() - все браки Fiz_l
         i.delete()
     person_to_delete.delete()
-    return redirect('/divorce')
+    return redirect('/divorce/')
 
 class MarriageFormView(LoginRequiredMixin, View):
     def get(self, request, id=0):
@@ -211,14 +211,14 @@ class MarriageFormView(LoginRequiredMixin, View):
 
             if resolution is True:
                 links = [f'{i.link_name} - {i.law_link} {i.npa.short_title_for_link}' for i in link_list]
-                print(f'проверки пройдены - {links}')
+                #print(f'проверки пройдены - {links}')
                 user_dict = {'service_user_id': request.user.id}
                 form.cleaned_data.update(user_dict)
                 form.save()
                 temp = form.save(commit=False)
                 temp.service_user_id = form.cleaned_data['service_user_id']
                 temp.save()
-                return redirect('/divorce')
+                return redirect('/divorce/')
             else:
                 errors = {
                     'Вид ошибки': link_list[-1].errors[0],
@@ -265,7 +265,7 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
             temp = form.save(commit=False)
             temp.service_user_id = form.cleaned_data['service_user_id']
             temp.save()
-            return redirect('/divorce')
+            return redirect('/divorce/')
         else:
             return render(request, 'divorce/form_marriage_divorce.html', {'form': form, 'marriage': marriage})
 
@@ -273,7 +273,7 @@ class MarriageFormDivorceView(LoginRequiredMixin, View):
 def del_marriage(request, marriage_id):
     marriage_to_delete = Marriage.objects.get(id=marriage_id)
     marriage_to_delete.delete()
-    return redirect('/divorce')
+    return redirect('/divorce/')
 
 
 class PropertyFormView(LoginRequiredMixin, View):
@@ -347,7 +347,7 @@ class PropertyFormView(LoginRequiredMixin, View):
 def del_property(request, property_id):
     property_to_delete = Property.objects.get(id=property_id)
     property_to_delete.delete()
-    return redirect('/divorce')
+    return redirect('/divorce/')
 
 
 class PropertyForm2nmView(LoginRequiredMixin, View):
@@ -406,7 +406,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
-                return redirect('/divorce')
+                return redirect('/divorce/')
 
         else:
             property = Property.objects.get(pk=id)  # получаем по id нужный объект
@@ -451,7 +451,7 @@ class PropertyForm2nmView(LoginRequiredMixin, View):
                 # удаляем кэшированные данные
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
-                return redirect('/divorce')
+                return redirect('/divorce/')
 
 
 class PropertyForm2mView(LoginRequiredMixin, View):
@@ -514,7 +514,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 cache.delete('form_1')
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
-                return redirect('/divorce')
+                return redirect('/divorce/')
 
 
         else:
@@ -560,7 +560,7 @@ class PropertyForm2mView(LoginRequiredMixin, View):
                 cache.delete('form_1_processed_data')
                 cache.delete('parents')
                 cache.delete('id')
-                return redirect('/divorce')
+                return redirect('/divorce/')
 
 def merging_forms(form: dict):
     '''
@@ -611,7 +611,7 @@ class DistributionFormView(LoginRequiredMixin, View):
             temp = form.save(commit=False)
             temp.service_user_id = form.cleaned_data['service_user_id']
             temp.save()
-            return redirect('/divorce')
+            return redirect('/divorce/')
 
         # если есть проблемы с формой - ValueError из forms.py
         else:
@@ -622,7 +622,7 @@ class DistributionFormView(LoginRequiredMixin, View):
 def del_distribution(request, distribution_id):
     distribution_to_delete = Distribution.objects.get(id=distribution_id)
     distribution_to_delete.delete()
-    return redirect('/divorce')
+    return redirect('/divorce/')
 
 class SignUpView(View):
     def get(self, request):
@@ -644,7 +644,7 @@ class SignUpView(View):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('/divorce')
+            return redirect('/divorce/')
         else:
             return render(request, 'registration/signup.html', {'form': form})
 
