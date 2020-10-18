@@ -47,7 +47,7 @@ DATABASES = {
 }
 8) Выполнить в консоли последовательно команды:
 - python manage.py migrate
-- python mamange.py createsuperuser (ввести username, email и пароль);
+- python manage.py createsuperuser (ввести username, email и пароль);
 - python manage.py makemigrations divorce
 - python manage.py migrate
 - python manage.py runserver
