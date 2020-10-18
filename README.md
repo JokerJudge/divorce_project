@@ -25,34 +25,34 @@ divorce_project - веб-сервис по моделированию имуще
  
 # Как начать работу?
 1) установить python (https://www.python.org/downloads/)
-2) Создать новое виртуальное окружение в желаемой директории:
- -> pip install virtualenv
- -> virtualenv [название окружения]
- -> [название окружения]\Scripts\activate.bat (для последующей деактивации после окончания работы -> deactivate.bat)
+2) Создать новое виртуальное окружение в желаемой директории:<br/>
+ -> pip install virtualenv<br/>
+ -> virtualenv [название окружения]<br/>
+ -> [название окружения]\Scripts\activate.bat (для последующей деактивации после окончания работы -> deactivate.bat)<br/>
 3) Клонировать репозиторий в ту же директорию, что была указана в п.1;
-4) Установить пакеты, необходимые для работы (указаны в requirements.txt).
-Установить пакеты можно так: 
--> pip install -r requirements.txt 
+4) Установить пакеты, необходимые для работы (указаны в requirements.txt).<br/>
+Установить пакеты можно так: <br/>
+-> pip install -r requirements.txt <br/>
 5) установить PostgreSQL (www.postgresql.org). При установке запомнить заданное имя пользователя и пароль.
 6) создать базу данных (БД) и назвать её divorceDB (или по-другому);
-7) в файле settings.py папки divorce_propject изменить на сведения, указанные при создании БД
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'divorceDB',
-        'USER': '[имя пользователя СУБД, указанное при установке PostgreSQL]',
-        'PASSWORD': '[пароль, указанный при создании СУБД]',
-        'HOST': 'localhost'
-    }
-}
-8) Выполнить в консоли последовательно команды:
-- python manage.py migrate
-- python manage.py createsuperuser (ввести username, email и пароль);
-- python manage.py makemigrations divorce
-- python manage.py migrate
-- python manage.py runserver
+7) в файле settings.py папки divorce_propject изменить на сведения, указанные при создании БД<br/>
+DATABASES = {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;'default': {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ENGINE': 'django.db.backends.postgresql',<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'NAME': 'divorceDB',<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'USER': '[имя пользователя СУБД, указанное при установке PostgreSQL]',<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'PASSWORD': '[пароль, указанный при создании СУБД]',<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'HOST': 'localhost'<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;    }<br/>
+}<br/>
+8) Выполнить в консоли последовательно команды:<br/>
+-> python manage.py migrate<br/>
+-> python manage.py createsuperuser (ввести username, email и пароль);<br/>
+-> python manage.py makemigrations divorce<br/>
+-> python manage.py migrate<br/>
+-> python manage.py runserver
 9) Перейти в браузер по адресу http://127.0.0.1:8000/divorce/ и начать работать
 
 ===================================================<br/>
 Обратите внимание, что это не финальная версия проекта. Проект всё еще находится в стадии доработки.<br/>
-Все предложения и пожелания отправляйте на почту: kovalenko_evgeny@bk.ru
+Все предложения, пожелания и сведения о возможных ошибках отправляйте на почту: kovalenko_evgeny@bk.ru
