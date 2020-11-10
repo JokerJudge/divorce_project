@@ -5,11 +5,21 @@ WORKDIR /divorce_project
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
+RUN apt-get update \
+    && apt-get install netcat -y \
+    && apt-get install -y dos2unix
+#RUN apt update && apt add -y postgresql-dev gcc python3-dev musl-dev
+
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
+
+RUN dos2unix ./entrypoint.sh && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
+
+RUN chmod +x /divorce_project/entrypoint.sh
+ENTRYPOINT ["/divorce_project/entrypoint.sh"]
 
 
 
