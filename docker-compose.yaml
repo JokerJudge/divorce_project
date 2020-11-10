@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  divorce:
+    container_name: divorce_deploy
+    build: ./
+    command: bash -c "python /usr/src/divorce_project/manage.py migrate --noinput &&
+      python /usr/src/divorce_project/manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/usr/src/divorce_project/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - divorceDB
+
+  divorceDB:
+    image: postgres:12-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env.dev
+
+volumes:
+  postgres_data:
