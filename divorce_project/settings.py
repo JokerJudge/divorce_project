@@ -29,9 +29,8 @@ SECRET_KEY = str(os.environ.get('SECRET_KEY'))
 DEBUG = bool(int(os.environ.get("DEBUG", default=1)))
 
 #ALLOWED_HOSTS = []      для локального и локального докера
-#ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
-ALLOWED_HOSTS = ['127.0.0.1']
-
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+#ALLOWED_HOSTS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
