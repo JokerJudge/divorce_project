@@ -9,6 +9,9 @@ services:
     command: gunicorn divorce_project.wsgi:application --bind 0.0.0.0:8000
     expose:
       - 8000
+    volumes:
+      - static_volume:/home/app/divorce/staticfiles
+      - media_volume:/home/app/divorce/media
     env_file:
       - ./.env.prod
     depends_on:
@@ -25,8 +28,13 @@ services:
     build: ./nginx
     ports:
       - 1337:80
+    volumes:
+    - static_volume:/home/app/divorce/staticfiles
+    - media_volume:/home/app/divorce/media
     depends_on:
       - divorce
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
