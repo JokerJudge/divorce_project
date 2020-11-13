@@ -4,11 +4,12 @@ FROM python:3.8
 WORKDIR /divorce_project
 
 ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update \
     && apt-get install netcat -y \
     && apt-get install -y dos2unix
-#RUN apt update && apt add -y postgresql-dev gcc python3-dev musl-dev
+RUN apt-get upgrade -y && apt-get install postgresql gcc python3-dev musl-dev -y
 
 RUN pip install --upgrade pip
 COPY ./requirements.txt .

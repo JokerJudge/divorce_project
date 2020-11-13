@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   divorce:
-    container_name: divorce_deploy
+    container_name: divorce_development
     build: ./
     command: bash -c "python /usr/src/divorce_project/manage.py migrate --noinput &&
       python /usr/src/divorce_project/manage.py runserver 0.0.0.0:8000"
